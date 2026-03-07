@@ -8,29 +8,51 @@
     <noscript><link rel="stylesheet" href="../Portal%20website/assets/css/noscript.css" /></noscript>
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <script src="auth.js"></script>
+
+
+    <!-- Backend call script -->
     <script>
     async function callProtectedEndpoint() {
     // Initialize Auth0
     await TruRentAuth.init();
-    await TruRentAuth.handleCallback();
+
+    // Ensure user is logged in
+    const user = await TruRentAuth.getUser();
+    if (!user) {
+        window.location.href = "/Auth0/login.html";
+        return;
+    }
 
     // Get access token
-    const token = await TruRentAuth.client.getTokenSilently();
+    const token = await TruRentAuth.getToken();
 
     // Call FastAPI backend
-    const res = await fetch("http://localhost:8000/protected", {
+    const response = await fetch("http://localhost:8000/protected", {
         headers: {
-            Authorization: `Bearer ${token}`,
-        },
+            "Authorization": `Bearer ${token}`
+        }
     });
 
-    const data = await res.json();
+    const data = await response.json();
     console.log("Backend response:", data);
 }
 
-    // Call it automatically on page load (optional)
+    // Run automatically on page load
     document.addEventListener("DOMContentLoaded", callProtectedEndpoint);
     </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <style>
         /* ── Banner short — not full-screen, just a header strip ── */
@@ -283,7 +305,7 @@
             auth0Client = await auth0.createAuth0Client({
                 domain:           AUTH0_DOMAIN,
                 clientId:         AUTH0_CLIENT_ID,
-                authorizationParams: { redirect_uri: REDIRECT_URI },
+                authorizationParams: { redirect_uri: REDIRECT_URI, audience: 'https://trurent/api' },
                 cacheLocation:    'localstorage',
                 useRefreshTokens: true
             });

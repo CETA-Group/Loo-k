@@ -129,6 +129,17 @@ const TruRentAuth = (() => {
         return client.isAuthenticated();
     }
 
-    return { init, login, logout, handleCallback, getUser, isAuthenticated, IS_CONFIGURED };
+    /** Returns an access token for API calls. */
+    async function getToken() {
+        if (!client) return null;
+        try {
+            return await client.getTokenSilently();
+        } catch (err) {
+            console.error('[TruRentAuth] Error getting token:', err);
+            return null;
+        }
+    }
+
+    return { init, login, logout, handleCallback, getUser, isAuthenticated, getToken, IS_CONFIGURED };
 
 })();
