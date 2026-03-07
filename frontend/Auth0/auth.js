@@ -34,6 +34,7 @@ const TruRentAuth = (() => {
     // ── FILL THESE IN ──────────────────────────────────────────────────────────
     const AUTH0_DOMAIN    = 'dev-s6ofaf4udt2w1nw1.us.auth0.com';
     const AUTH0_CLIENT_ID = 'aMvSv7X3MtUa1zF0TgF31E5jg5cRnxbx';
+    const AUTH0_AUDIENCE  = 'https://trurent/api';
     // ──────────────────────────────────────────────────────────────────────────
 
     // Pages to route to after authentication
@@ -54,7 +55,10 @@ const TruRentAuth = (() => {
         client = await auth0.createAuth0Client({
             domain:           AUTH0_DOMAIN,
             clientId:         AUTH0_CLIENT_ID,
-            authorizationParams: { redirect_uri: REDIRECT_URI },
+            authorizationParams: { 
+                redirect_uri: REDIRECT_URI ,
+                audience: AUTH0_AUDIENCE
+            },
             cacheLocation:    'localstorage',  // persist session across page reloads
             useRefreshTokens: true
         });

@@ -8,6 +8,30 @@
     <noscript><link rel="stylesheet" href="../Portal%20website/assets/css/noscript.css" /></noscript>
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <script src="auth.js"></script>
+    <script>
+    async function callProtectedEndpoint() {
+    // Initialize Auth0
+    await TruRentAuth.init();
+    await TruRentAuth.handleCallback();
+
+    // Get access token
+    const token = await TruRentAuth.client.getTokenSilently();
+
+    // Call FastAPI backend
+    const res = await fetch("http://localhost:8000/protected", {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    const data = await res.json();
+    console.log("Backend response:", data);
+}
+
+    // Call it automatically on page load (optional)
+    document.addEventListener("DOMContentLoaded", callProtectedEndpoint);
+    </script>
+
     <style>
         /* ── Banner short — not full-screen, just a header strip ── */
         #banner {
