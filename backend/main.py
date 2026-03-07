@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from backend.auth0 import verify_jwt
+from auth0 import verify_jwt
 from fastapi import Depends
 
 app = FastAPI()

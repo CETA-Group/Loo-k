@@ -40,8 +40,8 @@ const TruRentAuth = (() => {
     // ──────────────────────────────────────────────────────────────────────────
 
     const PAGE_LANDING    = '/Portal%20website/index.html';
-    const PAGE_ONBOARDING = '/Auth0/onboarding.html';
-    const PAGE_DASHBOARD  = '/Auth0/dashboard.html';
+    const PAGE_ONBOARDING = '/Portal%20website/Auth0/onboarding.html';
+    const PAGE_DASHBOARD  = '/Portal%20website/Auth0/dashboard.html';
 
     const REDIRECT_URI  = window.location.href.split('?')[0].split('#')[0];
     const IS_CONFIGURED = AUTH0_DOMAIN !== 'YOUR_AUTH0_DOMAIN' && AUTH0_CLIENT_ID !== 'YOUR_CLIENT_ID';
@@ -164,9 +164,20 @@ const TruRentAuth = (() => {
         return _client.isAuthenticated();
     }
 
+    /** Returns an access token for backend API calls. */
+    async function getToken() {
+        if (!_client) return null;
+        try {
+            return await _client.getTokenSilently();
+        } catch (err) {
+            console.error('[TruRentAuth] Error getting token:', err);
+            return null;
+        }
+    }
+
     return {
         init, login, signup, logout, switchAccount,
-        handleCallback, getUser, isAuthenticated,
+        handleCallback, getUser, isAuthenticated, getToken,
         IS_CONFIGURED,
         /** Raw Auth0 SPA client — use for getTokenSilently(), etc. */
         get client() { return _client; },

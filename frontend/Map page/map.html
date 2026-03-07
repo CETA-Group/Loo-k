@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TruRent — Explore Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="../Portal%20website/assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="../Portal%20website/assets/css/noscript.css" /></noscript>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet" />
+    <style>
+        /* Reset for map page */
+        body { background: #0a0a0f; color: #fff; overflow: hidden; margin: 0; padding: 0; }
+        #page-wrapper { padding-top: 0; }
+
+        /* ---- MAP ---- */
+        #map { width: 100%; height: 100vh; background: #0a0a0f; }
+
+        /* ---- Header overrides for map page ---- */
+        #header { position: fixed; top: 0; left: 0; right: 0; z-index: 1001; }
+
+        /* ---- LEGEND ---- */
+        .legend {
+            position: fixed;
+            bottom: 24px; left: 24px;
+            background: rgba(15, 15, 25, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 16px 20px;
+            z-index: 1000;
+        }
+        .legend h3 {
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            opacity: 0.4;
+            margin-bottom: 12px;
+        }
+        .legend-item {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 6px; font-size: 0.82em;
+            opacity: 0.8;
+        }
+        .legend-color {
+            width: 18px; height: 12px;
+            border-radius: 3px;
+        }
+
+        /* ---- HOVER TOOLTIP ---- */
+        .hover-tooltip {
+            position: fixed;
+            pointer-events: none;
+            background: rgba(10, 10, 20, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 12px 16px;
+            z-index: 1002;
+            display: none;
+            min-width: 180px;
+        }
+        .hover-tooltip .name {
+            font-weight: 700;
+            font-size: 0.95em;
+            margin-bottom: 4px;
+        }
+        .hover-tooltip .quick-stats {
+            font-size: 0.78em;
+            opacity: 0.6;
+        }
+        .hover-tooltip .quick-stats span {
+            color: #5bffb0;
+            font-weight: 700;
+            opacity: 1;
+        }
+
+        /* ---- INFO PANEL (slide up) ---- */
+        .info-panel {
+            position: fixed;
+            bottom: -420px;
+            right: 24px;
+            width: 380px;
+            background: rgba(12, 12, 22, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px 16px 0 0;
+            padding: 28px 24px;
+            transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+        }
+        .info-panel.active { bottom: 0; }
+
+        .info-panel .close-btn {
+            position: absolute; top: 16px; right: 20px;
+            background: rgba(255,255,255,0.06);
+            border: none; color: #fff;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            font-size: 1em; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .info-panel .close-btn:hover { background: rgba(255,255,255,0.15); }
+
+        .info-panel h2 {
+            font-size: 1.25em;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .info-panel .subtitle {
+            font-size: 0.8em;
+            opacity: 0.4;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .stat-card .label {
+            font-size: 0.65em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.35;
+        }
+        .stat-card .value {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .score-bar {
+            width: 100%; height: 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .score-bar .fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .true-cost {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(91, 255, 176, 0.15);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            margin-top: 12px;
+        }
+        .true-cost .label {
+            font-size: 0.65em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            opacity: 0.35;
+        }
+        .true-cost .old-price {
+            text-decoration: line-through;
+            opacity: 0.3;
+            font-size: 1em;
+            margin-top: 6px;
+        }
+        .true-cost .new-price {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.6em;
+            color: #5bffb0;
+            margin-top: 2px;
+        }
+
+        /* ---- NO DATA STATE ---- */
+        .no-data-msg {
+            text-align: center;
+            padding: 40px 20px;
+            opacity: 0.4;
+        }
+        .no-data-msg .icon { font-size: 2em; margin-bottom: 8px; }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 600px) {
+            .info-panel { left: 8px; right: 8px; width: auto; }
+            .legend { bottom: 12px; left: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Page Wrapper -->
+<div id="page-wrapper">
+
+    <!-- Header -->
+    <header id="header">
+        <h1><a href="../Portal%20website/index.html">TruRent</a></h1>
+        <nav id="nav">
+            <ul>
+                <li class="special">
+                    <a href="#menu" class="menuToggle"><span>Menu</span></a>
+                    <div id="menu">
+                        <ul>
+                            <li><a href="../Portal%20website/index.html">Home</a></li>
+                            <li><a href="map.html">Map</a></li>
+                            <li><a href="../Auth0/auth0.html">Account</a></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+<!-- Legend -->
+<div class="legend">
+    <h3>Livability Score</h3>
+    <div class="legend-item"><div class="legend-color" style="background:#5bffb0;"></div> Excellent (75+)</div>
+    <div class="legend-item"><div class="legend-color" style="background:#ffe66d;"></div> Good (60–74)</div>
+    <div class="legend-item"><div class="legend-color" style="background:#ffa06d;"></div> Fair (45–59)</div>
+    <div class="legend-item"><div class="legend-color" style="background:#ff6b6b;"></div> Expensive (&lt;45)</div>
+    <div class="legend-item"><div class="legend-color" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);"></div> No data yet</div>
+</div>
+
+<!-- Hover Tooltip -->
+<div class="hover-tooltip" id="tooltip"></div>
+
+<!-- Map -->
+<div id="map"></div>
+
+<!-- Info Panel -->
+<div class="info-panel" id="infoPanel">
+    <button class="close-btn" onclick="closePanel()">×</button>
+    <div id="panel-content"></div>
+</div>
+
+</div><!-- /page-wrapper -->
+
+<!-- Shared Scripts -->
+<script src="../Portal%20website/assets/js/jquery.min.js"></script>
+<script src="../Portal%20website/assets/js/jquery.scrollex.min.js"></script>
+<script src="../Portal%20website/assets/js/jquery.scrolly.min.js"></script>
+<script src="../Portal%20website/assets/js/browser.min.js"></script>
+<script src="../Portal%20website/assets/js/breakpoints.min.js"></script>
+<script src="../Portal%20website/assets/js/util.js"></script>
+<script src="../Portal%20website/assets/js/main.js"></script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// =============================================
+// NEIGHBOURHOOD SCORES — Catherine fills this
+// Key = exact neighbourhood name from GeoJSON
+// =============================================
+const scores = {
+    "Northdale": {
+        rent: [1400, 1900], commute: 8, grocery: 1.2,
+        transit: 75, air: 80, heating: 200, score: 68
+    },
+    "Uptown West": {
+        rent: [1800, 2500], commute: 10, grocery: 0.3,
+        transit: 92, air: 76, heating: 165, score: 78
+    },
+    "Uptown North": {
+        rent: [1700, 2300], commute: 12, grocery: 0.5,
+        transit: 88, air: 77, heating: 170, score: 75
+    },
+    "MacGregor Albert": {
+        rent: [1500, 2100], commute: 6, grocery: 0.9,
+        transit: 80, air: 78, heating: 185, score: 72
+    },
+    "Columbia Forest": {
+        rent: [1600, 2200], commute: 5, grocery: 0.8,
+        transit: 85, air: 78, heating: 180, score: 74
+    },
+    "University Downs": {
+        rent: [1500, 2000], commute: 7, grocery: 1.0,
+        transit: 70, air: 80, heating: 190, score: 70
+    },
+    "Lakeshore North": {
+        rent: [1600, 2100], commute: 14, grocery: 0.6,
+        transit: 82, air: 79, heating: 175, score: 71
+    },
+    "Lakeshore South": {
+        rent: [1550, 2050], commute: 16, grocery: 0.7,
+        transit: 78, air: 79, heating: 178, score: 67
+    },
+    "Lincoln Heights": {
+        rent: [1400, 1850], commute: 15, grocery: 0.5,
+        transit: 72, air: 82, heating: 195, score: 64
+    },
+    "Lincoln Village West": {
+        rent: [1350, 1800], commute: 18, grocery: 0.6,
+        transit: 65, air: 83, heating: 200, score: 60
+    },
+    "Erb West": {
+        rent: [1650, 2200], commute: 13, grocery: 0.4,
+        transit: 75, air: 77, heating: 175, score: 69
+    },
+    "Mary Allen": {
+        rent: [1500, 2000], commute: 9, grocery: 1.1,
+        transit: 78, air: 79, heating: 185, score: 70
+    },
+    "Laurelwood": {
+        rent: [1700, 2300], commute: 22, grocery: 1.5,
+        transit: 35, air: 90, heating: 155, score: 50
+    },
+    "Beechwood North": {
+        rent: [1500, 2000], commute: 18, grocery: 1.8,
+        transit: 48, air: 87, heating: 185, score: 52
+    },
+    "Clair Hills": {
+        rent: [1750, 2400], commute: 25, grocery: 1.3,
+        transit: 30, air: 92, heating: 150, score: 45
+    }
+    // Catherine: add more neighbourhoods here following the same format
+};
+
+// =============================================
+// MAP SETUP
+// =============================================
+const map = L.map('map', {
+    zoomControl: false,
+    attributionControl: false
+}).setView([43.468, -80.540], 13.5);
+
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19
+}).addTo(map);
+
+// =============================================
+// COLORS
+// =============================================
+function getColor(score) {
+    if (score >= 75) return '#5bffb0';
+    if (score >= 60) return '#ffe66d';
+    if (score >= 45) return '#ffa06d';
+    return '#ff6b6b';
+}
+
+function getBarColor(val) {
+    if (val >= 80) return '#5bffb0';
+    if (val >= 60) return '#ffe66d';
+    if (val >= 40) return '#ffa06d';
+    return '#ff6b6b';
+}
+
+// =============================================
+// LOAD GEOJSON
+// =============================================
+let geojsonLayer;
+
+fetch('Neighbourhood_Associations.geojson')
+    .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
+    .then(data => {
+        geojsonLayer = L.geoJSON(data, {
+            style: function(feature) {
+                const name = feature.properties.NAME;
+                const d = scores[name];
+                if (d) {
+                    return {
+                        color: getColor(d.score),
+                        fillColor: getColor(d.score),
+                        fillOpacity: 0.25,
+                        weight: 1.5
+                    };
+                } else {
+                    return {
+                        color: 'rgba(255,255,255,0.15)',
+                        fillColor: 'rgba(255,255,255,0.03)',
+                        fillOpacity: 0.5,
+                        weight: 1
+                    };
+                }
+            },
+            onEachFeature: function(feature, layer) {
+                const name = feature.properties.NAME;
+                const d = scores[name];
+
+                // Hover
+                layer.on('mouseover', function(e) {
+                    if (d) {
+                        this.setStyle({ fillOpacity: 0.5, weight: 2.5 });
+                    } else {
+                        this.setStyle({ fillOpacity: 0.15, weight: 1.5 });
+                    }
+                    showTooltip(e, name, d);
+                });
+
+                layer.on('mousemove', function(e) {
+                    moveTooltip(e);
+                });
+
+                layer.on('mouseout', function(e) {
+                    geojsonLayer.resetStyle(this);
+                    hideTooltip();
+                });
+
+                // Click
+                layer.on('click', function() {
+                    openPanel(name, d);
+                });
+            }
+        }).addTo(map);
+    })
+    .catch(err => console.error('Failed to load GeoJSON:', err));
+
+// =============================================
+// TOOLTIP
+// =============================================
+const tooltip = document.getElementById('tooltip');
+
+function showTooltip(e, name, d) {
+    if (d) {
+        tooltip.innerHTML = `
+            <div class="name">${name}</div>
+            <div class="quick-stats">
+                Rent: <span>$${d.rent[0]}–${d.rent[1]}</span><br/>
+                Commute: <span>${d.commute} min</span>
+            </div>
+        `;
+    } else {
+        tooltip.innerHTML = `
+            <div class="name">${name}</div>
+            <div class="quick-stats">No data yet</div>
+        `;
+    }
+    tooltip.style.display = 'block';
+    moveTooltip(e);
+}
+
+function moveTooltip(e) {
+    tooltip.style.left = (e.originalEvent.clientX + 16) + 'px';
+    tooltip.style.top = (e.originalEvent.clientY - 16) + 'px';
+}
+
+function hideTooltip() {
+    tooltip.style.display = 'none';
+}
+
+// =============================================
+// INFO PANEL
+// =============================================
+function openPanel(name, d) {
+    const panel = document.getElementById('infoPanel');
+    const content = document.getElementById('panel-content');
+
+    if (!d) {
+        content.innerHTML = `
+            <h2>${name}</h2>
+            <div class="no-data-msg">
+                <div class="icon">📊</div>
+                <div>Data coming soon</div>
+            </div>
+        `;
+        panel.classList.add('active');
+        return;
+    }
+
+    const avgRent = Math.round((d.rent[0] + d.rent[1]) / 2);
+    const commuteCost = Math.round(d.commute * 3.5 * 20);
+    const groceryCost = 150;
+    const trueCost = avgRent + d.heating + groceryCost + commuteCost;
+
+    content.innerHTML = `
+        <h2>${name}</h2>
+        <div class="subtitle">Waterloo, ON</div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Avg Rent</div>
+                <div class="value">$${d.rent[0]}–${d.rent[1]}</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Commute to UW</div>
+                <div class="value">${d.commute} min</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Nearest Grocery</div>
+                <div class="value">${d.grocery} km</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Est. Heating</div>
+                <div class="value">$${d.heating}/mo</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Transit</div>
+                <div class="value">${d.transit}/100</div>
+                <div class="score-bar"><div class="fill" style="width:${d.transit}%;background:${getBarColor(d.transit)}"></div></div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Air Quality</div>
+                <div class="value">${d.air}/100</div>
+                <div class="score-bar"><div class="fill" style="width:${d.air}%;background:${getBarColor(d.air)}"></div></div>
+            </div>
+        </div>
+
+        <div class="true-cost">
+            <div class="label">True Monthly Cost</div>
+            <div class="old-price">$${avgRent}/mo rent</div>
+            <div class="new-price">$${trueCost}/mo</div>
+        </div>
+    `;
+
+    panel.classList.add('active');
+}
+
+function closePanel() {
+    document.getElementById('infoPanel').classList.remove('active');
+}
+
+// Close panel on map click (not on polygon)
+map.on('click', closePanel);
+</script>
+
+</body>
+</html>
