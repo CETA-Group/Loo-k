@@ -6,6 +6,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<!-- Auth0 SPA SDK + centralised auth module (all auth logic lives in auth.js) -->
+		<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+		<script src="../Auth0/auth.js"></script>
 	</head>
 	<body class="landing is-preload">
 
@@ -23,8 +26,8 @@
 										<ul>
 											<li><a href="index.html">Home</a></li>
 											<li><a href="#two">Features</a></li>
-											<li><a href="#">Sign Up</a></li>
-											<li><a href="#">Log In</a></li>
+										<li><a href="../Auth0/onboarding.html" id="btn-nav-signup">Sign Up</a></li>
+										<li><a href="../Auth0/onboarding.html" id="btn-nav-login">Log In</a></li>
 										</ul>
 									</div>
 								</li>
@@ -45,7 +48,7 @@
 							on what actually matters — commute, groceries, transit,<br />
 							air quality, utilities, and more.</p>
 							<ul class="actions special">
-								<li><a href="../Auth0/auth0.html" class="button primary">Explore</a></li>
+								<li><a href="../Auth0/onboarding.html" class="button primary" id="btn-explore">Explore</a></li>
 							</ul>
 						</div>
 						<a href="#one" class="more scrolly">Learn More</a>
@@ -119,7 +122,7 @@
 								<p>Stop guessing. Start comparing what actually matters.</p>
 							</header>
 							<ul class="actions stacked">
-								<li><a href="../Auth0/auth0.html" class="button fit primary">Explore</a></li>
+								<li><a href="../Auth0/onboarding.html" class="button fit primary" id="btn-explore-cta">Explore</a></li>
 								<li><a href="#two" class="button fit">View Listings</a></li>
 							</ul>
 						</div>
@@ -159,13 +162,45 @@
 			</div>
 
 		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/jquery.scrolly.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+		<script>
+		// All buttons have real href fallbacks (../Auth0/onboarding.html) so they
+		// always navigate even if auth.js fails to load.
+		// JS only intercepts the click when Auth0 credentials ARE configured,
+		// replacing the href navigation with Auth0 Universal Login.
+
+		async function boot() {
+			if (typeof TruRentAuth === 'undefined') return;
+
+			await TruRentAuth.init();
+
+			// Handle the redirect back from Auth0 Universal Login
+			// (?code=...&state=... in the URL means Auth0 just redirected here)
+			await TruRentAuth.handleCallback();
+
+			// Only intercept button clicks if Auth0 is fully configured
+			if (!TruRentAuth.IS_CONFIGURED) return;
+
+			function interceptForAuth0(e) {
+				e.preventDefault();
+				TruRentAuth.login(); // opens Auth0 Universal Login
+			}
+
+			document.getElementById('btn-explore')    .addEventListener('click', interceptForAuth0);
+			document.getElementById('btn-explore-cta').addEventListener('click', interceptForAuth0);
+			document.getElementById('btn-nav-signup') .addEventListener('click', interceptForAuth0);
+			document.getElementById('btn-nav-login')  .addEventListener('click', interceptForAuth0);
+		}
+
+		boot();
+		</script>
 
 	</body>
 </html>

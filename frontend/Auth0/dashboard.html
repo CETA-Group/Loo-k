@@ -1,0 +1,350 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>TruRent — Dashboard</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="../Portal%20website/assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="../Portal%20website/assets/css/noscript.css" /></noscript>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+    <script src="auth.js"></script>
+    <style>
+        /* ── Banner short — not full-screen, just a header strip ── */
+        #banner {
+            min-height: 320px;
+            height: 320px;
+            align-items: center;
+            justify-content: center;
+            padding-top: 0;
+        }
+        #banner .inner { text-align: center; }
+        #banner .inner h2 { font-size: 2em; margin-bottom: 0.3em; }
+        #banner .inner p  { color: rgba(255,255,255,0.55); font-size: 0.88em; margin: 0; }
+
+        /* ── User pill in header ── */
+        .user-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6em;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 999px;
+            padding: 0.4em 0.9em 0.4em 0.45em;
+        }
+        .user-pill img    { border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); }
+        .user-pill span   { color: rgba(255,255,255,0.65); font-size: 0.8em; }
+
+        /* ── Content card grid ── */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.6em;
+            margin-top: 2.5em;
+        }
+        .dash-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 2em 1.8em;
+            text-align: center;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .dash-card:hover {
+            border-color: rgba(255,255,255,0.28);
+            transform: translateY(-2px);
+        }
+        .dash-card .card-icon { font-size: 2.2em; display: block; margin-bottom: 0.5em; }
+        .dash-card h3 { color: #fff; font-size: 1em; margin-bottom: 0.4em; border: none; }
+        .dash-card p  { color: rgba(255,255,255,0.45); font-size: 0.82em; line-height: 1.6; margin-bottom: 1.4em; }
+        .dash-card .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 999px;
+            padding: 0.25em 0.8em;
+            font-size: 0.7em;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 1em;
+        }
+
+        /* ── Profile summary (loaded from localStorage) ── */
+        .profile-summary {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 1.8em 2em;
+            margin-top: 1.6em;
+            text-align: left;
+        }
+        .profile-summary h4 {
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 1.2em;
+            border: none;
+        }
+        .profile-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 0.8em 1.4em;
+        }
+        .profile-item { display: flex; flex-direction: column; gap: 0.2em; }
+        .profile-item .lbl { font-size: 0.72em; color: rgba(255,255,255,0.35); }
+        .profile-item .val { font-size: 0.88em; color: rgba(255,255,255,0.8); font-weight: 600; }
+
+        /* ── Wrapper section dark override ── */
+        #dash-content {
+            background: #161a1e;
+            padding: 4em 0 5em;
+        }
+        #dash-content h2 { color: #fff; }
+        #dash-content p  { color: rgba(255,255,255,0.5); }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="is-preload">
+
+<div id="page-wrapper">
+
+    <!-- Header -->
+    <header id="header">
+        <h1><a href="../Portal%20website/index.html">TruRent</a></h1>
+        <nav id="nav">
+            <ul>
+                <li id="nav-user-li" style="list-style:none;" class="hidden">
+                    <div class="user-pill">
+                        <img id="user-avatar" src="" width="26" alt="avatar" />
+                        <span id="user-name-nav"></span>
+                    </div>
+                </li>
+                <li class="special">
+                    <a href="#menu" class="menuToggle"><span>Menu</span></a>
+                    <div id="menu">
+                        <ul>
+                            <li><a href="../Portal%20website/index.html">Home</a></li>
+                            <li><a href="onboarding.html">My Profile</a></li>
+                            <li><a href="#" id="menu-logout">Sign Out</a></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Short banner -->
+    <section id="banner">
+        <div class="banner-slideshow">
+            <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner.jpg')"></div>
+            <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner2.jpg')"></div>
+            <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner3.jpg')"></div>
+        </div>
+        <div class="inner" style="position:relative; z-index:2;">
+            <h2 id="welcome-heading">Welcome back.</h2>
+            <p>Your TruRent dashboard is coming soon. Here's what's ready now.</p>
+        </div>
+    </section>
+
+    <!-- Dashboard content -->
+    <section id="dash-content">
+        <div class="inner" style="max-width: 900px; margin: 0 auto; padding: 0 2em;">
+
+            <!-- Feature cards -->
+            <div class="dash-grid">
+
+                <div class="dash-card">
+                    <span class="badge">Live Now</span>
+                    <span class="card-icon">📊</span>
+                    <h3>Hexagon Scorecard</h3>
+                    <p>Visualise any neighbourhood across 6 cost dimensions — commute, groceries, transit, entertainment, utilities, and more.</p>
+                    <a href="../../backend/graph.html" class="button primary small">Open Radar Chart →</a>
+                </div>
+
+                <div class="dash-card">
+                    <span class="badge">Coming Soon</span>
+                    <span class="card-icon">🗺️</span>
+                    <h3>Interactive Heatmap</h3>
+                    <p>Explore Waterloo-Kitchener colour-coded by true living cost. Click any zone for a full breakdown.</p>
+                    <a href="#" class="button small" style="opacity:0.4; pointer-events:none;">Coming Soon</a>
+                </div>
+
+                <div class="dash-card">
+                    <span class="badge">Coming Soon</span>
+                    <span class="card-icon">🔍</span>
+                    <h3>Address Search</h3>
+                    <p>Enter any address and get your true monthly cost — rent, commute, groceries, utilities — in one number.</p>
+                    <a href="#" class="button small" style="opacity:0.4; pointer-events:none;">Coming Soon</a>
+                </div>
+
+            </div>
+
+            <!-- Profile summary — loaded from localStorage -->
+            <div class="profile-summary" id="profile-summary" style="display:none;">
+                <h4>📋 Your Saved Profile</h4>
+                <div class="profile-row" id="profile-fields"></div>
+                <div style="margin-top:1.4em; display:flex; gap:0.8em; flex-wrap:wrap;">
+                    <a href="onboarding.html" class="button small">Edit Profile</a>
+                    <a href="#" class="button small" id="clear-profile-btn">Clear Profile</a>
+                </div>
+            </div>
+
+            <!-- Sign out -->
+            <div style="margin-top: 2.5em; text-align: center;">
+                <a href="#" class="button" id="signout-btn">Sign Out</a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <ul class="copyright">
+            <li>&copy; 2026 TruRent</li>
+            <li>Hack Canada 2026</li>
+        </ul>
+    </footer>
+
+</div>
+
+<!-- Scripts -->
+<script src="../Portal%20website/assets/js/jquery.min.js"></script>
+<script src="../Portal%20website/assets/js/jquery.scrollex.min.js"></script>
+<script src="../Portal%20website/assets/js/jquery.scrolly.min.js"></script>
+<script src="../Portal%20website/assets/js/browser.min.js"></script>
+<script src="../Portal%20website/assets/js/breakpoints.min.js"></script>
+<script src="../Portal%20website/assets/js/util.js"></script>
+<script src="../Portal%20website/assets/js/main.js"></script>
+
+<script>
+    const AUTH0_DOMAIN    = 'dev-s6ofaf4udt2w1nw1.us.auth0.com';
+    const AUTH0_CLIENT_ID = 'aMvSv7X3MtUa1zF0TgF31E5jg5cRnxbx';
+    const REDIRECT_URI    = window.location.href.split('?')[0].split('#')[0];
+    const PAGE_LOGIN      = '../Portal%20website/index.html';
+
+    // Friendly labels for profile fields
+    const FIELD_LABELS = {
+        salary:         'Annual Salary',
+        workAddress:    'Workplace / School',
+        workSchedule:   'Work Schedule',
+        transport:      'Primary Transport',
+        carOwnership:   'Car Ownership',
+        fuelType:       'Fuel Type',
+        monthlyParking: 'Monthly Parking',
+        housingType:    'Housing Type',
+        householdSize:  'Household Size',
+        shopping:       'Grocery Shopping',
+        eating:         'Eating Out',
+        recreation:     'Recreation',
+        hobbies:        'Hobbies',
+    };
+
+    let auth0Client = null;
+    let currentUser = null;
+
+    async function init() {
+        const configured = AUTH0_DOMAIN !== 'YOUR_AUTH0_DOMAIN' && AUTH0_CLIENT_ID !== 'YOUR_CLIENT_ID';
+
+        if (!configured) {
+            // Demo mode — load profile from localStorage using demo key
+            currentUser = { email: 'demo@trurent.app', name: 'Demo User', picture: '' };
+            populatePage(currentUser);
+            return;
+        }
+
+        try {
+            auth0Client = await auth0.createAuth0Client({
+                domain:           AUTH0_DOMAIN,
+                clientId:         AUTH0_CLIENT_ID,
+                authorizationParams: { redirect_uri: REDIRECT_URI },
+                cacheLocation:    'localstorage',
+                useRefreshTokens: true
+            });
+
+            if (!await auth0Client.isAuthenticated()) {
+                window.location.href = PAGE_LOGIN;
+                return;
+            }
+
+            currentUser = await auth0Client.getUser();
+            populatePage(currentUser);
+
+        } catch (err) {
+            console.error('[TruRent]', err);
+            currentUser = { email: 'demo@trurent.app', name: 'Demo User', picture: '' };
+            populatePage(currentUser);
+        }
+    }
+
+    function populatePage(user) {
+        // Nav user pill
+        if (user.picture) document.getElementById('user-avatar').src = user.picture;
+        document.getElementById('user-name-nav').textContent = user.name || user.email || '';
+        document.getElementById('nav-user-li').classList.remove('hidden');
+
+        // Welcome heading
+        const first = (user.name || '').split(' ')[0];
+        if (first) document.getElementById('welcome-heading').textContent = 'Welcome back, ' + first + '.';
+
+        // Load profile from localStorage
+        const profileKey = 'trurent_profile_' + (user.email || user.sub || 'demo@trurent.app');
+        const saved = localStorage.getItem(profileKey);
+        if (saved) {
+            try {
+                renderProfile(JSON.parse(saved));
+            } catch (e) {}
+        }
+    }
+
+    function renderProfile(profile) {
+        const container = document.getElementById('profile-fields');
+        const summary   = document.getElementById('profile-summary');
+        const skip      = new Set(['onboardedAt']);
+        let html = '';
+
+        Object.entries(profile).forEach(([key, val]) => {
+            if (skip.has(key) || val === null || val === undefined || val === '') return;
+            const label = FIELD_LABELS[key] || key;
+            const display = Array.isArray(val) ? (val.join(', ') || '—') : val;
+            if (key === 'salary') {
+                html += `<div class="profile-item"><span class="lbl">${label}</span><span class="val">$${Number(display).toLocaleString()}/yr</span></div>`;
+            } else {
+                html += `<div class="profile-item"><span class="lbl">${label}</span><span class="val">${display}</span></div>`;
+            }
+        });
+
+        if (html) {
+            container.innerHTML = html;
+            summary.style.display = 'block';
+        }
+    }
+
+    // ── Sign out ──────────────────────────────────────────────────────────────
+    async function signOut() {
+        if (auth0Client) {
+            await auth0Client.logout({ logoutParams: { returnTo: REDIRECT_URI.replace('dashboard.html', PAGE_LOGIN) } });
+        } else {
+            window.location.href = PAGE_LOGIN;
+        }
+    }
+
+    document.getElementById('signout-btn').addEventListener('click',   e => { e.preventDefault(); signOut(); });
+    document.getElementById('menu-logout').addEventListener('click',   e => { e.preventDefault(); signOut(); });
+
+    // ── Clear profile ─────────────────────────────────────────────────────────
+    document.getElementById('clear-profile-btn').addEventListener('click', e => {
+        e.preventDefault();
+        if (!currentUser) return;
+        const key = 'trurent_profile_' + (currentUser.email || currentUser.sub || 'demo@trurent.app');
+        localStorage.removeItem(key);
+        document.getElementById('profile-summary').style.display = 'none';
+    });
+
+    init();
+</script>
+
+</body>
+</html>

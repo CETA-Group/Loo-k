@@ -1,0 +1,387 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>TruRent — Sign Up / Log In</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="../Portal%20website/assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="../Portal%20website/assets/css/noscript.css" /></noscript>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+    <style>
+        /* ── Dedicated auth page — no scrolling sections below ── */
+        body, html { height: 100%; }
+
+        #banner {
+            min-height: 100vh;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        /* ── Auth panel ── */
+        .auth-panel {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 480px;
+            padding: 2.8em 2.6em;
+            background: rgba(0,0,0,0.52);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 16px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            text-align: center;
+            margin: 0 1.5em;
+        }
+
+        .auth-panel .brand {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: 1.6em;
+        }
+
+        .auth-panel h2 {
+            font-size: 1.9em;
+            margin-bottom: 0.3em;
+            line-height: 1.15;
+        }
+
+        .auth-panel .tagline {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.88em;
+            line-height: 1.6;
+            margin-bottom: 2.2em;
+        }
+
+        /* ── Auth buttons ── */
+        .auth-btn-row {
+            display: flex;
+            gap: 1em;
+            margin-bottom: 1.8em;
+        }
+        .auth-btn-row .button { flex: 1; text-align: center; }
+
+        /* ── Divider ── */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.8em;
+            margin-bottom: 1.8em;
+            color: rgba(255,255,255,0.25);
+            font-size: 0.75em;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            border-top: 1px solid rgba(255,255,255,0.14);
+        }
+
+        /* ── Trust line ── */
+        .trust-line {
+            font-size: 0.7em;
+            color: rgba(255,255,255,0.22);
+            letter-spacing: 0.04em;
+            margin-top: 0.5em;
+        }
+        .trust-line strong { color: rgba(255,255,255,0.38); }
+
+        /* ── Logged-in state ── */
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.9em;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 999px;
+            padding: 0.55em 1em 0.55em 0.55em;
+            margin-bottom: 1.4em;
+            text-align: left;
+        }
+        .user-pill img { border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); }
+        .user-pill strong { color: #fff; display: block; font-size: 0.9em; }
+        .user-pill span   { color: rgba(255,255,255,0.45); font-size: 0.78em; }
+        #redirect-note { color: rgba(255,255,255,0.5); font-size: 0.85em; margin-bottom: 1.4em; }
+
+        /* ── Spinner ── */
+        .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-top-color: rgba(255,255,255,0.8);
+            border-radius: 50%;
+            animation: spin 0.65s linear infinite;
+            vertical-align: middle; margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="is-preload">
+
+<div id="page-wrapper">
+
+    <!-- Header -->
+    <header id="header">
+        <h1><a href="../Portal%20website/index.html">TruRent</a></h1>
+        <nav id="nav">
+            <ul>
+                <li class="special">
+                    <a href="#menu" class="menuToggle"><span>Menu</span></a>
+                    <div id="menu">
+                        <ul>
+                            <li><a href="../Portal%20website/index.html">Home</a></li>
+                            <li><a href="../Portal%20website/index.html#two">Features</a></li>
+                            <li><a href="login.html">Sign Up / Log In</a></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Full-screen banner — auth panel only, no sections below -->
+    <section id="banner">
+        <div class="banner-slideshow">
+            <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner.jpg')"></div>
+            <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner2.jpg')"></div>
+            <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner3.jpg')"></div>
+        </div>
+
+        <!-- ── NOT logged in ── -->
+        <div class="auth-panel" id="state-loggedout">
+            <p class="brand">TruRent</p>
+            <h2>Your home,<br/>scored.</h2>
+            <p class="tagline">
+                Create an account to unlock personalised livability scores,<br/>
+                or sign in to pick up where you left off.
+            </p>
+
+            <div class="auth-btn-row">
+                <a href="#" class="button primary" id="btn-signup">Sign Up</a>
+                <a href="#" class="button"         id="btn-login">Log In</a>
+            </div>
+
+            <div class="auth-divider">or continue with</div>
+
+            <!-- Social login buttons (Auth0 will handle these natively when configured) -->
+            <div class="auth-btn-row">
+                <a href="#" class="button small" id="btn-google">Google</a>
+                <a href="#" class="button small" id="btn-github">GitHub</a>
+            </div>
+
+            <p class="trust-line">
+                Secured by <strong>Auth0</strong> &nbsp;·&nbsp; MFA supported
+            </p>
+        </div>
+
+        <!-- ── Already logged in — redirect in progress ── -->
+        <div class="auth-panel hidden" id="state-loggedin">
+            <div class="user-pill">
+                <img id="user-avatar" src="" width="38" alt="avatar" />
+                <div>
+                    <strong id="user-name"></strong>
+                    <span id="user-email"></span>
+                </div>
+            </div>
+            <p id="redirect-note"><span class="spinner"></span>Redirecting…</p>
+            <ul class="actions" style="justify-content:center; margin:0;">
+                <li><a href="#" class="button small" id="btn-logout">Sign Out</a></li>
+            </ul>
+        </div>
+
+    </section>
+
+    <!-- No footer, no sections — this is a dedicated auth page -->
+
+</div>
+
+<!-- Scripts -->
+<script src="../Portal%20website/assets/js/jquery.min.js"></script>
+<script src="../Portal%20website/assets/js/jquery.scrollex.min.js"></script>
+<script src="../Portal%20website/assets/js/jquery.scrolly.min.js"></script>
+<script src="../Portal%20website/assets/js/browser.min.js"></script>
+<script src="../Portal%20website/assets/js/breakpoints.min.js"></script>
+<script src="../Portal%20website/assets/js/util.js"></script>
+<script src="../Portal%20website/assets/js/main.js"></script>
+
+<script>
+    // ====================================================================
+    // AUTH0 CONFIG
+    // 1. Create a Single Page Application at https://manage.auth0.com
+    // 2. Fill in AUTH0_DOMAIN and AUTH0_CLIENT_ID below
+    // 3. Add this page's full URL to:
+    //      Allowed Callback URLs
+    //      Allowed Logout URLs
+    //      Allowed Web Origins
+    //
+    // Social login (Google, GitHub): Auth0 Dashboard → Authentication → Social
+    // MFA:           Auth0 Dashboard → Security → Multi-factor Auth
+    // ====================================================================
+    const AUTH0_DOMAIN    = 'dev-s6ofaf4udt2w1nw1.us.auth0.com';
+    const AUTH0_CLIENT_ID = 'aMvSv7X3MtUa1zF0TgF31E5jg5cRnxbx';
+
+    // Routing targets (relative to this file)
+    const PAGE_ONBOARDING = 'onboarding.html';   // Sign Up → collect preferences
+    const PAGE_DASHBOARD  = 'dashboard.html';    // Log In  → main app
+
+    const REDIRECT_URI = window.location.href.split('?')[0].split('#')[0];
+
+    const IS_CONFIGURED = AUTH0_DOMAIN !== 'YOUR_AUTH0_DOMAIN' && AUTH0_CLIENT_ID !== 'YOUR_CLIENT_ID';
+    let auth0Client = null;
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    async function init() {
+        // Always show the auth buttons immediately — no blocking on load
+        showPanel('loggedout');
+
+        if (!IS_CONFIGURED) return; // demo mode — buttons navigate directly
+
+        try {
+            auth0Client = await auth0.createAuth0Client({
+                domain:           AUTH0_DOMAIN,
+                clientId:         AUTH0_CLIENT_ID,
+                authorizationParams: { redirect_uri: REDIRECT_URI },
+                cacheLocation:    'localstorage',
+                useRefreshTokens: true
+            });
+
+            // ── Handle the redirect back from Auth0 Universal Login ──
+            // appState.intent preserves whether the user clicked Sign Up or Log In
+            if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+                const result = await auth0Client.handleRedirectCallback();
+                window.history.replaceState({}, document.title, REDIRECT_URI);
+
+                const intent = result?.appState?.intent || 'login';
+                await routeByIntent(intent);
+                return;
+            }
+
+            // ── User may already be authenticated (returned to page) ──
+            if (await auth0Client.isAuthenticated()) {
+                const user = await auth0Client.getUser();
+                populateLoggedIn(user);
+                showPanel('loggedin');
+
+                const profileKey = 'trurent_profile_' + (user.email || user.sub);
+                const hasProfile = localStorage.getItem(profileKey) !== null;
+                document.getElementById('redirect-note').innerHTML =
+                    '<span class="spinner"></span>' + (hasProfile ? 'Taking you to your dashboard…' : 'Setting up your profile…');
+                setTimeout(() => window.location.href = hasProfile ? PAGE_DASHBOARD : PAGE_ONBOARDING, 800);
+            }
+
+        } catch (err) {
+            console.error('[TruRent] Auth0 init error:', err);
+            // Silent fallback — demo mode
+        }
+    }
+
+    async function routeByIntent(intent) {
+        if (!auth0Client) return;
+        const user = await auth0Client.getUser();
+        populateLoggedIn(user);
+        showPanel('loggedin');
+
+        if (intent === 'signup') {
+            // New user — always send to preferences onboarding
+            document.getElementById('redirect-note').innerHTML =
+                '<span class="spinner"></span>Setting up your profile…';
+            setTimeout(() => window.location.href = PAGE_ONBOARDING, 700);
+        } else {
+            // Returning user — send to dashboard
+            document.getElementById('redirect-note').innerHTML =
+                '<span class="spinner"></span>Taking you to your dashboard…';
+            setTimeout(() => window.location.href = PAGE_DASHBOARD, 700);
+        }
+    }
+
+    function populateLoggedIn(user) {
+        document.getElementById('user-avatar').src      = user.picture || '';
+        document.getElementById('user-name').textContent  = user.name   || '';
+        document.getElementById('user-email').textContent = user.email  || '';
+    }
+
+    // ── Sign Up ───────────────────────────────────────────────────────────────
+    // screen_hint:'signup' opens the Auth0 registration form
+    // appState.intent:'signup' is passed back through the redirect so we know
+    // which page to route to after Auth0 returns
+    document.getElementById('btn-signup').addEventListener('click', async e => {
+        e.preventDefault();
+        if (auth0Client) {
+            await auth0Client.loginWithRedirect({
+                authorizationParams: { redirect_uri: REDIRECT_URI, screen_hint: 'signup' },
+                appState: { intent: 'signup' }
+            });
+        } else {
+            window.location.href = PAGE_ONBOARDING; // demo mode
+        }
+    });
+
+    // ── Log In ────────────────────────────────────────────────────────────────
+    document.getElementById('btn-login').addEventListener('click', async e => {
+        e.preventDefault();
+        if (auth0Client) {
+            await auth0Client.loginWithRedirect({
+                authorizationParams: { redirect_uri: REDIRECT_URI, screen_hint: 'login' },
+                appState: { intent: 'login' }
+            });
+        } else {
+            // Demo mode — if a saved profile exists go to dashboard, else onboarding
+            const hasProfile = Object.keys(localStorage).some(k => k.startsWith('trurent_profile_'));
+            window.location.href = hasProfile ? PAGE_DASHBOARD : PAGE_ONBOARDING;
+        }
+    });
+
+    // ── Social login — Google ─────────────────────────────────────────────────
+    // Auth0 routes this through the Google social connection automatically
+    document.getElementById('btn-google').addEventListener('click', async e => {
+        e.preventDefault();
+        if (auth0Client) {
+            await auth0Client.loginWithRedirect({
+                authorizationParams: { redirect_uri: REDIRECT_URI, connection: 'google-oauth2' },
+                appState: { intent: 'login' }
+            });
+        } else {
+            window.location.href = PAGE_ONBOARDING;
+        }
+    });
+
+    // ── Social login — GitHub ─────────────────────────────────────────────────
+    document.getElementById('btn-github').addEventListener('click', async e => {
+        e.preventDefault();
+        if (auth0Client) {
+            await auth0Client.loginWithRedirect({
+                authorizationParams: { redirect_uri: REDIRECT_URI, connection: 'github' },
+                appState: { intent: 'login' }
+            });
+        } else {
+            window.location.href = PAGE_ONBOARDING;
+        }
+    });
+
+    // ── Logout ────────────────────────────────────────────────────────────────
+    document.getElementById('btn-logout').addEventListener('click', async e => {
+        e.preventDefault();
+        if (auth0Client) {
+            await auth0Client.logout({ logoutParams: { returnTo: REDIRECT_URI } });
+        }
+    });
+
+    // ── Panel switcher ────────────────────────────────────────────────────────
+    function showPanel(which) {
+        document.getElementById('state-loggedout').classList.toggle('hidden', which !== 'loggedout');
+        document.getElementById('state-loggedin').classList.toggle('hidden',  which !== 'loggedin');
+    }
+
+    init();
+</script>
+
+</body>
+</html>
