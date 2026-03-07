@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TruRent — Complete Your Profile</title>
+    <title>Loo-k — Complete Your Profile</title>
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <script src="auth.js"></script>
     <script src="profile.js"></script>
@@ -220,7 +220,7 @@
 <body>
 
 <nav class="top-nav">
-    <a href="/Portal%20website/index.html" class="nav-brand">TruRent</a>
+    <a href="/Portal%20website/index.html" class="nav-brand">Loo-k</a>
     <div class="nav-user" id="nav-user">
         <img id="user-avatar" src="" alt="" />
         <span id="user-email-nav"></span>
@@ -459,7 +459,7 @@
                 <span class="success-check">✓</span>
             </div>
             <h2 id="success-heading">Preferences saved!</h2>
-            <p id="success-sub">Your profile has been saved. TruRent will now personalise livability scores for every neighbourhood you explore.</p>
+            <p id="success-sub">Your profile has been saved. Loo-k will now personalise livability scores for every neighbourhood you explore.</p>
             <button class="btn-dashboard" onclick="window.location.href='/Portal%20website/Auth0/dashboard.html'">
                 Go to Dashboard →
             </button>
@@ -487,7 +487,7 @@
         const configured = AUTH0_DOMAIN !== 'YOUR_AUTH0_DOMAIN' && AUTH0_CLIENT_ID !== 'YOUR_CLIENT_ID';
 
         if (!configured) {
-            currentUser = { sub: 'demo', email: 'demo@trurent.app' };
+            currentUser = { sub: 'demo', email: 'demo@look.app' };
             startForm();
             return;
         }
@@ -496,7 +496,7 @@
             const auth0Client = await auth0.createAuth0Client({
                 domain:              AUTH0_DOMAIN,
                 clientId:            AUTH0_CLIENT_ID,
-                authorizationParams: { redirect_uri: REDIRECT_URI, audience: 'https://trurent/api' },
+                authorizationParams: { redirect_uri: REDIRECT_URI, audience: 'https://look/api' },
                 cacheLocation:       'localstorage',
                 useRefreshTokens:    true,
             });
@@ -512,7 +512,7 @@
             document.getElementById('nav-user').style.display = 'flex';
 
             // If not edit mode and profile already exists, skip to dashboard
-            if (!IS_EDIT_MODE && TruRentProfile.exists(currentUser)) {
+            if (!IS_EDIT_MODE && LookProfile.exists(currentUser)) {
                 window.location.href = PAGE_DASHBOARD;
                 return;
             }
@@ -520,8 +520,8 @@
             startForm();
 
         } catch (err) {
-            console.error('[TruRent]', err);
-            currentUser = { sub: 'demo', email: 'demo@trurent.app' };
+            console.error('[Loo-k]', err);
+            currentUser = { sub: 'demo', email: 'demo@look.app' };
             startForm();
         }
     }
@@ -537,7 +537,7 @@
 
     // ── Preload saved profile into form (edit mode) ───────────────────────────
     function preloadProfile() {
-        const profile = TruRentProfile.get(currentUser);
+        const profile = LookProfile.get(currentUser);
         if (!profile) return;
 
         const set = (id, val) => {
@@ -715,8 +715,8 @@
         };
 
         // Save using the shared profile helper (keyed by user.sub)
-        TruRentProfile.save(currentUser, profile);
-        console.log('[TruRent] Profile saved:', profile);
+        LookProfile.save(currentUser, profile);
+        console.log('[Loo-k] Profile saved:', profile);
 
         if (IS_EDIT_MODE) {
             // Skip success screen on edit — go straight back to dashboard

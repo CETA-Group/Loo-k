@@ -12,7 +12,7 @@ All auth logic lives in `frontend/Auth0/auth.js`. Never recreate it elsewhere.
 
 **Do NOT build a custom login form. Do NOT skip Auth0.**
 
-The Explore button must call `TruRentAuth.login()` which calls `loginWithRedirect()`
+The Explore button must call `LookAuth.login()` which calls `loginWithRedirect()`
 and opens the Auth0 hosted login page.
 
 ## How to use auth.js on any page
@@ -25,8 +25,8 @@ and opens the Auth0 hosted login page.
 
 <script>
   // 3. Init on every page that needs auth
-  await TruRentAuth.init();
-  await TruRentAuth.handleCallback(); // handles ?code=...&state=... on return from Auth0
+  await LookAuth.init();
+  await LookAuth.handleCallback(); // handles ?code=...&state=... on return from Auth0
 </script>
 ```
 
@@ -34,7 +34,7 @@ and opens the Auth0 hosted login page.
 
 ```js
 // ✅ CORRECT — opens Auth0 Universal Login
-TruRentAuth.login(); // calls loginWithRedirect() internally
+LookAuth.login(); // calls loginWithRedirect() internally
 
 // ❌ WRONG — never do this
 window.location.href = 'login.html';

@@ -1,19 +1,19 @@
 /**
- * auth.js — TruRent centralised Auth0 module
+ * auth.js — Loo-k centralised Auth0 module
  *
  * Include this file via <script> on any page that needs authentication.
  * All Auth0 logic lives here. No other file should initialise Auth0 or
  * build a custom login form.
  *
  * Usage:
- *   await TruRentAuth.init()
- *   TruRentAuth.login()             // opens Auth0 Universal Login (sign in tab)
- *   TruRentAuth.signup()            // opens Auth0 Universal Login (sign up tab)
- *   TruRentAuth.logout()            // log out → landing page
- *   TruRentAuth.switchAccount()     // log out with federated clear → landing page
- *   await TruRentAuth.getUser()     // returns Auth0 user object or null
- *   await TruRentAuth.handleCallback()  // call on page load to process redirect
- *   TruRentAuth.client              // raw Auth0 SPA client (for getTokenSilently etc.)
+ *   await LookAuth.init()
+ *   LookAuth.login()             // opens Auth0 Universal Login (sign in tab)
+ *   LookAuth.signup()            // opens Auth0 Universal Login (sign up tab)
+ *   LookAuth.logout()            // log out → landing page
+ *   LookAuth.switchAccount()     // log out with federated clear → landing page
+ *   await LookAuth.getUser()     // returns Auth0 user object or null
+ *   await LookAuth.handleCallback()  // call on page load to process redirect
+ *   LookAuth.client              // raw Auth0 SPA client (for getTokenSilently etc.)
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * AUTH0 DASHBOARD SETUP (required before Auth0 will open)
@@ -31,12 +31,12 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-const TruRentAuth = (() => {
+const LookAuth = (() => {
 
     // ── FILL THESE IN ──────────────────────────────────────────────────────────
     const AUTH0_DOMAIN    = 'dev-s6ofaf4udt2w1nw1.us.auth0.com';
     const AUTH0_CLIENT_ID = 'aMvSv7X3MtUa1zF0TgF31E5jg5cRnxbx';
-    const AUTH0_AUDIENCE  = 'https://trurent/api';
+    const AUTH0_AUDIENCE  = 'https://look/api';
     // ──────────────────────────────────────────────────────────────────────────
 
     const PAGE_LANDING    = '/Portal%20website/index.html';
@@ -51,7 +51,7 @@ const TruRentAuth = (() => {
     /** Initialise the Auth0 SPA client. Call once per page load. */
     async function init() {
         if (!IS_CONFIGURED) {
-            console.info('[TruRentAuth] Not configured — demo mode.');
+            console.info('[LookAuth] Not configured — demo mode.');
             return null;
         }
         _client = await auth0.createAuth0Client({
@@ -145,7 +145,7 @@ const TruRentAuth = (() => {
         if (!user) return false;
 
         // Use sub (stable permanent Auth0 ID) as the profile key
-        const profileKey = 'trurent_profile_' + (user.sub || user.email);
+        const profileKey = 'look_profile_' + (user.sub || user.email);
         const hasProfile = localStorage.getItem(profileKey) !== null;
 
         window.location.href = hasProfile ? PAGE_DASHBOARD : PAGE_ONBOARDING;
@@ -170,7 +170,7 @@ const TruRentAuth = (() => {
         try {
             return await _client.getTokenSilently();
         } catch (err) {
-            console.error('[TruRentAuth] Error getting token:', err);
+            console.error('[LookAuth] Error getting token:', err);
             return null;
         }
     }

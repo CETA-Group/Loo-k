@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-    <title>TruRent — Dashboard</title>
+    <title>Loo-k — Dashboard</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="../assets/css/main.css" />
@@ -283,7 +283,7 @@
 
     <!-- Header -->
     <header id="header">
-        <h1><a href="/Portal%20website/index.html">TruRent</a></h1>
+        <h1><a href="/Portal%20website/index.html">Loo-k</a></h1>
         <nav id="nav">
             <ul>
                 <!-- Polished account badge with dropdown -->
@@ -335,7 +335,7 @@
         </div>
         <div class="inner">
             <h2 id="welcome-heading">Welcome back.</h2>
-            <p id="welcome-sub">Your TruRent dashboard is coming soon. Here's what's ready now.</p>
+            <p id="welcome-sub">Your Loo-k dashboard is coming soon. Here's what's ready now.</p>
         </div>
     </section>
 
@@ -394,7 +394,7 @@
     <!-- Footer -->
     <footer id="footer">
         <ul class="copyright">
-            <li>&copy; 2026 TruRent</li>
+            <li>&copy; 2026 Loo-k</li>
             <li>Hack Canada 2026</li>
         </ul>
     </footer>
@@ -446,7 +446,7 @@
         const configured = AUTH0_DOMAIN !== 'YOUR_AUTH0_DOMAIN' && AUTH0_CLIENT_ID !== 'YOUR_CLIENT_ID';
 
         if (!configured) {
-            currentUser = { sub: 'demo', email: 'demo@trurent.app', name: 'Demo User' };
+            currentUser = { sub: 'demo', email: 'demo@look.app', name: 'Demo User' };
             populateDashboard(currentUser);
             return;
         }
@@ -466,7 +466,7 @@
             }
 
             currentUser = await auth0Client.getUser();
-            const profile = TruRentProfile.get(currentUser);
+            const profile = LookProfile.get(currentUser);
 
             // If no profile, send them to onboarding
             if (!profile) {
@@ -477,8 +477,8 @@
             populateDashboard(currentUser);
 
         } catch (err) {
-            console.error('[TruRent]', err);
-            currentUser = { sub: 'demo', email: 'demo@trurent.app', name: 'Demo User' };
+            console.error('[Loo-k]', err);
+            currentUser = { sub: 'demo', email: 'demo@look.app', name: 'Demo User' };
             populateDashboard(currentUser);
         }
 
@@ -488,9 +488,9 @@
 
     // ── Populate the whole dashboard ──────────────────────────────────────────
     function populateDashboard(user) {
-        const profile  = TruRentProfile.get(user);
-        const name     = TruRentProfile.getDisplayName(user, profile);
-        const initials = TruRentProfile.getInitials(user, profile);
+        const profile  = LookProfile.get(user);
+        const name     = LookProfile.getDisplayName(user, profile);
+        const initials = LookProfile.getInitials(user, profile);
 
         // Welcome heading
         document.getElementById('welcome-heading').textContent = `Welcome back, ${name}.`;
@@ -585,7 +585,7 @@
     function doClearProfile() {
         if (!currentUser) return;
         if (!confirm('This will delete your saved preferences. You\'ll be taken back to the setup form. Continue?')) return;
-        TruRentProfile.clear(currentUser);
+        LookProfile.clear(currentUser);
         window.location.href = PAGE_ONBOARDING;
     }
 
@@ -616,10 +616,10 @@
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
-            console.log('[TruRent] Backend response:', data);
+            console.log('[Loo-k] Backend response:', data);
         } catch (err) {
             // Backend not running locally — expected during frontend-only dev
-            console.info('[TruRent] Backend unavailable or token error:', err.message);
+            console.info('[Loo-k] Backend unavailable or token error:', err.message);
         }
     }
 

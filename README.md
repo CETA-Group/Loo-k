@@ -1,4 +1,5 @@
-# Aaron, Tony, Ethan, Catherine's Hacks-Canada-2026 Project
+# Loo-k
+Aaron, Tony, Ethan, Catherine's Hacks-Canada-2026 Project
 
 **What does it *really* cost to live here?**
 
