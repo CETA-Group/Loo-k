@@ -20,10 +20,10 @@
         /* ---- Header overrides for map page ---- */
         #header { position: fixed; top: 0; left: 0; right: 0; z-index: 1001; }
 
-        /* ---- LEGEND ---- */
+        /* ---- LEGEND (top-right) ---- */
         .legend {
             position: fixed;
-            bottom: 24px; left: 24px;
+            top: calc(3em + 16px); right: 24px;
             background: rgba(15, 15, 25, 0.9);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.08);
@@ -184,7 +184,7 @@
         .data-methodology-panel {
             position: fixed;
             top: calc(3em + 24px);   /* always below the header (3em tall) + gap */
-            bottom: 200px;           /* always above the legend area */
+            bottom: 24px;            /* extend to bottom edge */
             left: 24px;
             width: 260px;
             background: rgba(15, 15, 25, 0.92);
@@ -259,11 +259,11 @@
 
         /* ---- RESPONSIVE ---- */
         @media (max-width: 600px) {
-            .legend { bottom: 12px; left: 12px; }
+            .legend { top: calc(3em + 10px); right: 12px; }
             .data-methodology-panel {
                 left: 8px; width: auto; right: 8px;
                 top: calc(3em + 16px);
-                bottom: 160px;
+                bottom: 12px;
             }
         }
     </style>
