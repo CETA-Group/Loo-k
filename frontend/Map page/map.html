@@ -133,10 +133,59 @@
             font-style: italic;
         }
 
+        /* ---- Pinned detail header (close btn) ---- */
+        .dp-pinned-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .dp-close-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 50%;
+            width: 22px; height: 22px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            line-height: 1;
+            transition: background 0.2s, color 0.2s;
+            flex-shrink: 0;
+        }
+        .dp-close-btn:hover {
+            background: rgba(255,70,70,0.25);
+            color: #ff6b6b;
+        }
+
+        /* ---- Google Maps button ---- */
+        .dp-gmaps-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 7px 0;
+            border-radius: 6px;
+            background: rgba(91, 255, 176, 0.1);
+            border: 1px solid rgba(91, 255, 176, 0.25);
+            color: #5bffb0;
+            font-size: 0.62em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .dp-gmaps-btn:hover {
+            background: rgba(91, 255, 176, 0.2);
+        }
+
         /* ---- DATA & METHODOLOGY PANEL (always visible, above legend) ---- */
         .data-methodology-panel {
             position: fixed;
-            bottom: 200px; left: 24px;
+            top: calc(3em + 24px);   /* always below the header (3em tall) + gap */
+            bottom: 200px;           /* always above the legend area */
+            left: 24px;
             width: 260px;
             background: rgba(15, 15, 25, 0.92);
             backdrop-filter: blur(10px);
@@ -144,7 +193,6 @@
             border-radius: 12px;
             padding: 14px 16px;
             z-index: 1000;
-            max-height: calc(100vh - 260px);
             overflow-y: auto;
         }
         .data-methodology-panel::-webkit-scrollbar { width: 3px; }
@@ -214,8 +262,8 @@
             .legend { bottom: 12px; left: 12px; }
             .data-methodology-panel {
                 left: 8px; width: auto; right: 8px;
+                top: calc(3em + 16px);
                 bottom: 160px;
-                max-height: calc(100vh - 220px);
             }
         }
     </style>
@@ -434,7 +482,7 @@ geojsonLayer = L.geoJSON(geojsonData, {
                 const name = feature.properties.NAME;
                 const d = scores[name];
 
-                // Hover
+                // Hover — highlight + tooltip only (no panel update)
                 layer.on('mouseover', function(e) {
                     if (d) {
                         this.setStyle({ fillOpacity: 0.5, weight: 2.5 });
@@ -442,7 +490,6 @@ geojsonLayer = L.geoJSON(geojsonData, {
                         this.setStyle({ fillOpacity: 0.15, weight: 1.5 });
                     }
                     showTooltip(e, name, d);
-                    updateDataPanel(name, d);
                 });
 
                 layer.on('mousemove', function(e) {
@@ -451,16 +498,16 @@ geojsonLayer = L.geoJSON(geojsonData, {
 
                 layer.on('mouseout', function(e) {
                     geojsonLayer.resetStyle(this);
+                    // keep pinned highlight if this layer is pinned
+                    if (pinnedLayer === this && d) {
+                        this.setStyle({ fillOpacity: 0.5, weight: 2.5 });
+                    }
                     hideTooltip();
-                    clearDataPanel();
                 });
 
-                // Click → open in Google Maps
+                // Click → pin data to panel
                 layer.on('click', function() {
-                    const bounds = layer.getBounds();
-                    const center = bounds.getCenter();
-                    const url = 'https://www.google.com/maps/search/' + encodeURIComponent(name + ', Waterloo, ON') + '/@' + center.lat + ',' + center.lng + ',15z';
-                    window.open(url, '_blank');
+                    pinNeighbourhood(name, d, layer);
                 });
             }
         }).addTo(map);
@@ -496,15 +543,40 @@ function hideTooltip() {
 }
 
 // =============================================
-// DATA PANEL — dynamic neighbourhood detail on hover
+// DATA PANEL — click-to-pin neighbourhood detail
 // =============================================
 const dpDynamic = document.getElementById('dp-dynamic');
-const defaultDpHTML = '<div class="dp-hover-hint">Hover over a neighbourhood to see details</div>';
+const defaultDpHTML = '<div class="dp-hover-hint">Click a neighbourhood to see details</div>';
 dpDynamic.innerHTML = defaultDpHTML;
 
-function updateDataPanel(name, d) {
+let pinnedLayer = null;
+
+function pinNeighbourhood(name, d, layer) {
+    // Reset previously pinned layer style
+    if (pinnedLayer) {
+        geojsonLayer.resetStyle(pinnedLayer);
+    }
+    pinnedLayer = layer;
+    // Highlight the clicked layer
+    if (d) {
+        layer.setStyle({ fillOpacity: 0.5, weight: 2.5 });
+    }
+
+    // Build Google Maps URL
+    const bounds = layer.getBounds();
+    const center = bounds.getCenter();
+    const gmapsUrl = 'https://www.google.com/maps/search/' + encodeURIComponent(name + ', Waterloo, ON') + '/@' + center.lat + ',' + center.lng + ',15z';
+
     if (!d) {
-        dpDynamic.innerHTML = `<div class="dp-neighbourhood-detail"><div class="dp-nh-name">${name}</div><div class="dp-nh-desc">No data available yet</div></div>`;
+        dpDynamic.innerHTML = `
+            <div class="dp-neighbourhood-detail">
+                <div class="dp-pinned-header">
+                    <div class="dp-nh-name">${name}</div>
+                    <div class="dp-close-btn" onclick="unpinNeighbourhood()" title="Close">&times;</div>
+                </div>
+                <div class="dp-nh-desc">No data available yet</div>
+                <a class="dp-gmaps-btn" href="${gmapsUrl}" target="_blank" rel="noopener">&#x1F4CD; Open in Google Maps</a>
+            </div>`;
         return;
     }
     const avgRent = Math.round((d.rent[0] + d.rent[1]) / 2);
@@ -512,7 +584,10 @@ function updateDataPanel(name, d) {
     const trueCost = avgRent + d.heating + 150 + commuteCost;
     dpDynamic.innerHTML = `
         <div class="dp-neighbourhood-detail">
-            <div class="dp-nh-name">${name}</div>
+            <div class="dp-pinned-header">
+                <div class="dp-nh-name">${name}</div>
+                <div class="dp-close-btn" onclick="unpinNeighbourhood()" title="Close">&times;</div>
+            </div>
             <div class="dp-nh-desc">${d.description}</div>
             <div class="dp-nh-stats">
                 <div class="dp-nh-stat"><span class="dp-nhl">Rent</span><span class="dp-nhv">$${d.rent[0]}–${d.rent[1]}/mo</span></div>
@@ -527,23 +602,17 @@ function updateDataPanel(name, d) {
                 <span class="dp-tc-label">True Cost</span>
                 <span class="dp-tc-val">$${trueCost}/mo</span>
             </div>
+            <a class="dp-gmaps-btn" href="${gmapsUrl}" target="_blank" rel="noopener">&#x1F4CD; Open in Google Maps</a>
         </div>`;
 }
 
-function clearDataPanel() {
+function unpinNeighbourhood() {
+    if (pinnedLayer) {
+        geojsonLayer.resetStyle(pinnedLayer);
+        pinnedLayer = null;
+    }
     dpDynamic.innerHTML = defaultDpHTML;
 }
-
-// Position data panel just above legend
-(function positionDataPanel() {
-    const legend = document.querySelector('.legend');
-    const dp = document.getElementById('dataPanel');
-    if (legend && dp) {
-        const gap = 12;
-        const legendH = legend.offsetHeight;
-        dp.style.bottom = (24 + legendH + gap) + 'px';
-    }
-})();
 </script>
 
 </body>
