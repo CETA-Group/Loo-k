@@ -1,0 +1,275 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>TruRent — Sign In</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="../Portal%20website/assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="../Portal%20website/assets/css/noscript.css" /></noscript>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+    <style>
+        #banner input {
+            width: 100%;
+            max-width: 100%;
+            padding: 0.8em;
+            margin-bottom: 1em;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        #banner input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+        #banner label {
+            display: block;
+            margin-bottom: 0.4em;
+            font-weight: bold;
+            color: rgba(255,255,255,0.8);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1em;
+            margin-bottom: 2em;
+        }
+        .user-info img {
+            border-radius: 50%;
+        }
+        .hidden { display: none; }
+        .status-msg {
+            padding: 0.8em;
+            border-radius: 6px;
+            margin-bottom: 1em;
+            background: rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .error-msg {
+            padding: 1.2em;
+            border-radius: 6px;
+            margin-bottom: 1em;
+            background: rgba(231,76,60,0.15);
+            border: 1px solid rgba(231,76,60,0.3);
+            color: #e74c3c;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        /* Override style5 white background for dark theme */
+        .wrapper.style5 {
+            background: transparent;
+            color: #fff;
+        }
+        .wrapper.style5 h3 {
+            color: #fff;
+        }
+    </style>
+</head>
+<body class="is-preload">
+
+    <div id="page-wrapper">
+
+        <!-- Header -->
+        <header id="header">
+            <h1><a href="../Portal%20website/index.html">Back</a></h1>
+            <nav id="nav">
+                <ul>
+                    <li class="special">
+                        <a href="#menu" class="menuToggle"><span>Menu</span></a>
+                        <div id="menu">
+                            <ul>
+                                <li><a href="../Portal%20website/index.html">Home</a></li>
+                                <li><a href="auth0.html">Account</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Banner with Sign In -->
+        <section id="banner" style="min-height: 100vh; justify-content: flex-start; padding-top: 8em;">
+            <div class="banner-slideshow">
+                <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner.jpg')"></div>
+                <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner2.jpg')"></div>
+                <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner3.jpg')"></div>
+            </div>
+            <div class="inner" style="text-align: left; padding-left: 3em;">
+                <h2>Sign In</h2>
+            </div>
+            <div style="position: relative; z-index: 2; width: 100%; max-width: 720px; padding: 2em 3em; text-align: left;">
+                <div id="auth-error" class="error-msg hidden"></div>
+                <!-- Logged Out View -->
+                <div id="logged-out">
+                    <ul class="actions" style="margin-top: 1em;">
+                        <li><a href="#" class="button primary" id="btn-login">Sign In with Auth0</a></li>
+                    </ul>
+                </div>
+                <!-- Logged In View -->
+                <div id="logged-in" class="hidden">
+                    <div class="user-info">
+                        <img id="user-avatar" src="" width="50" alt="avatar" />
+                        <div>
+                            <strong id="user-name"></strong><br />
+                            <span id="user-email" style="opacity:0.6;font-size:0.9em;"></span>
+                        </div>
+                    </div>
+                    <h3>Your Search Preferences</h3>
+                    <label for="pref-budget">Max Monthly Budget ($)</label>
+                    <input type="number" id="pref-budget" placeholder="e.g. 1800" />
+                    <label for="pref-area">Preferred Area</label>
+                    <input type="text" id="pref-area" placeholder="e.g. Near UW, Lester St" />
+                    <label for="pref-commute">Max Commute (minutes)</label>
+                    <input type="number" id="pref-commute" placeholder="e.g. 20" />
+                    <label for="pref-bedrooms">Bedrooms</label>
+                    <input type="text" id="pref-bedrooms" placeholder="e.g. 1, 2, Studio" />
+                    <label for="pref-term">Lease Length (months)</label>
+                    <input type="number" id="pref-term" placeholder="e.g. 4 (co-op term)" />
+                    <label for="pref-notes">Other Notes</label>
+                    <input type="text" id="pref-notes" placeholder="e.g. No credit history, pet friendly" />
+                    <div id="save-status" class="status-msg hidden"></div>
+                    <ul class="actions">
+                        <li><a href="#" class="button primary" id="btn-save">Save Preferences</a></li>
+                        <li><a href="#" class="button" id="btn-logout">Log Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="copyright">
+                <li>&copy; 2026 TruRent</li>
+                <li>Hack Canada 2026</li>
+            </ul>
+        </footer>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="../Portal%20website/assets/js/jquery.min.js"></script>
+    <script src="../Portal%20website/assets/js/jquery.scrollex.min.js"></script>
+    <script src="../Portal%20website/assets/js/jquery.scrolly.min.js"></script>
+    <script src="../Portal%20website/assets/js/browser.min.js"></script>
+    <script src="../Portal%20website/assets/js/breakpoints.min.js"></script>
+    <script src="../Portal%20website/assets/js/util.js"></script>
+    <script src="../Portal%20website/assets/js/main.js"></script>
+
+    <script>
+        // ========================================
+        // AUTH0 CONFIG — Replace with your values
+        // ========================================
+        const AUTH0_DOMAIN = 'YOUR_AUTH0_DOMAIN';     // e.g. dev-xxxxx.us.auth0.com
+        const AUTH0_CLIENT_ID = 'YOUR_CLIENT_ID';     // from Auth0 dashboard
+        const REDIRECT_URI = window.location.href.split('?')[0];
+
+        let auth0Client = null;
+
+        async function initAuth0() {
+            // Check if Auth0 is configured
+            if (AUTH0_DOMAIN === 'YOUR_AUTH0_DOMAIN' || AUTH0_CLIENT_ID === 'YOUR_CLIENT_ID') {
+                const errEl = document.getElementById('auth-error');
+                errEl.innerHTML = 'Auth0 is not configured yet.<br>Please set <code>AUTH0_DOMAIN</code> and <code>AUTH0_CLIENT_ID</code> in auth0.html.';
+                errEl.classList.remove('hidden');
+                document.getElementById('btn-login').style.opacity = '0.4';
+                document.getElementById('btn-login').style.pointerEvents = 'none';
+                return;
+            }
+
+            try {
+                auth0Client = await auth0.createAuth0Client({
+                    domain: AUTH0_DOMAIN,
+                    clientId: AUTH0_CLIENT_ID,
+                    authorizationParams: {
+                        redirect_uri: REDIRECT_URI
+                    }
+                });
+
+                // Handle redirect callback
+                if (window.location.search.includes('code=') &&
+                    window.location.search.includes('state=')) {
+                    await auth0Client.handleRedirectCallback();
+                    window.history.replaceState({}, document.title, REDIRECT_URI);
+                }
+
+                await updateUI();
+            } catch (err) {
+                console.error('Auth0 init error:', err);
+                const errEl = document.getElementById('auth-error');
+                errEl.textContent = 'Failed to connect to Auth0: ' + err.message;
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        async function updateUI() {
+            const isAuth = await auth0Client.isAuthenticated();
+
+            document.getElementById('logged-out').classList.toggle('hidden', isAuth);
+            document.getElementById('logged-in').classList.toggle('hidden', !isAuth);
+
+            if (isAuth) {
+                const user = await auth0Client.getUser();
+                document.getElementById('user-avatar').src = user.picture || '';
+                document.getElementById('user-name').textContent = user.name || '';
+                document.getElementById('user-email').textContent = user.email || '';
+                loadPreferences(user.email);
+            }
+        }
+
+        // Save & load preferences using localStorage keyed by email
+        function loadPreferences(email) {
+            const saved = localStorage.getItem('trurent_prefs_' + email);
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('pref-budget').value = data.budget || '';
+                document.getElementById('pref-area').value = data.area || '';
+                document.getElementById('pref-commute').value = data.commute || '';
+                document.getElementById('pref-bedrooms').value = data.bedrooms || '';
+                document.getElementById('pref-term').value = data.term || '';
+                document.getElementById('pref-notes').value = data.notes || '';
+            }
+        }
+
+        async function savePreferences() {
+            const user = await auth0Client.getUser();
+            const data = {
+                budget: document.getElementById('pref-budget').value,
+                area: document.getElementById('pref-area').value,
+                commute: document.getElementById('pref-commute').value,
+                bedrooms: document.getElementById('pref-bedrooms').value,
+                term: document.getElementById('pref-term').value,
+                notes: document.getElementById('pref-notes').value
+            };
+            localStorage.setItem('trurent_prefs_' + user.email, JSON.stringify(data));
+
+            const status = document.getElementById('save-status');
+            status.textContent = 'Preferences saved!';
+            status.classList.remove('hidden');
+            setTimeout(() => status.classList.add('hidden'), 2000);
+        }
+
+        // Button handlers
+        document.getElementById('btn-login').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await auth0Client.loginWithRedirect();
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await auth0Client.logout({
+                logoutParams: { returnTo: window.location.origin }
+            });
+        });
+
+        document.getElementById('btn-save').addEventListener('click', (e) => {
+            e.preventDefault();
+            savePreferences();
+        });
+
+        // Init
+        initAuth0();
+    </script>
+
+</body>
+</html>
