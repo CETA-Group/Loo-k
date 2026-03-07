@@ -362,126 +362,143 @@
 // Key = exact neighbourhood name from GeoJSON
 // =============================================
 const scores = {
-    // --- 核心学生区 & 市中心 (高便利度，短通勤) ---
+    // =============================================
+    // WATERLOO — commute to Uptown Waterloo
+    // =============================================
+
+    // --- Core / Uptown (short commute, high walkability) ---
     "Northdale": { rent: [1400, 2000], commute: 5, grocery: 0.8, transit: 92, air: 78, heating: 120, score: 76, description: "A vibrant, student-heavy area directly adjacent to UW campus with high walkability and nightlife." },
     "MacGregor Albert": { rent: [1500, 2100], commute: 8, grocery: 0.9, transit: 88, air: 79, heating: 130, score: 75, description: "A well-connected residential pocket near Uptown with strong transit access and community feel." },
-    "Uptown West": { rent:[1800, 2500], commute: 12, grocery: 0.4, transit: 95, air: 76, heating: 135, score: 78, description: "The heart of Uptown Waterloo — walkable shops, restaurants, and excellent LRT connectivity." },
-    "Uptown North": { rent:[1750, 2450], commute: 10, grocery: 0.6, transit: 90, air: 77, heating: 140, score: 76, description: "A tree-lined urban neighbourhood just north of Uptown with easy access to Waterloo Park." },
+    "Uptown West": { rent: [1800, 2500], commute: 12, grocery: 0.4, transit: 95, air: 76, heating: 135, score: 78, description: "The heart of Uptown Waterloo — walkable shops, restaurants, and excellent LRT connectivity." },
+    "Uptown North": { rent: [1750, 2450], commute: 10, grocery: 0.6, transit: 90, air: 77, heating: 140, score: 76, description: "A tree-lined urban neighbourhood just north of Uptown with easy access to Waterloo Park." },
     "Mary Allen": { rent: [1800, 2600], commute: 14, grocery: 0.5, transit: 86, air: 80, heating: 150, score: 74, description: "A historic neighbourhood near downtown Kitchener with a mix of character homes and new builds." },
-    
-    // --- 环大学 / 中距离通勤街区 ---
+
+    // --- Mid-distance Waterloo ---
     "University Downs": { rent: [1600, 2200], commute: 15, grocery: 1.2, transit: 75, air: 82, heating: 160, score: 68, description: "A mid-density residential area south of UW, popular with grad students and young professionals." },
     "Lincoln Heights": { rent: [1550, 2100], commute: 12, grocery: 1.0, transit: 78, air: 82, heating: 150, score: 70, description: "A family-friendly neighbourhood with mature trees and good proximity to schools and parks." },
-    "Lincoln Village West": { rent:[1600, 2150], commute: 14, grocery: 1.2, transit: 72, air: 83, heating: 160, score: 66, description: "A quiet suburban pocket west of Lincoln Road with modest townhomes and low-rise apartments." },
+    "Lincoln Village West": { rent: [1600, 2150], commute: 14, grocery: 1.2, transit: 72, air: 83, heating: 160, score: 66, description: "A quiet suburban pocket west of Lincoln Road with modest townhomes and low-rise apartments." },
     "Erb West": { rent: [1650, 2250], commute: 15, grocery: 1.5, transit: 68, air: 85, heating: 170, score: 64, description: "A mixed-use corridor along Erb St with older rental stock and steady bus service." },
     "Moses Springer": { rent: [1600, 2150], commute: 12, grocery: 0.8, transit: 82, air: 81, heating: 155, score: 72, description: "A small, walkable enclave anchored by Moses Springer Park and close to LRT stops." },
-    "Hillside Park / Glenridge": { rent:[1550, 2100], commute: 11, grocery: 1.1, transit: 80, air: 80, heating: 145, score: 71, description: "A mid-range residential area between UW and Conestoga Mall with solid transit links." },
+    "Hillside Park / Glenridge": { rent: [1550, 2100], commute: 11, grocery: 1.1, transit: 80, air: 80, heating: 145, score: 71, description: "A mid-range residential area between UW and Conestoga Mall with solid transit links." },
     "Village on the Green": { rent: [1600, 2150], commute: 10, grocery: 1.0, transit: 81, air: 82, heating: 150, score: 70, description: "A pleasant cluster of townhomes and condos near Laurel Creek trail, ideal for students." },
     "Chippendale": { rent: [1600, 2100], commute: 10, grocery: 0.9, transit: 76, air: 82, heating: 150, score: 69, description: "A compact residential neighbourhood west of UW with affordable rents and green space." },
-    "Vermont Park": { rent:[1700, 2300], commute: 15, grocery: 1.4, transit: 65, air: 85, heating: 175, score: 64, description: "A quiet, low-density area with larger lots, mostly single-family homes and limited transit." },
-    
-    // --- 湖区 & 北部偏远街区 ---
-    "Lakeshore North": { rent:[1800, 2400], commute: 16, grocery: 1.5, transit: 65, air: 86, heating: 180, score: 62, description: "A scenic area bordering Columbia Lake, offering nature trails but further from campus amenities." },
+    "Vermont Park": { rent: [1700, 2300], commute: 15, grocery: 1.4, transit: 65, air: 85, heating: 175, score: 64, description: "A quiet, low-density area with larger lots, mostly single-family homes and limited transit." },
+
+    // --- Lakeside & northern Waterloo ---
+    "Lakeshore North": { rent: [1800, 2400], commute: 16, grocery: 1.5, transit: 65, air: 86, heating: 180, score: 62, description: "A scenic area bordering Columbia Lake with nature trails and a relaxed atmosphere." },
     "Lakeshore South": { rent: [1750, 2350], commute: 18, grocery: 1.8, transit: 60, air: 85, heating: 185, score: 60, description: "A sprawling suburban zone south of the lake with large parks but limited commercial options." },
-    "Conservation Meadows": { rent:[2300, 3100], commute: 25, grocery: 3.5, transit: 35, air: 93, heating: 230, score: 42, description: "A secluded, car-dependent enclave surrounded by conservation land — premium pricing, minimal services." },
-    "Eastbridge": { rent:[2100, 2800], commute: 22, grocery: 2.2, transit: 50, air: 90, heating: 210, score: 50, description: "A modern subdivision in east Waterloo with newer builds but long commute times to campus." },
+    "Conservation Meadows": { rent: [2300, 3100], commute: 25, grocery: 3.5, transit: 35, air: 93, heating: 230, score: 42, description: "A secluded, car-dependent enclave surrounded by conservation land — premium pricing, minimal services." },
+    "Eastbridge": { rent: [2100, 2800], commute: 22, grocery: 2.2, transit: 50, air: 90, heating: 210, score: 50, description: "A modern subdivision in east Waterloo with newer builds and developing amenities." },
     "Wissler Old Abbey": { rent: [1900, 2600], commute: 18, grocery: 2.0, transit: 55, air: 89, heating: 195, score: 55, description: "A quiet, established neighbourhood with heritage homes and a rural ambiance near the city edge." },
     "Foxhunt": { rent: [1900, 2600], commute: 16, grocery: 1.6, transit: 58, air: 87, heating: 190, score: 57, description: "A mid-suburban area with detached homes, light trail access, and moderate bus service." },
-    "Cardinal Crescent": { rent:[1650, 2150], commute: 14, grocery: 1.5, transit: 72, air: 83, heating: 165, score: 67, description: "A well-kept residential crescent with affordable units and decent connectivity to UW." },
-    "Roselea Park": { rent:[1750, 2350], commute: 16, grocery: 1.6, transit: 62, air: 85, heating: 180, score: 61, description: "A parkside neighbourhood with a community centre, playgrounds, and a growing rental market." },
+    "Cardinal Crescent": { rent: [1650, 2150], commute: 14, grocery: 1.5, transit: 72, air: 83, heating: 165, score: 67, description: "A well-kept residential crescent with affordable units and decent connectivity." },
+    "Roselea Park": { rent: [1750, 2350], commute: 16, grocery: 1.6, transit: 62, air: 85, heating: 180, score: 61, description: "A parkside neighbourhood with a community centre, playgrounds, and a growing rental market." },
 
-    // --- Beechwood 及周边系列 (中产家庭区) ---
-    "Beechwood North": { rent:[1950, 2700], commute: 14, grocery: 1.6, transit: 58, air: 88, heating: 200, score: 58, description: "A mature suburban area with mid-century homes, large yards, and quiet family-oriented streets." },
+    // --- Beechwood series ---
+    "Beechwood North": { rent: [1950, 2700], commute: 14, grocery: 1.6, transit: 58, air: 88, heating: 200, score: 58, description: "A mature suburban area with mid-century homes, large yards, and quiet family-oriented streets." },
     "Beechwood South": { rent: [1950, 2700], commute: 15, grocery: 1.7, transit: 56, air: 88, heating: 200, score: 57, description: "A leafy residential zone south of Fischer-Hallman with good schools and little nightlife." },
-    "Beechwood West I": { rent:[2000, 2800], commute: 16, grocery: 1.8, transit: 55, air: 89, heating: 210, score: 55, description: "A mid-priced suburban pocket with newer townhomes and growing commercial amenities nearby." },
+    "Beechwood West I": { rent: [2000, 2800], commute: 16, grocery: 1.8, transit: 55, air: 89, heating: 210, score: 55, description: "A mid-priced suburban pocket with newer townhomes and growing commercial amenities nearby." },
     "Beechwood West II": { rent: [2050, 2850], commute: 17, grocery: 1.9, transit: 52, air: 89, heating: 215, score: 53, description: "A further-out extension of Beechwood with similar character but slightly longer commute." },
-    "Upper Beechwood I": { rent:[2200, 3000], commute: 18, grocery: 2.0, transit: 48, air: 90, heating: 220, score: 49, description: "A premium residential area with executive-style homes, low density, and limited transit." },
+    "Upper Beechwood I": { rent: [2200, 3000], commute: 18, grocery: 2.0, transit: 48, air: 90, heating: 220, score: 49, description: "A premium residential area with executive-style homes, low density, and limited transit." },
     "Upper Beechwood II": { rent: [2300, 3100], commute: 20, grocery: 2.2, transit: 45, air: 91, heating: 225, score: 47, description: "An upscale, car-dependent enclave in upper Waterloo with large properties and few rentals." },
-    "Beechwood II": { rent:[1900, 2650], commute: 14, grocery: 1.7, transit: 58, air: 89, heating: 205, score: 56, description: "A well-established subdivision with a mix of rentals and owner-occupied homes near Beechwood Plaza." },
+    "Beechwood II": { rent: [1900, 2650], commute: 14, grocery: 1.7, transit: 58, air: 89, heating: 205, score: 56, description: "A well-established subdivision with a mix of rentals and owner-occupied homes near Beechwood Plaza." },
     "Beechwood Park": { rent: [1850, 2600], commute: 12, grocery: 1.5, transit: 62, air: 87, heating: 195, score: 60, description: "A moderately priced neighbourhood with parkland and reasonable access to Fischer-Hallman corridor." },
     "Beechwood Bridle Gate": { rent: [2100, 2900], commute: 18, grocery: 2.0, transit: 50, air: 90, heating: 215, score: 51, description: "A newer subdivision at the western edge of Beechwood with trail access but sparse transit." },
 
-    // --- 西郊 / 新开发远郊 (面积大、贵、通勤久) ---
-    "Columbia Forest": { rent:[2100, 2900], commute: 26, grocery: 2.8, transit: 40, air: 92, heating: 210, score: 48, description: "A newer development in west Waterloo with large single-family homes and very limited bus routes." },
+    // --- West Waterloo suburbs ---
+    "Columbia Forest": { rent: [2100, 2900], commute: 26, grocery: 2.8, transit: 40, air: 92, heating: 210, score: 48, description: "A newer development in west Waterloo with large single-family homes and very limited bus routes." },
     "Laurelwood": { rent: [2200, 3000], commute: 22, grocery: 1.8, transit: 48, air: 92, heating: 220, score: 51, description: "A popular family suburb with excellent schools, community parks, and a growing commercial strip." },
     "Clair Hills": { rent: [2300, 3200], commute: 25, grocery: 2.3, transit: 40, air: 94, heating: 230, score: 45, description: "A sprawling suburban development on Waterloo's southwestern edge — car essential, quiet streets." },
     "Vista Hills": { rent: [2400, 3300], commute: 28, grocery: 2.7, transit: 35, air: 95, heating: 240, score: 43, description: "One of Waterloo's newest and most remote subdivisions — premium pricing with minimal amenities." },
-    "Westvale": { rent:[2050, 2850], commute: 24, grocery: 1.6, transit: 45, air: 90, heating: 200, score: 52, description: "A mid-range western suburb with reasonable lot sizes and slowly improving transit connections." },
+    "Westvale": { rent: [2050, 2850], commute: 24, grocery: 1.6, transit: 45, air: 90, heating: 200, score: 52, description: "A mid-range western suburb with reasonable lot sizes and slowly improving transit connections." },
     "Carriage Crossing": { rent: [2600, 3600], commute: 30, grocery: 3.2, transit: 25, air: 96, heating: 260, score: 38, description: "The most remote and expensive enclave — sprawling estates with virtually no public transit." },
-    "Rummelhardt": { rent:[2100, 2800], commute: 20, grocery: 2.0, transit: 48, air: 90, heating: 210, score: 50, description: "A quiet residential pocket off Fischer-Hallman with a mix of townhomes and semis." },
-    "Laurel Creek": { rent:[2000, 2750], commute: 18, grocery: 1.8, transit: 52, air: 89, heating: 205, score: 54, description: "A nature-adjacent community bordering Laurel Creek Conservation Area with moderate connectivity." },
-    "Craigleith": { rent:[1850, 2550], commute: 15, grocery: 1.5, transit: 60, air: 88, heating: 185, score: 58, description: "A compact homes-association area with well-maintained properties and neighbourhood events." },
+    "Rummelhardt": { rent: [2100, 2800], commute: 20, grocery: 2.0, transit: 48, air: 90, heating: 210, score: 50, description: "A quiet residential pocket off Fischer-Hallman with a mix of townhomes and semis." },
+    "Laurel Creek": { rent: [2000, 2750], commute: 18, grocery: 1.8, transit: 52, air: 89, heating: 205, score: 54, description: "A nature-adjacent community bordering Laurel Creek Conservation Area with moderate connectivity." },
+    "Craigleith": { rent: [1850, 2550], commute: 15, grocery: 1.5, transit: 60, air: 88, heating: 185, score: 58, description: "A compact homes-association area with well-maintained properties and neighbourhood events." },
     "Village on Clair Cr": { rent: [1850, 2500], commute: 16, grocery: 1.4, transit: 62, air: 87, heating: 175, score: 61, description: "A small condo-and-townhome cluster along Clair Creek with trail access and growing retail." },
-    
-    // --- 零散区域 ---
-    "Glasgow Heights I": { rent:[1750, 2350], commute: 14, grocery: 1.3, transit: 68, air: 85, heating: 175, score: 64, description: "A quiet residential area near Glasgow St with steady rental availability and older housing stock." },
-    "Glasgow Heights II": { rent: [1800, 2450], commute: 15, grocery: 1.4, transit: 65, air: 86, heating: 180, score: 62, description: "An extension of Glasgow Heights with similar modest homes and slightly longer commute." },
+
+    // --- Misc Waterloo ---
+    "Glasgow Heights I": { rent: [1750, 2350], commute: 14, grocery: 1.3, transit: 68, air: 85, heating: 175, score: 64, description: "A quiet residential area near Glasgow St with steady rental availability and older housing stock." },
+    "Glasgow Heights II": { rent: [1800, 2450], commute: 15, grocery: 1.4, transit: 65, air: 86, heating: 180, score: 62, description: "An extension of Glasgow Heights with similar modest homes." },
     "Sugarbush North": { rent: [1950, 2650], commute: 16, grocery: 1.6, transit: 58, air: 88, heating: 195, score: 57, description: "A newer residential area with mixed-density housing near the Ira Needles corridor." },
-    "Sugarbush Park": { rent:[1900, 2600], commute: 15, grocery: 1.4, transit: 62, air: 87, heating: 190, score: 59, description: "A family-friendly neighbourhood anchored by Sugarbush Park with nearby schools and trails." },
+    "Sugarbush Park": { rent: [1900, 2600], commute: 15, grocery: 1.4, transit: 62, air: 87, heating: 190, score: 59, description: "A family-friendly neighbourhood anchored by Sugarbush Park with nearby schools and trails." },
 
-    // --- Kitchener ---
-    "Victoria Hills Neighbourhood Association": {"rent": [1450, 2050], "commute": 35, "grocery": 1.2, "transit": 65, "air": 80, "heating": 155, "score": 62, "description": "A diverse west-end Kitchener neighbourhood with community parks and good transit links."},
-    "Auditorium Neighbourhood Association": {"rent": [1500, 2100], "commute": 30, "grocery": 0.9, "transit": 70, "air": 78, "heating": 150, "score": 65, "description": "Central Kitchener neighbourhood near the Aud arena with walkable amenities."},
-    "Westmount Neighbourhood Association": {"rent": [1600, 2200], "commute": 28, "grocery": 0.8, "transit": 72, "air": 79, "heating": 155, "score": 67, "description": "An established central neighbourhood with mature trees and strong community spirit."},
-    "Bridgeport Community Association": {"rent": [1700, 2400], "commute": 15, "grocery": 1.1, "transit": 78, "air": 81, "heating": 160, "score": 70, "description": "A riverside community at the Waterloo border with easy access to both downtowns."},
-    "Olde Berlin Towne Neighbourhood Association In The Civic Centre": {"rent": [1550, 2150], "commute": 25, "grocery": 0.5, "transit": 85, "air": 76, "heating": 145, "score": 72, "description": "The historic heart of downtown Kitchener with walkable shops and LRT access."},
-    "Highland-Stirling Community Group": {"rent": [1400, 1950], "commute": 32, "grocery": 1.3, "transit": 62, "air": 79, "heating": 150, "score": 60, "description": "A quiet east-end residential neighbourhood with affordable housing stock."},
-    "Cherry Park Neighbourhood Association": {"rent": [1450, 2000], "commute": 30, "grocery": 1.0, "transit": 68, "air": 80, "heating": 152, "score": 63, "description": "A mid-density neighbourhood in central Kitchener with parks and good schools."},
-    "Victoria Park Neighbourhood Association": {"rent": [1600, 2300], "commute": 22, "grocery": 0.6, "transit": 82, "air": 78, "heating": 148, "score": 71, "description": "Adjacent to the beautiful Victoria Park, walkable and close to downtown amenities."},
-    "Green Belt Neighbourhood Association": {"rent": [1550, 2100], "commute": 35, "grocery": 1.4, "transit": 60, "air": 83, "heating": 158, "score": 58, "description": "A south Kitchener neighbourhood with green belts and a quiet suburban atmosphere."},
-    "Alpine Community Neighbourhood Association": {"rent": [1500, 2050], "commute": 38, "grocery": 1.5, "transit": 58, "air": 82, "heating": 160, "score": 56, "description": "A west-end community area with a mix of residential housing and local parks."},
-    "Central Frederick Neighbourhood Association": {"rent": [1450, 2000], "commute": 28, "grocery": 0.7, "transit": 80, "air": 77, "heating": 145, "score": 68, "description": "A central Kitchener neighbourhood with heritage architecture and walkable streets."},
-    "Country Hills Recreation Association": {"rent": [1700, 2350], "commute": 40, "grocery": 1.6, "transit": 52, "air": 85, "heating": 175, "score": 54, "description": "A newer subdivision in north Kitchener with community recreation and larger homes."},
-    "Centreville-Chicopee Community Association": {"rent": [1650, 2250], "commute": 35, "grocery": 1.2, "transit": 60, "air": 82, "heating": 165, "score": 59, "description": "East Kitchener area along the Grand River with parks and the Chicopee ski hill nearby."},
-    "Stanley Park Community Association": {"rent": [1600, 2200], "commute": 33, "grocery": 1.1, "transit": 63, "air": 81, "heating": 162, "score": 61, "description": "A family-friendly east Kitchener neighbourhood with established parks and schools."},
-    "Cedar Hill Community Group": {"rent": [1400, 1950], "commute": 30, "grocery": 0.9, "transit": 70, "air": 79, "heating": 148, "score": 64, "description": "A central neighbourhood with affordable rents and proximity to Kitchener downtown."},
-    "Mill-Courtland Neighbourhood Association": {"rent": [1350, 1900], "commute": 27, "grocery": 0.8, "transit": 75, "air": 77, "heating": 142, "score": 66, "description": "An affordable inner-city neighbourhood with character homes and LRT-adjacent location."},
-    "Doon Pioneer Park Community Association": {"rent": [1800, 2500], "commute": 45, "grocery": 2.0, "transit": 45, "air": 88, "heating": 195, "score": 49, "description": "A south Kitchener community near Doon Valley with larger homes but long commutes."},
-    "Williamsburg Community Association": {"rent": [1900, 2600], "commute": 42, "grocery": 1.8, "transit": 48, "air": 87, "heating": 190, "score": 51, "description": "A newer upscale subdivision in south Kitchener with good schools but car-dependent."},
-    "Eastwood Neighbourhood Association": {"rent": [1450, 2000], "commute": 30, "grocery": 1.0, "transit": 68, "air": 80, "heating": 150, "score": 63, "description": "An east-end neighbourhood near Rockway Gardens with mature trees and community charm."},
-    "Downtown Neighbourhood Alliance": {"rent": [1500, 2200], "commute": 25, "grocery": 0.4, "transit": 88, "air": 74, "heating": 140, "score": 70, "description": "The vibrant core of Kitchener with LRT, restaurants, and the Innovation District nearby."},
-    "Huron Community Association": {"rent": [1750, 2400], "commute": 38, "grocery": 1.5, "transit": 55, "air": 84, "heating": 178, "score": 55, "description": "A growing south-west Kitchener community with newer builds and developing amenities."},
-    "North Six Neighbourhood Association": {"rent": [1400, 1950], "commute": 28, "grocery": 1.1, "transit": 72, "air": 78, "heating": 148, "score": 64, "description": "A centrally located neighbourhood in north Kitchener with affordable rents and parks."},
+    // =============================================
+    // KITCHENER — commute to Downtown Kitchener
+    // =============================================
+    "Downtown Neighbourhood Alliance": { rent: [1500, 2200], commute: 5, grocery: 0.4, transit: 92, air: 74, heating: 140, score: 78, description: "The vibrant core of Kitchener — LRT hub, Innovation District, restaurants, and walkable nightlife." },
+    "Olde Berlin Towne Neighbourhood Association In The Civic Centre": { rent: [1550, 2150], commute: 5, grocery: 0.5, transit: 90, air: 76, heating: 145, score: 77, description: "The historic heart of Downtown Kitchener with heritage architecture, walkable shops, and LRT access." },
+    "Victoria Park Neighbourhood Association": { rent: [1600, 2300], commute: 8, grocery: 0.6, transit: 88, air: 78, heating: 148, score: 76, description: "Adjacent to the iconic Victoria Park — highly walkable with cafes, galleries, and excellent transit." },
+    "Central Frederick Neighbourhood Association": { rent: [1450, 2000], commute: 7, grocery: 0.7, transit: 85, air: 77, heating: 145, score: 75, description: "A central Kitchener neighbourhood with heritage architecture, walkable streets, and LRT proximity." },
+    "Mill-Courtland Neighbourhood Association": { rent: [1350, 1900], commute: 8, grocery: 0.8, transit: 82, air: 77, heating: 142, score: 74, description: "An affordable inner-city neighbourhood with character homes, community gardens, and LRT-adjacent location." },
+    "Cedar Hill Community Group": { rent: [1400, 1950], commute: 8, grocery: 0.9, transit: 80, air: 79, heating: 148, score: 72, description: "A central neighbourhood with affordable rents, mature streets, and easy access to Downtown Kitchener." },
+    "Auditorium Neighbourhood Association": { rent: [1500, 2100], commute: 10, grocery: 0.9, transit: 78, air: 78, heating: 150, score: 71, description: "Central Kitchener neighbourhood near the Aud arena with walkable amenities and strong community vibe." },
+    "Westmount Neighbourhood Association": { rent: [1600, 2200], commute: 10, grocery: 0.8, transit: 80, air: 79, heating: 155, score: 70, description: "An established central neighbourhood with mature trees, strong community spirit, and good bus routes." },
+    "Cherry Park Neighbourhood Association": { rent: [1450, 2000], commute: 10, grocery: 1.0, transit: 76, air: 80, heating: 152, score: 69, description: "A mid-density neighbourhood in central Kitchener with community parks, good schools, and steady transit." },
+    "Bridgeport Community Association": { rent: [1700, 2400], commute: 12, grocery: 1.1, transit: 78, air: 81, heating: 160, score: 70, description: "A riverside community at the Waterloo border with easy access to both downtowns and LRT." },
+    "Victoria Hills Neighbourhood Association": { rent: [1450, 2050], commute: 12, grocery: 1.2, transit: 74, air: 80, heating: 155, score: 68, description: "A diverse west-end Kitchener neighbourhood with community parks, good transit links, and affordable rents." },
+    "Eastwood Neighbourhood Association": { rent: [1450, 2000], commute: 10, grocery: 1.0, transit: 75, air: 80, heating: 150, score: 69, description: "A charming east-end neighbourhood near Rockway Gardens with mature trees and community character." },
+    "North Six Neighbourhood Association": { rent: [1400, 1950], commute: 10, grocery: 1.1, transit: 76, air: 78, heating: 148, score: 70, description: "A centrally located neighbourhood in north Kitchener with affordable rents, parks, and good connectivity." },
+    "Highland-Stirling Community Group": { rent: [1400, 1950], commute: 12, grocery: 1.3, transit: 70, air: 79, heating: 150, score: 66, description: "A quiet east-end residential neighbourhood with affordable housing and community parks." },
+    "Stanley Park Community Association": { rent: [1600, 2200], commute: 12, grocery: 1.1, transit: 72, air: 81, heating: 162, score: 67, description: "A family-friendly east Kitchener neighbourhood with established parks, schools, and trail access." },
+    "Centreville-Chicopee Community Association": { rent: [1650, 2250], commute: 14, grocery: 1.2, transit: 68, air: 82, heating: 165, score: 64, description: "East Kitchener area along the Grand River with parks, Chicopee ski hill, and riverside trails." },
+    "Green Belt Neighbourhood Association": { rent: [1550, 2100], commute: 15, grocery: 1.4, transit: 65, air: 83, heating: 158, score: 63, description: "A south Kitchener neighbourhood with green belts, a quiet suburban atmosphere, and growing amenities." },
+    "Alpine Community Neighbourhood Association": { rent: [1500, 2050], commute: 15, grocery: 1.5, transit: 62, air: 82, heating: 160, score: 62, description: "A west-end community with a mix of residential housing, local parks, and developing transit connections." },
+    "Country Hills Recreation Association": { rent: [1700, 2350], commute: 18, grocery: 1.6, transit: 58, air: 85, heating: 175, score: 58, description: "A newer subdivision in north Kitchener with community recreation facilities and larger family homes." },
+    "Huron Community Association": { rent: [1750, 2400], commute: 16, grocery: 1.5, transit: 60, air: 84, heating: 178, score: 60, description: "A growing southwest Kitchener community with newer builds, parks, and developing commercial amenities." },
+    "Doon Pioneer Park Community Association": { rent: [1800, 2500], commute: 20, grocery: 2.0, transit: 50, air: 88, heating: 195, score: 55, description: "A south Kitchener community near Doon Valley with larger homes, nature trails, and a suburban feel." },
+    "Williamsburg Community Association": { rent: [1900, 2600], commute: 18, grocery: 1.8, transit: 52, air: 87, heating: 190, score: 56, description: "A newer upscale subdivision in south Kitchener with good schools, parks, and family-oriented design." },
 
-    // --- Cambridge ---
-    "Blair": {"rent": [1600, 2200], "commute": 55, "grocery": 2.5, "transit": 35, "air": 88, "heating": 170, "score": 42, "description": "A historic village community in Cambridge's Preston area, car-dependent but scenic."},
-    "Preston Heights": {"rent": [1500, 2100], "commute": 50, "grocery": 1.8, "transit": 42, "air": 85, "heating": 165, "score": 46, "description": "A mid-density Preston neighbourhood with community parks and moderate transit access."},
-    "Royal Oak": {"rent": [1650, 2300], "commute": 55, "grocery": 2.0, "transit": 38, "air": 86, "heating": 172, "score": 43, "description": "A north Cambridge residential area with newer housing and limited bus service."},
-    "St Andrews Hills": {"rent": [1700, 2400], "commute": 52, "grocery": 1.5, "transit": 45, "air": 85, "heating": 168, "score": 47, "description": "A well-established Galt neighbourhood with tree-lined streets and community character."},
-    "Elgin Park": {"rent": [1550, 2150], "commute": 50, "grocery": 1.2, "transit": 48, "air": 84, "heating": 160, "score": 49, "description": "Central Galt area with good walkability to downtown Cambridge amenities."},
-    "Briardeane": {"rent": [1600, 2200], "commute": 55, "grocery": 2.2, "transit": 36, "air": 87, "heating": 170, "score": 42, "description": "A north Cambridge suburban neighbourhood with larger lots and limited transit."},
-    "Branchton Park": {"rent": [1650, 2300], "commute": 53, "grocery": 1.8, "transit": 40, "air": 86, "heating": 168, "score": 45, "description": "A south Galt community with parks and growing residential development."},
-    "Southview": {"rent": [1500, 2100], "commute": 50, "grocery": 1.5, "transit": 45, "air": 84, "heating": 160, "score": 48, "description": "A Galt neighbourhood with a mix of residential housing and community parks."},
-    "Southwood": {"rent": [1700, 2350], "commute": 55, "grocery": 2.0, "transit": 38, "air": 87, "heating": 175, "score": 43, "description": "A south Cambridge community with newer housing stock and suburban character."},
-    "Glenview": {"rent": [1550, 2150], "commute": 50, "grocery": 1.4, "transit": 46, "air": 84, "heating": 162, "score": 48, "description": "A central Galt neighbourhood with heritage homes and access to the Grand River trail."},
-    "City Core": {"rent": [1400, 2000], "commute": 48, "grocery": 0.5, "transit": 60, "air": 80, "heating": 148, "score": 55, "description": "The historic downtown Galt core with walkable shops, cafes, and riverside parks."},
-    "Eastview": {"rent": [1500, 2050], "commute": 50, "grocery": 1.3, "transit": 48, "air": 83, "heating": 158, "score": 48, "description": "An east Galt residential area with mature trees and a community-oriented atmosphere."},
-    "Victoria Highlands": {"rent": [1600, 2200], "commute": 52, "grocery": 1.6, "transit": 43, "air": 85, "heating": 165, "score": 45, "description": "A Galt neighbourhood with mixed housing and proximity to the Grand River."},
-    "Westview": {"rent": [1550, 2100], "commute": 50, "grocery": 1.5, "transit": 45, "air": 84, "heating": 160, "score": 47, "description": "A west Galt community with parkland and moderate transit connections."},
-    "Lincoln Oaks": {"rent": [1650, 2300], "commute": 53, "grocery": 1.8, "transit": 40, "air": 86, "heating": 168, "score": 44, "description": "A residential Galt neighbourhood with quiet streets and community parks."},
-    "Riverview": {"rent": [1500, 2100], "commute": 50, "grocery": 1.0, "transit": 50, "air": 84, "heating": 158, "score": 50, "description": "A scenic Galt neighbourhood along the Grand River with trail access."},
-    "Langs Farm": {"rent": [1450, 2050], "commute": 48, "grocery": 1.2, "transit": 52, "air": 83, "heating": 155, "score": 51, "description": "A central Preston neighbourhood with community facilities and moderate transit."},
-    "Central Park": {"rent": [1500, 2100], "commute": 48, "grocery": 0.8, "transit": 55, "air": 82, "heating": 155, "score": 53, "description": "Preston's central neighbourhood with parks, schools, and the main commercial corridor."},
-    "Riverside": {"rent": [1600, 2200], "commute": 50, "grocery": 1.5, "transit": 48, "air": 84, "heating": 162, "score": 47, "description": "A Preston riverside community with natural trail access and quiet residential streets."},
-    "Parklawn": {"rent": [1500, 2100], "commute": 50, "grocery": 1.4, "transit": 48, "air": 84, "heating": 158, "score": 48, "description": "A Preston neighbourhood with parks and a mix of older and newer homes."},
-    "Allendale": {"rent": [1600, 2200], "commute": 53, "grocery": 1.8, "transit": 40, "air": 86, "heating": 165, "score": 44, "description": "A north Cambridge neighbourhood with suburban character and limited transit options."},
-    "Riverbank No 3": {"rent": [1700, 2400], "commute": 55, "grocery": 2.2, "transit": 35, "air": 88, "heating": 175, "score": 40, "description": "A semi-rural north Cambridge community with large lots and very limited transit."},
-    "Middle Block": {"rent": [1650, 2300], "commute": 55, "grocery": 2.5, "transit": 33, "air": 88, "heating": 172, "score": 39, "description": "A rural north Cambridge area with minimal services and no reliable transit."},
-    "Kossuth": {"rent": [1800, 2500], "commute": 60, "grocery": 3.0, "transit": 25, "air": 92, "heating": 190, "score": 35, "description": "A remote rural area in north Cambridge with large properties and no transit service."},
-    "Maple Grove": {"rent": [1900, 2700], "commute": 58, "grocery": 2.8, "transit": 28, "air": 91, "heating": 195, "score": 36, "description": "A large-lot north Cambridge community with rural character and minimal amenities."},
-    "Beaverdale": {"rent": [1700, 2400], "commute": 55, "grocery": 2.3, "transit": 33, "air": 89, "heating": 175, "score": 40, "description": "A north Cambridge neighbourhood with larger homes and very limited public transit."},
-    "Chilligo": {"rent": [1750, 2450], "commute": 58, "grocery": 2.6, "transit": 30, "air": 90, "heating": 180, "score": 37, "description": "A semi-rural north Cambridge area with residential development along rural roads."},
-    "Blackbridge": {"rent": [1500, 2100], "commute": 52, "grocery": 1.5, "transit": 44, "air": 85, "heating": 160, "score": 47, "description": "A Hespeler community near the Speed River with parks and growing transit access."},
-    "Hillcrest": {"rent": [1450, 2050], "commute": 50, "grocery": 1.2, "transit": 48, "air": 84, "heating": 155, "score": 50, "description": "A Hespeler neighbourhood with a mix of housing types and community parks."},
-    "Silverheights": {"rent": [1500, 2100], "commute": 50, "grocery": 1.4, "transit": 46, "air": 84, "heating": 158, "score": 48, "description": "A Hespeler residential area on elevated ground with views and quiet streets."},
-    "River Flats": {"rent": [1400, 1950], "commute": 50, "grocery": 0.8, "transit": 52, "air": 83, "heating": 150, "score": 52, "description": "Low-lying Hespeler lands near the Speed River — affordable and walkable to local shops."},
-    "Centennial": {"rent": [1450, 2050], "commute": 52, "grocery": 1.3, "transit": 46, "air": 84, "heating": 155, "score": 48, "description": "A central Hespeler neighbourhood with community facilities and moderate connectivity."},
-    "Downtown Hespeler": {"rent": [1350, 1950], "commute": 50, "grocery": 0.4, "transit": 55, "air": 82, "heating": 148, "score": 54, "description": "The charming historic downtown of Hespeler village with walkable shops and mill-era heritage."},
-    "Cambrian Hills": {"rent": [1550, 2150], "commute": 52, "grocery": 1.6, "transit": 42, "air": 85, "heating": 162, "score": 46, "description": "A hilly Hespeler community with scenic terrain and residential neighbourhoods."},
-    "Cooper": {"rent": [1600, 2200], "commute": 53, "grocery": 1.8, "transit": 40, "air": 86, "heating": 165, "score": 44, "description": "A Hespeler neighbourhood bordering industrial areas with modest housing stock."},
-    "Northview": {"rent": [1500, 2050], "commute": 50, "grocery": 1.5, "transit": 45, "air": 84, "heating": 158, "score": 48, "description": "A north Galt area with residential streets and moderate access to Galt amenities."},
-    "Shades Mills": {"rent": [1650, 2300], "commute": 53, "grocery": 2.0, "transit": 38, "air": 87, "heating": 170, "score": 43, "description": "A south Cambridge neighbourhood near the Shades Mills Conservation Area — scenic but car-dependent."},
-    "Industrial Park": {"rent": [1300, 1800], "commute": 48, "grocery": 1.8, "transit": 40, "air": 72, "heating": 145, "score": 40, "description": "Cambridge's industrial zone — low rents but poor air quality and limited amenities."}
+    // =============================================
+    // CAMBRIDGE — commute to local downtown
+    // (Galt → Downtown Galt, Preston → Preston centre, Hespeler → Downtown Hespeler)
+    // =============================================
+
+    // --- Galt core & central Galt ---
+    "City Core": { rent: [1400, 2000], commute: 5, grocery: 0.5, transit: 82, air: 80, heating: 148, score: 77, description: "The historic downtown Galt core — walkable shops, cafes, riverside parks, and a thriving arts scene." },
+    "Elgin Park": { rent: [1550, 2150], commute: 8, grocery: 1.0, transit: 78, air: 84, heating: 160, score: 74, description: "Central Galt area with excellent walkability, community events, and proximity to downtown amenities." },
+    "Riverview": { rent: [1500, 2100], commute: 7, grocery: 1.0, transit: 76, air: 84, heating: 158, score: 73, description: "A scenic Galt neighbourhood along the Grand River with trail access and a peaceful atmosphere." },
+    "Glenview": { rent: [1550, 2150], commute: 8, grocery: 1.2, transit: 74, air: 84, heating: 162, score: 72, description: "A central Galt neighbourhood with heritage homes, mature trees, and Grand River trail access." },
+    "Eastview": { rent: [1500, 2050], commute: 8, grocery: 1.1, transit: 74, air: 83, heating: 158, score: 71, description: "An east Galt residential area with mature trees, community charm, and walkable local shops." },
+    "Northview": { rent: [1500, 2050], commute: 10, grocery: 1.3, transit: 70, air: 84, heating: 158, score: 68, description: "A north Galt area with pleasant residential streets and solid access to downtown Galt amenities." },
+    "St Andrews Hills": { rent: [1700, 2400], commute: 10, grocery: 1.2, transit: 72, air: 85, heating: 168, score: 68, description: "A well-established Galt neighbourhood with tree-lined streets, community character, and local parks." },
+    "Southview": { rent: [1500, 2100], commute: 10, grocery: 1.3, transit: 70, air: 84, heating: 160, score: 68, description: "A central Galt neighbourhood with community parks, a mix of housing, and solid transit connections." },
+    "Westview": { rent: [1550, 2100], commute: 10, grocery: 1.3, transit: 70, air: 84, heating: 160, score: 67, description: "A west Galt community with parkland, recreational facilities, and moderate transit connections." },
+    "Victoria Highlands": { rent: [1600, 2200], commute: 10, grocery: 1.4, transit: 68, air: 85, heating: 165, score: 66, description: "A Galt neighbourhood with mixed housing, Grand River proximity, and scenic walking trails." },
+    "Lincoln Oaks": { rent: [1650, 2300], commute: 12, grocery: 1.6, transit: 64, air: 86, heating: 168, score: 64, description: "A residential Galt neighbourhood with quiet streets, community parks, and a family-friendly feel." },
+    "Branchton Park": { rent: [1650, 2300], commute: 14, grocery: 1.6, transit: 60, air: 86, heating: 168, score: 62, description: "A south Galt community with parks, growing residential development, and a suburban atmosphere." },
+    "Southwood": { rent: [1700, 2350], commute: 14, grocery: 1.8, transit: 58, air: 87, heating: 175, score: 60, description: "A south Cambridge community with newer housing stock, family-oriented streets, and local parks." },
+    "Shades Mills": { rent: [1650, 2300], commute: 15, grocery: 1.8, transit: 55, air: 87, heating: 170, score: 58, description: "A south Cambridge neighbourhood near Shades Mills Conservation Area — scenic trails and nature access." },
+
+    // --- Preston ---
+    "Central Park": { rent: [1500, 2100], commute: 5, grocery: 0.8, transit: 80, air: 82, heating: 155, score: 75, description: "Preston's vibrant central neighbourhood with parks, schools, the main commercial corridor, and LRT access." },
+    "Langs Farm": { rent: [1450, 2050], commute: 7, grocery: 1.0, transit: 76, air: 83, heating: 155, score: 72, description: "A central Preston neighbourhood with the Langs community centre, health services, and solid transit." },
+    "Preston Heights": { rent: [1500, 2100], commute: 8, grocery: 1.2, transit: 72, air: 85, heating: 165, score: 70, description: "A mid-density Preston neighbourhood with community parks, good schools, and improving transit access." },
+    "Riverside": { rent: [1600, 2200], commute: 8, grocery: 1.3, transit: 70, air: 84, heating: 162, score: 68, description: "A Preston riverside community with natural trail access, quiet streets, and scenic green spaces." },
+    "Parklawn": { rent: [1500, 2100], commute: 8, grocery: 1.2, transit: 70, air: 84, heating: 158, score: 68, description: "A Preston neighbourhood with parks, a mix of older and newer homes, and reliable bus service." },
+    "Blair": { rent: [1600, 2200], commute: 12, grocery: 1.8, transit: 60, air: 88, heating: 170, score: 64, description: "A historic village community in Cambridge's Preston area with scenic heritage charm and trail access." },
+
+    // --- Hespeler ---
+    "Downtown Hespeler": { rent: [1350, 1950], commute: 5, grocery: 0.4, transit: 78, air: 82, heating: 148, score: 76, description: "The charming historic downtown of Hespeler village — walkable shops, mill-era heritage, and community spirit." },
+    "River Flats": { rent: [1400, 1950], commute: 5, grocery: 0.8, transit: 75, air: 83, heating: 150, score: 73, description: "Hespeler lands near the Speed River — affordable, walkable to local shops, with riverside trails." },
+    "Hillcrest": { rent: [1450, 2050], commute: 8, grocery: 1.0, transit: 72, air: 84, heating: 155, score: 70, description: "A Hespeler neighbourhood with a solid mix of housing types, community parks, and local amenities." },
+    "Silverheights": { rent: [1500, 2100], commute: 8, grocery: 1.2, transit: 70, air: 84, heating: 158, score: 68, description: "A Hespeler residential area on elevated ground with scenic views and quiet family streets." },
+    "Centennial": { rent: [1450, 2050], commute: 8, grocery: 1.1, transit: 70, air: 84, heating: 155, score: 68, description: "A central Hespeler neighbourhood with community facilities, parks, and convenient local access." },
+    "Blackbridge": { rent: [1500, 2100], commute: 10, grocery: 1.3, transit: 66, air: 85, heating: 160, score: 65, description: "A Hespeler community near the Speed River with parks, growing amenities, and improving transit." },
+    "Cambrian Hills": { rent: [1550, 2150], commute: 10, grocery: 1.4, transit: 64, air: 85, heating: 162, score: 64, description: "A hilly Hespeler community with scenic terrain, residential neighbourhoods, and trail access." },
+    "Cooper": { rent: [1600, 2200], commute: 12, grocery: 1.6, transit: 60, air: 86, heating: 165, score: 61, description: "A Hespeler neighbourhood with modest housing stock, local parks, and developing connectivity." },
+
+    // --- North Cambridge (suburban / rural — lower scores expected) ---
+    "Royal Oak": { rent: [1650, 2300], commute: 14, grocery: 1.6, transit: 58, air: 86, heating: 172, score: 62, description: "A north Cambridge residential area with newer housing, community parks, and a quiet suburban feel." },
+    "Briardeane": { rent: [1600, 2200], commute: 15, grocery: 1.8, transit: 55, air: 87, heating: 170, score: 60, description: "A north Cambridge suburban neighbourhood with larger lots, green spaces, and a relaxed atmosphere." },
+    "Allendale": { rent: [1600, 2200], commute: 14, grocery: 1.6, transit: 58, air: 86, heating: 165, score: 62, description: "A north Cambridge neighbourhood with suburban character, community events, and developing amenities." },
+    "Riverbank No 3": { rent: [1700, 2400], commute: 20, grocery: 2.2, transit: 40, air: 88, heating: 175, score: 52, description: "A semi-rural north Cambridge community with large lots, natural scenery, and limited transit." },
+    "Middle Block": { rent: [1650, 2300], commute: 22, grocery: 2.5, transit: 35, air: 88, heating: 172, score: 48, description: "A rural north Cambridge area with spacious properties, minimal services, and a country atmosphere." },
+    "Kossuth": { rent: [1800, 2500], commute: 25, grocery: 3.0, transit: 25, air: 92, heating: 190, score: 42, description: "A remote rural area in north Cambridge with large properties, clean air, and no transit service." },
+    "Maple Grove": { rent: [1900, 2700], commute: 25, grocery: 2.8, transit: 28, air: 91, heating: 195, score: 40, description: "A large-lot north Cambridge community with rural character, natural beauty, and minimal amenities." },
+    "Beaverdale": { rent: [1700, 2400], commute: 20, grocery: 2.3, transit: 38, air: 89, heating: 175, score: 50, description: "A north Cambridge neighbourhood with larger homes, quiet streets, and a semi-rural atmosphere." },
+    "Chilligo": { rent: [1750, 2450], commute: 22, grocery: 2.6, transit: 32, air: 90, heating: 180, score: 45, description: "A semi-rural north Cambridge area with residential development and expansive open spaces." },
+    "Industrial Park": { rent: [1300, 1800], commute: 12, grocery: 1.8, transit: 45, air: 72, heating: 145, score: 42, description: "Cambridge's industrial zone — low rents but limited residential amenities and mixed air quality." }
 };
 
 // =============================================
