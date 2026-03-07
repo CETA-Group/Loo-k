@@ -14,6 +14,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@700&display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Reset for map page */
         body {
@@ -357,11 +358,12 @@
             background: #1e1e1e;
             border: 2px solid #00fff2;
             border-radius: 50%;
-            box-shadow: 0 0 10px #00fff2, 0 0 20px #00fff2;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 0, 0, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
+            color: #fff;
         }
 
         /* ---- POI TOOLTIP ---- */
@@ -910,14 +912,14 @@
         // POINTS OF INTEREST (POIs)
         // =============================================
         const pois = [
-            { name: "University of Waterloo", lat: 43.4723, lng: -80.5449, icon: "🎓" },
-            { name: "Laurier University", lat: 43.4730, lng: -80.5263, icon: "🎓" },
-            { name: "Conestoga College Doon", lat: 43.3900, lng: -80.4079, icon: "🎓" },
-            { name: "Conestoga Mall", lat: 43.5008, lng: -80.5256, icon: "🛍️" },
-            { name: "Fairview Park Mall", lat: 43.4326, lng: -80.4357, icon: "🛍️" },
-            { name: "Cambridge Centre", lat: 43.3929, lng: -80.3248, icon: "🛍️" },
-            { name: "Victoria Park", lat: 43.4475, lng: -80.4990, icon: "🌳" },
-            { name: "Grand River Hospital", lat: 43.4566, lng: -80.5100, icon: "🏥" }
+            { name: "University of Waterloo", lat: 43.4723, lng: -80.5449, icon: '<i class="fa-solid fa-graduation-cap"></i>' },
+            { name: "Laurier University", lat: 43.4730, lng: -80.5263, icon: '<i class="fa-solid fa-graduation-cap"></i>' },
+            { name: "Conestoga College Doon", lat: 43.3900, lng: -80.4079, icon: '<i class="fa-solid fa-graduation-cap"></i>' },
+            { name: "Conestoga Mall", lat: 43.5008, lng: -80.5256, icon: '<i class="fa-solid fa-bag-shopping"></i>' },
+            { name: "Fairview Park Mall", lat: 43.4326, lng: -80.4357, icon: '<i class="fa-solid fa-bag-shopping"></i>' },
+            { name: "Cambridge Centre", lat: 43.3929, lng: -80.3248, icon: '<i class="fa-solid fa-bag-shopping"></i>' },
+            { name: "Victoria Park", lat: 43.4475, lng: -80.4990, icon: '<i class="fa-solid fa-tree"></i>' },
+            { name: "Grand River Hospital", lat: 43.4566, lng: -80.5100, icon: '<i class="fa-solid fa-hospital"></i>' }
         ];
 
         // Loop through the POIs array to add markers to the map
@@ -925,7 +927,7 @@
             // Create the custom HTML divIcon
             const customIcon = L.divIcon({
                 className: 'custom-poi-marker',
-                html: `<div>${poi.icon}</div>`,
+                html: poi.icon,
                 iconSize: [30, 30], // Dimensions of the marker
                 iconAnchor: [15, 15] // Center the marker over coordinate
             });
