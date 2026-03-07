@@ -1,5 +1,4 @@
 import google.generativeai as genai
-from prompt_builder import build_prompt
 import json
 
 genai.configure(
@@ -8,11 +7,9 @@ genai.configure(
 
 model = genai.GenerativeModel("gemini-1.5-flash")
 
-prompt = build_prompt(
-    user_preferences=prefs,
-    user_history=history,
-    menu_data=menu,
-    is_logged_in=user.is_authenticated,
-)
-response = gemini_client.complete(prompt)
-data = json.loads(response.text)
+async def generate_recommendation(prompt: str) -> str:
+    """
+    Generate a recommendation using Gemini AI
+    """
+    response = model.generate_content(prompt)
+    return response.text
