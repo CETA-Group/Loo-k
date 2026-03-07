@@ -254,71 +254,66 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // =============================================
-// NEIGHBOURHOOD SCORES — Catherine fills this
+// NEIGHBOURHOOD SCORES — FULLY POPULATED FOR DEMO
 // Key = exact neighbourhood name from GeoJSON
 // =============================================
 const scores = {
-    "Northdale": {
-        rent: [1400, 1900], commute: 8, grocery: 1.2,
-        transit: 75, air: 80, heating: 200, score: 68
-    },
-    "Uptown West": {
-        rent: [1800, 2500], commute: 10, grocery: 0.3,
-        transit: 92, air: 76, heating: 165, score: 78
-    },
-    "Uptown North": {
-        rent: [1700, 2300], commute: 12, grocery: 0.5,
-        transit: 88, air: 77, heating: 170, score: 75
-    },
-    "MacGregor Albert": {
-        rent: [1500, 2100], commute: 6, grocery: 0.9,
-        transit: 80, air: 78, heating: 185, score: 72
-    },
-    "Columbia Forest": {
-        rent: [1600, 2200], commute: 5, grocery: 0.8,
-        transit: 85, air: 78, heating: 180, score: 74
-    },
-    "University Downs": {
-        rent: [1500, 2000], commute: 7, grocery: 1.0,
-        transit: 70, air: 80, heating: 190, score: 70
-    },
-    "Lakeshore North": {
-        rent: [1600, 2100], commute: 14, grocery: 0.6,
-        transit: 82, air: 79, heating: 175, score: 71
-    },
-    "Lakeshore South": {
-        rent: [1550, 2050], commute: 16, grocery: 0.7,
-        transit: 78, air: 79, heating: 178, score: 67
-    },
-    "Lincoln Heights": {
-        rent: [1400, 1850], commute: 15, grocery: 0.5,
-        transit: 72, air: 82, heating: 195, score: 64
-    },
-    "Lincoln Village West": {
-        rent: [1350, 1800], commute: 18, grocery: 0.6,
-        transit: 65, air: 83, heating: 200, score: 60
-    },
-    "Erb West": {
-        rent: [1650, 2200], commute: 13, grocery: 0.4,
-        transit: 75, air: 77, heating: 175, score: 69
-    },
-    "Mary Allen": {
-        rent: [1500, 2000], commute: 9, grocery: 1.1,
-        transit: 78, air: 79, heating: 185, score: 70
-    },
-    "Laurelwood": {
-        rent: [1700, 2300], commute: 22, grocery: 1.5,
-        transit: 35, air: 90, heating: 155, score: 50
-    },
-    "Beechwood North": {
-        rent: [1500, 2000], commute: 18, grocery: 1.8,
-        transit: 48, air: 87, heating: 185, score: 52
-    },
-    "Clair Hills": {
-        rent: [1750, 2400], commute: 25, grocery: 1.3,
-        transit: 30, air: 92, heating: 150, score: 45
-    }
-    // Catherine: add more neighbourhoods here following the same format
+    // --- 核心学生区 & 市中心 (高便利度，短通勤) ---
+    "Northdale": { rent: [1400, 2000], commute: 5, grocery: 0.8, transit: 92, air: 78, heating: 120, score: 76 },
+    "MacGregor Albert": { rent: [1500, 2100], commute: 8, grocery: 0.9, transit: 88, air: 79, heating: 130, score: 75 },
+    "Uptown West": { rent:[1800, 2500], commute: 12, grocery: 0.4, transit: 95, air: 76, heating: 135, score: 78 },
+    "Uptown North": { rent:[1750, 2450], commute: 10, grocery: 0.6, transit: 90, air: 77, heating: 140, score: 76 },
+    "Mary Allen": { rent: [1800, 2600], commute: 14, grocery: 0.5, transit: 86, air: 80, heating: 150, score: 74 },
+    
+    // --- 环大学 / 中距离通勤街区 ---
+    "University Downs": { rent: [1600, 2200], commute: 15, grocery: 1.2, transit: 75, air: 82, heating: 160, score: 68 },
+    "Lincoln Heights": { rent: [1550, 2100], commute: 12, grocery: 1.0, transit: 78, air: 82, heating: 150, score: 70 },
+    "Lincoln Village West": { rent:[1600, 2150], commute: 14, grocery: 1.2, transit: 72, air: 83, heating: 160, score: 66 },
+    "Erb West": { rent: [1650, 2250], commute: 15, grocery: 1.5, transit: 68, air: 85, heating: 170, score: 64 },
+    "Moses Springer": { rent: [1600, 2150], commute: 12, grocery: 0.8, transit: 82, air: 81, heating: 155, score: 72 },
+    "Hillside Park / Glenridge": { rent:[1550, 2100], commute: 11, grocery: 1.1, transit: 80, air: 80, heating: 145, score: 71 },
+    "Village on the Green": { rent: [1600, 2150], commute: 10, grocery: 1.0, transit: 81, air: 82, heating: 150, score: 70 },
+    "Chippendale": { rent: [1600, 2100], commute: 10, grocery: 0.9, transit: 76, air: 82, heating: 150, score: 69 },
+    "Vermont Park": { rent:[1700, 2300], commute: 15, grocery: 1.4, transit: 65, air: 85, heating: 175, score: 64 },
+    
+    // --- 湖区 & 北部偏远街区 ---
+    "Lakeshore North": { rent:[1800, 2400], commute: 16, grocery: 1.5, transit: 65, air: 86, heating: 180, score: 62 },
+    "Lakeshore South": { rent: [1750, 2350], commute: 18, grocery: 1.8, transit: 60, air: 85, heating: 185, score: 60 },
+    "Conservation Meadows": { rent:[2300, 3100], commute: 25, grocery: 3.5, transit: 35, air: 93, heating: 230, score: 42 },
+    "Eastbridge": { rent:[2100, 2800], commute: 22, grocery: 2.2, transit: 50, air: 90, heating: 210, score: 50 },
+    "Wissler Old Abbey": { rent: [1900, 2600], commute: 18, grocery: 2.0, transit: 55, air: 89, heating: 195, score: 55 },
+    "Foxhunt": { rent: [1900, 2600], commute: 16, grocery: 1.6, transit: 58, air: 87, heating: 190, score: 57 },
+    "Cardinal Crescent": { rent:[1650, 2150], commute: 14, grocery: 1.5, transit: 72, air: 83, heating: 165, score: 67 },
+    "Roselea Park": { rent:[1750, 2350], commute: 16, grocery: 1.6, transit: 62, air: 85, heating: 180, score: 61 },
+
+    // --- Beechwood 及周边系列 (中产家庭区) ---
+    "Beechwood North": { rent:[1950, 2700], commute: 14, grocery: 1.6, transit: 58, air: 88, heating: 200, score: 58 },
+    "Beechwood South": { rent: [1950, 2700], commute: 15, grocery: 1.7, transit: 56, air: 88, heating: 200, score: 57 },
+    "Beechwood West I": { rent:[2000, 2800], commute: 16, grocery: 1.8, transit: 55, air: 89, heating: 210, score: 55 },
+    "Beechwood West II": { rent: [2050, 2850], commute: 17, grocery: 1.9, transit: 52, air: 89, heating: 215, score: 53 },
+    "Upper Beechwood I": { rent:[2200, 3000], commute: 18, grocery: 2.0, transit: 48, air: 90, heating: 220, score: 49 },
+    "Upper Beechwood II": { rent: [2300, 3100], commute: 20, grocery: 2.2, transit: 45, air: 91, heating: 225, score: 47 },
+    "Beechwood II": { rent:[1900, 2650], commute: 14, grocery: 1.7, transit: 58, air: 89, heating: 205, score: 56 },
+    "Beechwood Park": { rent: [1850, 2600], commute: 12, grocery: 1.5, transit: 62, air: 87, heating: 195, score: 60 },
+    "Beechwood Bridle Gate": { rent: [2100, 2900], commute: 18, grocery: 2.0, transit: 50, air: 90, heating: 215, score: 51 },
+
+    // --- 西郊 / 新开发远郊 (面积大、贵、通勤久) ---
+    "Columbia Forest": { rent:[2100, 2900], commute: 26, grocery: 2.8, transit: 40, air: 92, heating: 210, score: 48 },
+    "Laurelwood": { rent: [2200, 3000], commute: 22, grocery: 1.8, transit: 48, air: 92, heating: 220, score: 51 },
+    "Clair Hills": { rent: [2300, 3200], commute: 25, grocery: 2.3, transit: 40, air: 94, heating: 230, score: 45 },
+    "Vista Hills": { rent: [2400, 3300], commute: 28, grocery: 2.7, transit: 35, air: 95, heating: 240, score: 43 },
+    "Westvale": { rent:[2050, 2850], commute: 24, grocery: 1.6, transit: 45, air: 90, heating: 200, score: 52 },
+    "Carriage Crossing": { rent: [2600, 3600], commute: 30, grocery: 3.2, transit: 25, air: 96, heating: 260, score: 38 }, // 最贵最远
+    "Rummelhardt": { rent:[2100, 2800], commute: 20, grocery: 2.0, transit: 48, air: 90, heating: 210, score: 50 },
+    "Laurel Creek": { rent:[2000, 2750], commute: 18, grocery: 1.8, transit: 52, air: 89, heating: 205, score: 54 },
+    "Craigleith": { rent:[1850, 2550], commute: 15, grocery: 1.5, transit: 60, air: 88, heating: 185, score: 58 },
+    "Village on Clair Cr": { rent: [1850, 2500], commute: 16, grocery: 1.4, transit: 62, air: 87, heating: 175, score: 61 },
+    
+    // --- 零散区域 ---
+    "Glasgow Heights I": { rent:[1750, 2350], commute: 14, grocery: 1.3, transit: 68, air: 85, heating: 175, score: 64 },
+    "Glasgow Heights II": { rent: [1800, 2450], commute: 15, grocery: 1.4, transit: 65, air: 86, heating: 180, score: 62 },
+    "Sugarbush North": { rent: [1950, 2650], commute: 16, grocery: 1.6, transit: 58, air: 88, heating: 195, score: 57 },
+    "Sugarbush Park": { rent:[1900, 2600], commute: 15, grocery: 1.4, transit: 62, air: 87, heating: 190, score: 59 }
 };
 
 // =============================================
