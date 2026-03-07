@@ -1,0 +1,122 @@
+npx create-next-app hackathon-app
+cd hackathon-app
+npm install @auth0/nextjs-auth0
+
+import { handleAuth } from "@auth0/nextjs-auth0";
+export default handleAuth();
+
+import { UserProvider } from "@auth0/nextjs-auth0/client";
+export default function App({ Component, pageProps }) {
+  return (
+    <UserProvider>
+      <Component {...pageProps} />
+    </UserProvider>
+  );
+}
+
+import { useUser } from "@auth0/nextjs-auth0/client";
+import { useState, useEffect } from "react";
+
+export default function Home() {
+
+  const { user, isLoading } = useUser();
+
+  const [salary,setSalary] = useState("");
+  const [shopping,setShopping] = useState("");
+  const [eating,setEating] = useState("");
+  const [hobbies,setHobbies] = useState("");
+  const [house,setHouse] = useState("");  // <-- new field
+
+  useEffect(()=>{
+    if(user){
+      const saved = localStorage.getItem(user.email);
+
+      if(saved){
+        const data = JSON.parse(saved);
+        setSalary(data.salary || "");
+        setShopping(data.shopping || "");
+        setEating(data.eating || "");
+        setHobbies(data.hobbies || "");
+        setHouse(data.house || ""); // <-- load house preference
+      }
+    }
+  },[user]);
+
+
+  function savePreferences(){
+    const data = {
+      salary,
+      shopping,
+      eating,
+      hobbies,
+      house // <-- save house preference
+    };
+    localStorage.setItem(user.email,JSON.stringify(data));
+    alert("Preferences saved!");
+  }
+
+
+  if(isLoading) return <div>Loading...</div>;
+  if(!user){
+    return(
+      <div style={{textAlign:"center",marginTop:"100px"}}>
+        <h1>Hackathon Budget App</h1>
+        <a href="/api/auth/login">
+          <button>Login</button>
+        </a>
+      </div>
+    )
+  }
+
+
+  return(
+
+    <div style={{maxWidth:"500px",margin:"50px auto"}}>
+      <h2>Welcome {user.name}</h2>
+      <img src={user.picture} width="60"/>
+      <h3>Your Preferences</h3>
+      <input
+        placeholder="Salary"
+        value={salary}
+        onChange={e=>setSalary(e.target.value)}
+      />
+      <br/><br/>
+
+      <input
+        placeholder="Shopping Preferences"
+        value={shopping}
+        onChange={e=>setShopping(e.target.value)}
+      />
+      <br/><br/>
+
+      <input
+        placeholder="Eating Out Preferences"
+        value={eating}
+        onChange={e=>setEating(e.target.value)}
+      />
+      <br/><br/>
+
+      <input
+        placeholder="Hobbies"
+        value={hobbies}
+        onChange={e=>setHobbies(e.target.value)}
+      />
+      <br/><br/>
+
+      <input
+        placeholder="House Preference"
+        value={house}
+        onChange={e=>setHouse(e.target.value)}
+      />
+      <br/><br/>
+
+      <button onClick={savePreferences}>
+        Save
+      </button>
+      <br/><br/>
+
+      <a href="/api/auth/logout">Logout</a>
+
+    </div>
+  )
+}
