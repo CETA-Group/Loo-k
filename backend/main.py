@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from backend.auth0 import verify_jwt
+from auth0_service import verify_jwt
 from fastapi import Depends
 from backboard_services.preferences import save_preferences, get_preferences
 from backboard_services.user_history import add_history, get_history
