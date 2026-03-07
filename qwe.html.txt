@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Neighborhood Convenience Hexagon</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{
+    font-family: Arial;
+    text-align:center;
+    background:#f4f4f4;
+}
+
+.container{
+    width:500px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+}
+
+input{
+    width:80%;
+    padding:6px;
+    margin:5px;
+}
+
+button{
+    padding:10px 20px;
+    margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Neighborhood Convenience Radar</h2>
+
+<input id="grocery" placeholder="Distance to closest grocery store (km)">
+<br>
+
+<input id="commute" placeholder="Commute time by transit or walking (minutes)">
+<br>
+
+<input id="entertainment" placeholder="Number of entertainment places within 10km">
+<br>
+
+<input id="restaurants" placeholder="Popular restaurants within 2km">
+<br>
+
+<input id="hobbyDistance" placeholder="Distance to closest hobby place (km)">
+<br>
+
+<input id="mallTime" placeholder="Time to closest mall (minutes)">
+<br>
+
+<button onclick="drawChart()">Generate Hexagon Graph</button>
+
+<canvas id="hexChart"></canvas>
+
+</div>
+
+<script>
+
+let chart;
+
+function drawChart(){
+
+const grocery = document.getElementById("grocery").value;
+const commute = document.getElementById("commute").value;
+const entertainment = document.getElementById("entertainment").value;
+const restaurants = document.getElementById("restaurants").value;
+const hobbyDistance = document.getElementById("hobbyDistance").value;
+const mallTime = document.getElementById("mallTime").value;
+
+const dataValues = [
+grocery,
+commute,
+entertainment,
+restaurants,
+hobbyDistance,
+mallTime
+];
+
+const ctx = document.getElementById("hexChart");
+
+if(chart){
+chart.destroy();
+}
+
+chart = new Chart(ctx,{
+type:"radar",
+data:{
+labels:[
+"Grocery Distance",
+"Commute Time",
+"Entertainment Places",
+"Restaurants Nearby",
+"Hobby Distance",
+"Mall Time"
+],
+datasets:[{
+label:"Location Score",
+data:dataValues,
+fill:true
+}]
+},
+options:{
+scales:{
+r:{
+beginAtZero:true
+}
+}
+}
+});
+
+}
+
+</script>
+
+</body>
+</html>
