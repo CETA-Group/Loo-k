@@ -7,10 +7,13 @@
  *
  * Usage:
  *   await TruRentAuth.init()
- *   TruRentAuth.login()          // opens Auth0 Universal Login
- *   TruRentAuth.logout()
- *   await TruRentAuth.getUser()  // returns user object or null
+ *   TruRentAuth.login()             // opens Auth0 Universal Login (sign in tab)
+ *   TruRentAuth.signup()            // opens Auth0 Universal Login (sign up tab)
+ *   TruRentAuth.logout()            // log out → landing page
+ *   TruRentAuth.switchAccount()     // log out with federated clear → landing page
+ *   await TruRentAuth.getUser()     // returns Auth0 user object or null
  *   await TruRentAuth.handleCallback()  // call on page load to process redirect
+ *   TruRentAuth.client              // raw Auth0 SPA client (for getTokenSilently etc.)
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * AUTH0 DASHBOARD SETUP (required before Auth0 will open)
@@ -20,9 +23,8 @@
  *  3. Add ALL of the following to Allowed Callback URLs, Allowed Logout URLs,
  *     and Allowed Web Origins:
  *
- *       http://localhost:8080                         ← local dev (python HTTP server)
- *       http://localhost:5173                         ← if using Vite
- *       https://your-deployed-site.github.io          ← production (update when deployed)
+ *       http://localhost:8080/Portal%20website/index.html  ← local dev callback
+ *       http://localhost:8080                              ← web origin
  *
  *  If Allowed Callback URLs is missing, Auth0 will never open — it silently
  *  aborts the redirect. This is the #1 cause of "Auth0 appears skipped".
@@ -37,109 +39,148 @@ const TruRentAuth = (() => {
     const AUTH0_AUDIENCE  = 'https://trurent/api';
     // ──────────────────────────────────────────────────────────────────────────
 
-    // Pages to route to after authentication
-    const PAGE_ONBOARDING = '/Auth0/onboarding.html';  // new user → collect preferences
-    const PAGE_DASHBOARD  = '/Auth0/dashboard.html';   // existing user → app
+    const PAGE_LANDING    = '/Portal%20website/index.html';
+    const PAGE_ONBOARDING = '/Portal%20website/Auth0/onboarding.html';
+    const PAGE_DASHBOARD  = '/Portal%20website/Auth0/dashboard.html';
 
-    const REDIRECT_URI = window.location.href.split('?')[0].split('#')[0];
+    const REDIRECT_URI  = window.location.href.split('?')[0].split('#')[0];
     const IS_CONFIGURED = AUTH0_DOMAIN !== 'YOUR_AUTH0_DOMAIN' && AUTH0_CLIENT_ID !== 'YOUR_CLIENT_ID';
 
-    let client = null;
+    let _client = null;
 
-    /** Initialise the Auth0 client. Call once on page load. */
+    /** Initialise the Auth0 SPA client. Call once per page load. */
     async function init() {
         if (!IS_CONFIGURED) {
-            console.info('[TruRentAuth] Auth0 not configured — running in demo mode.');
+            console.info('[TruRentAuth] Not configured — demo mode.');
             return null;
         }
-        client = await auth0.createAuth0Client({
-            domain:           AUTH0_DOMAIN,
-            clientId:         AUTH0_CLIENT_ID,
-            authorizationParams: { 
-                redirect_uri: REDIRECT_URI ,
-                audience: AUTH0_AUDIENCE
+        _client = await auth0.createAuth0Client({
+            domain:   AUTH0_DOMAIN,
+            clientId: AUTH0_CLIENT_ID,
+            authorizationParams: {
+                redirect_uri: REDIRECT_URI,
+                // audience omitted here — only needed when calling the backend API
             },
-            cacheLocation:    'localstorage',  // persist session across page reloads
-            useRefreshTokens: true
+            cacheLocation:    'localstorage',
+            useRefreshTokens: true,
         });
-        return client;
+        return _client;
     }
 
     /**
-     * Open Auth0 Universal Login.
-     * Auth0 provides the entire email/password/social UI — never build it locally.
-     * After the user authenticates, Auth0 redirects back to REDIRECT_URI.
+     * Open Auth0 Universal Login (sign-in view).
+     * Auth0 provides the entire UI — never build a custom login form.
      */
     function login() {
-        if (client) {
-            client.loginWithRedirect({
-                authorizationParams: { redirect_uri: REDIRECT_URI }
+        if (_client) {
+            _client.loginWithRedirect({
+                authorizationParams: {
+                    redirect_uri: REDIRECT_URI,
+                    prompt: 'login',  // always show login form, never silently skip
+                },
             });
         } else {
-            // Demo mode (credentials not configured yet)
             window.location.href = PAGE_ONBOARDING;
         }
     }
 
-    /** Log out and return to the current page. */
-    function logout() {
-        if (client) {
-            client.logout({ logoutParams: { returnTo: REDIRECT_URI } });
+    /** Open Auth0 Universal Login pre-set to the sign-up tab. */
+    function signup() {
+        if (_client) {
+            _client.loginWithRedirect({
+                authorizationParams: {
+                    redirect_uri: REDIRECT_URI,
+                    screen_hint:  'signup',
+                    prompt:       'login',
+                },
+            });
         } else {
-            window.location.href = REDIRECT_URI;
+            window.location.href = PAGE_ONBOARDING;
+        }
+    }
+
+    /**
+     * Log out and return to the landing page.
+     * Auth0 session is cleared; the user will need to log in again.
+     */
+    function logout() {
+        const returnTo = window.location.origin + PAGE_LANDING;
+        if (_client) {
+            _client.logout({ logoutParams: { returnTo } });
+        } else {
+            window.location.href = PAGE_LANDING;
+        }
+    }
+
+    /**
+     * Switch to a different account.
+     * Same as logout but passes federated:true to also clear the identity
+     * provider session (Google, GitHub, etc.) so the user must pick an account.
+     */
+    function switchAccount() {
+        const returnTo = window.location.origin + PAGE_LANDING;
+        if (_client) {
+            _client.logout({ logoutParams: { returnTo, federated: true } });
+        } else {
+            window.location.href = PAGE_LANDING;
         }
     }
 
     /**
      * Process the Auth0 redirect callback (?code=...&state=...).
-     * Call this on every page load. Returns true if a callback was handled.
-     * After handling, routes the user to onboarding (new) or dashboard (existing).
+     * Call on every page load. Routes the user after successful authentication:
+     *   - no saved profile  → onboarding form
+     *   - profile exists    → dashboard
      */
     async function handleCallback() {
-        if (!client) return false;
+        if (!_client) return false;
         if (!window.location.search.includes('code=') || !window.location.search.includes('state=')) {
             return false;
         }
 
-        await client.handleRedirectCallback();
-        window.history.replaceState({}, document.title, REDIRECT_URI); // clean URL
+        await _client.handleRedirectCallback();
+        window.history.replaceState({}, document.title, REDIRECT_URI);
 
-        const user = await client.getUser();
+        const user = await _client.getUser();
         if (!user) return false;
 
-        // New-user check: no saved profile = first time through
-        // TODO: swap for GET /api/profile once backend/main.py has a /profile endpoint
-        const profileKey = 'trurent_profile_' + (user.email || user.sub);
-        const isNew = localStorage.getItem(profileKey) === null;
+        // Use sub (stable permanent Auth0 ID) as the profile key
+        const profileKey = 'trurent_profile_' + (user.sub || user.email);
+        const hasProfile = localStorage.getItem(profileKey) !== null;
 
-        window.location.href = isNew ? PAGE_ONBOARDING : PAGE_DASHBOARD;
+        window.location.href = hasProfile ? PAGE_DASHBOARD : PAGE_ONBOARDING;
         return true;
     }
 
-    /** Returns the authenticated user object, or null if not logged in. */
+    /** Returns the Auth0 user object, or null if not authenticated. */
     async function getUser() {
-        if (!client) return null;
-        const isAuth = await client.isAuthenticated();
-        return isAuth ? client.getUser() : null;
+        if (!_client) return null;
+        return (await _client.isAuthenticated()) ? _client.getUser() : null;
     }
 
     /** Returns true if the current session is authenticated. */
     async function isAuthenticated() {
-        if (!client) return false;
-        return client.isAuthenticated();
+        if (!_client) return false;
+        return _client.isAuthenticated();
     }
 
-    /** Returns an access token for API calls. */
+    /** Returns an access token for backend API calls. */
     async function getToken() {
-        if (!client) return null;
+        if (!_client) return null;
         try {
-            return await client.getTokenSilently();
+            return await _client.getTokenSilently();
         } catch (err) {
             console.error('[TruRentAuth] Error getting token:', err);
             return null;
         }
     }
 
-    return { init, login, logout, handleCallback, getUser, isAuthenticated, getToken, IS_CONFIGURED };
+    return {
+        init, login, signup, logout, switchAccount,
+        handleCallback, getUser, isAuthenticated, getToken,
+        IS_CONFIGURED,
+        /** Raw Auth0 SPA client — use for getTokenSilently(), etc. */
+        get client() { return _client; },
+    };
 
 })();

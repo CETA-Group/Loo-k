@@ -6,14 +6,97 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-		<!-- Auth0 SPA SDK + centralised auth module (all auth logic lives in auth.js) -->
 		<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
-		<script src="../Auth0/auth.js"></script>
+		<script src="Auth0/auth.js"></script>
+		<script src="Auth0/profile.js"></script>
+		<style>
+			/* ── Logged-in session bar ── */
+			.session-bar {
+				display: none;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				z-index: 10000;
+				background: rgba(9, 21, 37, 0.92);
+				backdrop-filter: blur(16px);
+				-webkit-backdrop-filter: blur(16px);
+				border-bottom: 1px solid rgba(255,255,255,0.08);
+				padding: 0.55rem 1.6rem;
+				align-items: center;
+				justify-content: space-between;
+				gap: 1rem;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+				font-size: 0.82rem;
+			}
+			.session-bar.visible { display: flex; }
+
+			.sb-left {
+				display: flex;
+				align-items: center;
+				gap: 0.55rem;
+			}
+			.sb-avatar {
+				width: 26px; height: 26px; border-radius: 50%;
+				background: linear-gradient(135deg, #3b82f6, #7c3aed);
+				display: flex; align-items: center; justify-content: center;
+				font-size: 0.62rem; font-weight: 700; color: #fff;
+				flex-shrink: 0; overflow: hidden;
+			}
+			.sb-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+			.sb-name  { color: rgba(255,255,255,0.8); font-weight: 600; }
+			.sb-label { color: rgba(255,255,255,0.35); }
+
+			.sb-right {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+			.sb-btn {
+				padding: 0.38rem 0.9rem;
+				border-radius: 8px;
+				font-size: 0.78rem;
+				font-weight: 600;
+				cursor: pointer;
+				font-family: inherit;
+				text-decoration: none;
+				transition: all 0.15s;
+				border: none;
+			}
+			.sb-btn-dashboard {
+				background: linear-gradient(135deg, #3b82f6, #2563eb);
+				color: #fff;
+				box-shadow: 0 2px 10px rgba(59,130,246,0.3);
+			}
+			.sb-btn-dashboard:hover { opacity: 0.9; transform: translateY(-1px); }
+
+			.sb-btn-switch {
+				background: transparent;
+				border: 1px solid rgba(255,255,255,0.18);
+				color: rgba(255,255,255,0.6);
+			}
+			.sb-btn-switch:hover {
+				border-color: rgba(96,165,250,0.5);
+				color: #60a5fa;
+				background: rgba(96,165,250,0.08);
+			}
+		</style>
 	</head>
 	<body class="landing is-preload">
 
 		<!-- Page Wrapper -->
 			<div id="page-wrapper">
+
+			<!-- ── Session bar: shown when user is already logged in ── -->
+			<div class="session-bar" id="session-bar">
+				<div class="sb-left">
+					<div class="sb-avatar" id="sb-avatar">?</div>
+					<span class="sb-label">Signed in as</span>
+					<span class="sb-name" id="sb-name">—</span>
+				</div>
+				<div class="sb-right">
+					<a href="/Auth0/dashboard.html" class="sb-btn sb-btn-dashboard">Go to Dashboard →</a>
+					<button class="sb-btn sb-btn-switch" id="sb-switch-btn">🔄 Switch Account</button>
+				</div>
+			</div>
 
 				<!-- Header -->
 					<header id="header" class="alt">
@@ -171,32 +254,60 @@
 		<script src="assets/js/main.js"></script>
 
 		<script>
-		// All buttons have real href fallbacks (../Auth0/onboarding.html) so they
-		// always navigate even if auth.js fails to load.
-		// JS only intercepts the click when Auth0 credentials ARE configured,
-		// replacing the href navigation with Auth0 Universal Login.
-
 		async function boot() {
 			if (typeof TruRentAuth === 'undefined') return;
 
 			await TruRentAuth.init();
 
-			// Handle the redirect back from Auth0 Universal Login
-			// (?code=...&state=... in the URL means Auth0 just redirected here)
-			await TruRentAuth.handleCallback();
+			// Process Auth0 redirect callback if present (?code=&state=)
+			const wasCallback = await TruRentAuth.handleCallback();
+			if (wasCallback) return; // handleCallback already navigated away
 
-			// Only intercept button clicks if Auth0 is fully configured
-			if (!TruRentAuth.IS_CONFIGURED) return;
+			// ── Check if user is already authenticated ────────────────────────
+			if (TruRentAuth.IS_CONFIGURED && await TruRentAuth.isAuthenticated()) {
+				const user    = await TruRentAuth.getUser();
+				const profile = (typeof TruRentProfile !== 'undefined') ? TruRentProfile.get(user) : null;
+				const name    = (typeof TruRentProfile !== 'undefined')
+					? TruRentProfile.getDisplayName(user, profile)
+					: (user?.name || user?.email || 'You');
+				const initials = (typeof TruRentProfile !== 'undefined')
+					? TruRentProfile.getInitials(user, profile)
+					: (name[0] || '?').toUpperCase();
 
-			function interceptForAuth0(e) {
-				e.preventDefault();
-				TruRentAuth.login(); // opens Auth0 Universal Login
+				// Populate and show session bar
+				const avatarEl = document.getElementById('sb-avatar');
+				if (user?.picture) {
+					avatarEl.innerHTML = `<img src="${user.picture}" alt="${initials}" />`;
+				} else {
+					avatarEl.textContent = initials;
+				}
+				document.getElementById('sb-name').textContent = name;
+				document.getElementById('session-bar').classList.add('visible');
+
+				// Switch Account from session bar
+				document.getElementById('sb-switch-btn').addEventListener('click', () => {
+					TruRentAuth.switchAccount();
+				});
+
+				// Explore/CTA buttons → go to dashboard (user is already in)
+				const goToDashboard = e => {
+					e.preventDefault();
+					window.location.href = '/Auth0/dashboard.html';
+				};
+				document.getElementById('btn-explore')    .addEventListener('click', goToDashboard);
+				document.getElementById('btn-explore-cta').addEventListener('click', goToDashboard);
+				document.getElementById('btn-nav-signup') .addEventListener('click', goToDashboard);
+				document.getElementById('btn-nav-login')  .addEventListener('click', goToDashboard);
+				return;
 			}
 
-			document.getElementById('btn-explore')    .addEventListener('click', interceptForAuth0);
-			document.getElementById('btn-explore-cta').addEventListener('click', interceptForAuth0);
-			document.getElementById('btn-nav-signup') .addEventListener('click', interceptForAuth0);
-			document.getElementById('btn-nav-login')  .addEventListener('click', interceptForAuth0);
+			// ── Not authenticated — wire buttons to Auth0 login ───────────────
+			if (!TruRentAuth.IS_CONFIGURED) return;
+
+			document.getElementById('btn-explore')    .addEventListener('click', e => { e.preventDefault(); TruRentAuth.login(); });
+			document.getElementById('btn-explore-cta').addEventListener('click', e => { e.preventDefault(); TruRentAuth.login(); });
+			document.getElementById('btn-nav-signup') .addEventListener('click', e => { e.preventDefault(); TruRentAuth.signup(); });
+			document.getElementById('btn-nav-login')  .addEventListener('click', e => { e.preventDefault(); TruRentAuth.login(); });
 		}
 
 		boot();

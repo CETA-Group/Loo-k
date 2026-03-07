@@ -1,180 +1,324 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
     <title>TruRent — Dashboard</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="../Portal%20website/assets/css/main.css" />
-    <noscript><link rel="stylesheet" href="../Portal%20website/assets/css/noscript.css" /></noscript>
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <script src="auth.js"></script>
-
-
-    <!-- Backend call script -->
-    <script>
-    async function callProtectedEndpoint() {
-    // Initialize Auth0
-    await TruRentAuth.init();
-
-    // Ensure user is logged in
-    const user = await TruRentAuth.getUser();
-    if (!user) {
-        window.location.href = "/Auth0/login.html";
-        return;
-    }
-
-    // Get access token
-    const token = await TruRentAuth.getToken();
-
-    // Call FastAPI backend
-    const response = await fetch("http://localhost:8000/protected", {
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    });
-
-    const data = await response.json();
-    console.log("Backend response:", data);
-}
-
-    // Run automatically on page load
-    document.addEventListener("DOMContentLoaded", callProtectedEndpoint);
-    </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <script src="profile.js"></script>
     <style>
-        /* ── Banner short — not full-screen, just a header strip ── */
+        /* ── Banner ── */
         #banner {
-            min-height: 320px;
-            height: 320px;
+            min-height: 280px;
+            height: 280px;
             align-items: center;
             justify-content: center;
             padding-top: 0;
         }
-        #banner .inner { text-align: center; }
+        #banner .inner { text-align: center; position: relative; z-index: 2; }
         #banner .inner h2 { font-size: 2em; margin-bottom: 0.3em; }
-        #banner .inner p  { color: rgba(255,255,255,0.55); font-size: 0.88em; margin: 0; }
+        #banner .inner p  { color: rgba(255,255,255,0.5); font-size: 0.88em; margin: 0; }
 
-        /* ── User pill in header ── */
-        .user-pill {
+        /* ── Toast notification ── */
+        .toast {
+            position: fixed;
+            bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
+            background: rgba(30,40,60,0.95);
+            border: 1px solid rgba(96,165,250,0.3);
+            border-radius: 12px;
+            padding: 0.75rem 1.4rem;
+            font-size: 0.85rem;
+            color: #60a5fa;
+            z-index: 9999;
+            transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+            opacity: 0;
+            white-space: nowrap;
+            backdrop-filter: blur(12px);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* ── Inline switch account nav button (always visible) ── */
+        .nav-switch-btn {
+            list-style: none;
+            display: none;
+        }
+        .nav-switch-btn a {
             display: inline-flex;
             align-items: center;
-            gap: 0.6em;
-            background: rgba(255,255,255,0.08);
+            gap: 0.4em;
+            padding: 0.38em 0.85em;
+            border-radius: 8px;
+            font-size: 0.78em;
+            font-weight: 600;
+            color: rgba(255,255,255,0.55);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 999px;
-            padding: 0.4em 0.9em 0.4em 0.45em;
+            background: transparent;
+            text-decoration: none;
+            transition: all 0.15s;
+            white-space: nowrap;
         }
-        .user-pill img    { border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); }
-        .user-pill span   { color: rgba(255,255,255,0.65); font-size: 0.8em; }
+        .nav-switch-btn a:hover {
+            border-color: rgba(96,165,250,0.5);
+            color: #60a5fa;
+            background: rgba(96,165,250,0.08);
+        }
 
-        /* ── Content card grid ── */
+        /* ── Polished account badge ── */
+        .account-badge-wrap {
+            position: relative;
+            list-style: none;
+        }
+
+        .account-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            padding: 0.32em 0.75em 0.32em 0.38em;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 999px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .account-badge:hover {
+            background: rgba(255,255,255,0.13);
+            border-color: rgba(255,255,255,0.22);
+        }
+
+        .avatar-circle {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.62rem; font-weight: 700; color: #fff;
+            letter-spacing: 0.02em; flex-shrink: 0;
+            overflow: hidden;
+        }
+        .avatar-circle img {
+            width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+        }
+
+        .badge-name {
+            font-size: 0.8em; font-weight: 600;
+            color: rgba(255,255,255,0.85);
+            max-width: 110px; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .badge-chevron {
+            font-size: 0.55em; color: rgba(255,255,255,0.35);
+            transition: transform 0.2s; margin-left: 2px;
+            line-height: 1;
+        }
+        .account-badge.open .badge-chevron { transform: rotate(180deg); }
+
+        /* ── Dropdown ── */
+        .badge-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            min-width: 210px;
+            background: #131e32;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 0.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03) inset;
+            z-index: 9998;
+            display: none;
+            animation: dropIn 0.18s ease;
+        }
+        .badge-dropdown.open { display: block; }
+
+        @keyframes dropIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .dd-user-info {
+            padding: 0.5rem 0.65rem 0.65rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            margin-bottom: 0.35rem;
+        }
+        .dd-user-name  { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.88); margin-bottom: 0.15rem; }
+        .dd-user-email { font-size: 0.71rem; color: rgba(255,255,255,0.35); }
+
+        .dd-item {
+            display: flex; align-items: center; gap: 0.55rem;
+            padding: 0.58rem 0.65rem;
+            border-radius: 9px;
+            font-size: 0.81rem;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.12s, color 0.12s;
+        }
+        .dd-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .dd-item .dd-icon { font-size: 0.9rem; width: 18px; text-align: center; flex-shrink: 0; }
+        .dd-item.danger { color: rgba(248,113,113,0.75); }
+        .dd-item.danger:hover { background: rgba(248,113,113,0.08); color: #f87171; }
+        .dd-sep { height: 1px; background: rgba(255,255,255,0.06); margin: 0.3rem 0; }
+
+        /* ── Content section ── */
+        #dash-content { background: #161a1e; padding: 4em 0 5em; }
+        #dash-content h2 { color: #fff; }
+        #dash-content p  { color: rgba(255,255,255,0.5); }
+
+        /* ── Feature cards ── */
         .dash-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1.6em;
-            margin-top: 2.5em;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.4em;
+            margin-top: 2.2em;
         }
         .dash-card {
             background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 14px;
-            padding: 2em 1.8em;
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
+            padding: 1.8em 1.6em;
             text-align: center;
             transition: border-color 0.2s, transform 0.2s;
         }
-        .dash-card:hover {
-            border-color: rgba(255,255,255,0.28);
-            transform: translateY(-2px);
-        }
-        .dash-card .card-icon { font-size: 2.2em; display: block; margin-bottom: 0.5em; }
-        .dash-card h3 { color: #fff; font-size: 1em; margin-bottom: 0.4em; border: none; }
-        .dash-card p  { color: rgba(255,255,255,0.45); font-size: 0.82em; line-height: 1.6; margin-bottom: 1.4em; }
-        .dash-card .badge {
+        .dash-card:hover { border-color: rgba(255,255,255,0.22); transform: translateY(-2px); }
+        .dash-card .card-icon { font-size: 2em; display: block; margin-bottom: 0.5em; }
+        .dash-card h3 { color: #fff; font-size: 0.95em; margin-bottom: 0.35em; border: none; }
+        .dash-card p  { color: rgba(255,255,255,0.4); font-size: 0.8em; line-height: 1.6; margin-bottom: 1.3em; }
+        .card-badge {
             display: inline-block;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.13);
             border-radius: 999px;
-            padding: 0.25em 0.8em;
-            font-size: 0.7em;
-            color: rgba(255,255,255,0.4);
+            padding: 0.22em 0.75em;
+            font-size: 0.68em;
+            color: rgba(255,255,255,0.38);
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            margin-bottom: 1em;
+            margin-bottom: 0.85em;
         }
+        .card-badge.live { border-color: rgba(74,222,128,0.35); color: #4ade80; background: rgba(74,222,128,0.07); }
 
-        /* ── Profile summary (loaded from localStorage) ── */
-        .profile-summary {
+        /* ── Profile summary ── */
+        .profile-card {
             background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
             padding: 1.8em 2em;
             margin-top: 1.6em;
-            text-align: left;
         }
-        .profile-summary h4 {
-            font-size: 0.72em;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.35);
-            margin-bottom: 1.2em;
-            border: none;
+        .profile-card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.2em; flex-wrap: wrap; gap: 0.8em;
         }
+        .profile-card-title {
+            font-size: 0.72em; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: rgba(255,255,255,0.35);
+        }
+        .profile-actions { display: flex; gap: 0.6em; flex-wrap: wrap; }
+        .profile-actions .btn-sm {
+            padding: 0.45em 1em;
+            border-radius: 8px;
+            font-size: 0.76em;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.65);
+            font-family: inherit;
+            transition: all 0.15s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3em;
+        }
+        .profile-actions .btn-sm:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.25); }
+        .profile-actions .btn-sm.edit:hover { border-color: rgba(96,165,250,0.5); color: #60a5fa; background: rgba(96,165,250,0.08); }
+        .profile-actions .btn-sm.clear:hover { border-color: rgba(248,113,113,0.5); color: #f87171; background: rgba(248,113,113,0.08); }
+
         .profile-row {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 0.8em 1.4em;
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+            gap: 0.75em 1.2em;
         }
         .profile-item { display: flex; flex-direction: column; gap: 0.2em; }
-        .profile-item .lbl { font-size: 0.72em; color: rgba(255,255,255,0.35); }
-        .profile-item .val { font-size: 0.88em; color: rgba(255,255,255,0.8); font-weight: 600; }
+        .profile-item .lbl { font-size: 0.7em; color: rgba(255,255,255,0.3); }
+        .profile-item .val { font-size: 0.86em; color: rgba(255,255,255,0.8); font-weight: 600; }
 
-        /* ── Wrapper section dark override ── */
-        #dash-content {
-            background: #161a1e;
-            padding: 4em 0 5em;
+        .no-profile-msg {
+            text-align: center; padding: 2em 1em;
+            color: rgba(255,255,255,0.4); font-size: 0.85em;
         }
-        #dash-content h2 { color: #fff; }
-        #dash-content p  { color: rgba(255,255,255,0.5); }
+
+        /* ── Bottom action row ── */
+        .dash-footer-actions {
+            display: flex; align-items: center; justify-content: center;
+            gap: 1em; margin-top: 3em; flex-wrap: wrap;
+            padding-top: 2em;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .btn-signout {
+            padding: 0.8em 2em; border-radius: 10px; font-size: 0.88em;
+            font-weight: 600; cursor: pointer; font-family: inherit;
+            background: transparent; border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.55); transition: all 0.2s;
+        }
+        .btn-signout:hover { border-color: rgba(248,113,113,0.5); color: #f87171; background: rgba(248,113,113,0.07); }
+
+        .btn-switch {
+            padding: 0.8em 2em; border-radius: 10px; font-size: 0.88em;
+            font-weight: 700; cursor: pointer; font-family: inherit;
+            background: rgba(96,165,250,0.1);
+            border: 1px solid rgba(96,165,250,0.35);
+            color: #60a5fa; transition: all 0.2s;
+        }
+        .btn-switch:hover { border-color: rgba(96,165,250,0.65); background: rgba(96,165,250,0.18); color: #93c5fd; transform: translateY(-1px); }
 
         .hidden { display: none !important; }
     </style>
 </head>
 <body class="is-preload">
-
 <div id="page-wrapper">
 
     <!-- Header -->
     <header id="header">
-        <h1><a href="../Portal%20website/index.html">TruRent</a></h1>
+        <h1><a href="/Portal%20website/index.html">TruRent</a></h1>
         <nav id="nav">
             <ul>
-                <li id="nav-user-li" style="list-style:none;" class="hidden">
-                    <div class="user-pill">
-                        <img id="user-avatar" src="" width="26" alt="avatar" />
-                        <span id="user-name-nav"></span>
+                <!-- Polished account badge with dropdown -->
+                <li class="account-badge-wrap hidden" id="nav-badge-li">
+                    <div class="account-badge" id="account-badge" onclick="toggleBadgeMenu()">
+                        <div class="avatar-circle" id="badge-avatar">?</div>
+                        <span class="badge-name" id="badge-name">—</span>
+                        <span class="badge-chevron">▼</span>
+                    </div>
+                    <div class="badge-dropdown" id="badge-dropdown">
+                        <div class="dd-user-info">
+                            <div class="dd-user-name"  id="dd-user-name">—</div>
+                            <div class="dd-user-email" id="dd-user-email">—</div>
+                        </div>
+                        <a class="dd-item" href="/Portal%20website/Auth0/onboarding.html?edit=true">
+                            <span class="dd-icon">✏️</span> Edit Profile
+                        </a>
+                        <div class="dd-sep"></div>
+                        <a class="dd-item" href="#" id="dd-switch-account">
+                            <span class="dd-icon">🔄</span> Switch Account
+                        </a>
+                        <a class="dd-item danger" href="#" id="dd-signout">
+                            <span class="dd-icon">🚪</span> Sign Out
+                        </a>
                     </div>
                 </li>
+
                 <li class="special">
                     <a href="#menu" class="menuToggle"><span>Menu</span></a>
                     <div id="menu">
                         <ul>
-                            <li><a href="../Portal%20website/index.html">Home</a></li>
-                            <li><a href="onboarding.html">My Profile</a></li>
-                            <li><a href="#" id="menu-logout">Sign Out</a></li>
+                            <li><a href="/Portal%20website/index.html">Home</a></li>
+                            <li><a href="/Portal%20website/Auth0/onboarding.html?edit=true">Edit Profile</a></li>
+                            <li><a href="#" id="menu-switch">Switch Account</a></li>
+                            <li><a href="#" id="menu-signout">Sign Out</a></li>
                         </ul>
                     </div>
                 </li>
@@ -182,65 +326,66 @@
         </nav>
     </header>
 
-    <!-- Short banner -->
+    <!-- Banner -->
     <section id="banner">
         <div class="banner-slideshow">
-            <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner.jpg')"></div>
-            <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner2.jpg')"></div>
-            <div class="banner-slide" style="background-image: url('../Portal%20website/images/banner3.jpg')"></div>
+            <div class="banner-slide" style="background-image:url('../Portal%20website/images/banner.jpg')"></div>
+            <div class="banner-slide" style="background-image:url('../Portal%20website/images/banner2.jpg')"></div>
+            <div class="banner-slide" style="background-image:url('../Portal%20website/images/banner3.jpg')"></div>
         </div>
-        <div class="inner" style="position:relative; z-index:2;">
+        <div class="inner">
             <h2 id="welcome-heading">Welcome back.</h2>
-            <p>Your TruRent dashboard is coming soon. Here's what's ready now.</p>
+            <p id="welcome-sub">Your TruRent dashboard is coming soon. Here's what's ready now.</p>
         </div>
     </section>
 
     <!-- Dashboard content -->
     <section id="dash-content">
-        <div class="inner" style="max-width: 900px; margin: 0 auto; padding: 0 2em;">
+        <div class="inner" style="max-width:900px; margin:0 auto; padding:0 2em;">
 
             <!-- Feature cards -->
             <div class="dash-grid">
-
                 <div class="dash-card">
-                    <span class="badge">Live Now</span>
+                    <span class="card-badge live">Live Now</span>
                     <span class="card-icon">📊</span>
                     <h3>Hexagon Scorecard</h3>
                     <p>Visualise any neighbourhood across 6 cost dimensions — commute, groceries, transit, entertainment, utilities, and more.</p>
                     <a href="../../backend/graph.html" class="button primary small">Open Radar Chart →</a>
                 </div>
-
                 <div class="dash-card">
-                    <span class="badge">Coming Soon</span>
+                    <span class="card-badge">Coming Soon</span>
                     <span class="card-icon">🗺️</span>
                     <h3>Interactive Heatmap</h3>
                     <p>Explore Waterloo-Kitchener colour-coded by true living cost. Click any zone for a full breakdown.</p>
-                    <a href="#" class="button small" style="opacity:0.4; pointer-events:none;">Coming Soon</a>
+                    <span class="button small" style="opacity:0.35; pointer-events:none; cursor:default;">Coming Soon</span>
                 </div>
-
                 <div class="dash-card">
-                    <span class="badge">Coming Soon</span>
+                    <span class="card-badge">Coming Soon</span>
                     <span class="card-icon">🔍</span>
                     <h3>Address Search</h3>
                     <p>Enter any address and get your true monthly cost — rent, commute, groceries, utilities — in one number.</p>
-                    <a href="#" class="button small" style="opacity:0.4; pointer-events:none;">Coming Soon</a>
-                </div>
-
-            </div>
-
-            <!-- Profile summary — loaded from localStorage -->
-            <div class="profile-summary" id="profile-summary" style="display:none;">
-                <h4>📋 Your Saved Profile</h4>
-                <div class="profile-row" id="profile-fields"></div>
-                <div style="margin-top:1.4em; display:flex; gap:0.8em; flex-wrap:wrap;">
-                    <a href="onboarding.html" class="button small">Edit Profile</a>
-                    <a href="#" class="button small" id="clear-profile-btn">Clear Profile</a>
+                    <span class="button small" style="opacity:0.35; pointer-events:none; cursor:default;">Coming Soon</span>
                 </div>
             </div>
 
-            <!-- Sign out -->
-            <div style="margin-top: 2.5em; text-align: center;">
-                <a href="#" class="button" id="signout-btn">Sign Out</a>
+            <!-- Profile summary card -->
+            <div class="profile-card" id="profile-card">
+                <div class="profile-card-header">
+                    <span class="profile-card-title">📋 Your Saved Profile</span>
+                    <div class="profile-actions">
+                        <a href="/Portal%20website/Auth0/onboarding.html?edit=true" class="btn-sm edit">✏️ Edit Profile</a>
+                        <button class="btn-sm clear" id="clear-profile-btn">🗑 Clear Profile</button>
+                    </div>
+                </div>
+                <div class="profile-row" id="profile-fields">
+                    <p class="no-profile-msg">No profile data found.</p>
+                </div>
+            </div>
+
+            <!-- Bottom actions -->
+            <div class="dash-footer-actions">
+                <button class="btn-switch" id="switch-account-btn">🔄 Switch Account</button>
+                <button class="btn-signout" id="signout-btn">🚪 Sign Out</button>
             </div>
 
         </div>
@@ -256,23 +401,28 @@
 
 </div>
 
-<!-- Scripts -->
-<script src="../Portal%20website/assets/js/jquery.min.js"></script>
-<script src="../Portal%20website/assets/js/jquery.scrollex.min.js"></script>
-<script src="../Portal%20website/assets/js/jquery.scrolly.min.js"></script>
-<script src="../Portal%20website/assets/js/browser.min.js"></script>
-<script src="../Portal%20website/assets/js/breakpoints.min.js"></script>
-<script src="../Portal%20website/assets/js/util.js"></script>
-<script src="../Portal%20website/assets/js/main.js"></script>
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<!-- Scripts (portal template) -->
+<script src="../assets/js/jquery.min.js"></script>
+<script src="../assets/js/jquery.scrollex.min.js"></script>
+<script src="../assets/js/jquery.scrolly.min.js"></script>
+<script src="../assets/js/browser.min.js"></script>
+<script src="../assets/js/breakpoints.min.js"></script>
+<script src="../assets/js/util.js"></script>
+<script src="../assets/js/main.js"></script>
 
 <script>
+    // ── Auth0 config ──────────────────────────────────────────────────────────
     const AUTH0_DOMAIN    = 'dev-s6ofaf4udt2w1nw1.us.auth0.com';
     const AUTH0_CLIENT_ID = 'aMvSv7X3MtUa1zF0TgF31E5jg5cRnxbx';
     const REDIRECT_URI    = window.location.href.split('?')[0].split('#')[0];
-    const PAGE_LOGIN      = '../Portal%20website/index.html';
+    const PAGE_LOGIN      = '/Portal%20website/index.html';
+    const PAGE_ONBOARDING = '/Portal%20website/Auth0/onboarding.html';
 
-    // Friendly labels for profile fields
     const FIELD_LABELS = {
+        displayName:    'Name',
         salary:         'Annual Salary',
         workAddress:    'Workplace / School',
         workSchedule:   'Work Schedule',
@@ -291,23 +441,23 @@
     let auth0Client = null;
     let currentUser = null;
 
+    // ── Init ──────────────────────────────────────────────────────────────────
     async function init() {
         const configured = AUTH0_DOMAIN !== 'YOUR_AUTH0_DOMAIN' && AUTH0_CLIENT_ID !== 'YOUR_CLIENT_ID';
 
         if (!configured) {
-            // Demo mode — load profile from localStorage using demo key
-            currentUser = { email: 'demo@trurent.app', name: 'Demo User', picture: '' };
-            populatePage(currentUser);
+            currentUser = { sub: 'demo', email: 'demo@trurent.app', name: 'Demo User' };
+            populateDashboard(currentUser);
             return;
         }
 
         try {
             auth0Client = await auth0.createAuth0Client({
-                domain:           AUTH0_DOMAIN,
-                clientId:         AUTH0_CLIENT_ID,
-                authorizationParams: { redirect_uri: REDIRECT_URI, audience: 'https://trurent/api' },
-                cacheLocation:    'localstorage',
-                useRefreshTokens: true
+                domain:              AUTH0_DOMAIN,
+                clientId:            AUTH0_CLIENT_ID,
+                authorizationParams: { redirect_uri: REDIRECT_URI },
+                cacheLocation:       'localstorage',
+                useRefreshTokens:    true,
             });
 
             if (!await auth0Client.isAuthenticated()) {
@@ -316,81 +466,164 @@
             }
 
             currentUser = await auth0Client.getUser();
-            populatePage(currentUser);
+            const profile = TruRentProfile.get(currentUser);
+
+            // If no profile, send them to onboarding
+            if (!profile) {
+                window.location.href = PAGE_ONBOARDING;
+                return;
+            }
+
+            populateDashboard(currentUser);
 
         } catch (err) {
             console.error('[TruRent]', err);
-            currentUser = { email: 'demo@trurent.app', name: 'Demo User', picture: '' };
-            populatePage(currentUser);
+            currentUser = { sub: 'demo', email: 'demo@trurent.app', name: 'Demo User' };
+            populateDashboard(currentUser);
         }
+
+        // Call protected backend (Ethan's integration) — non-blocking
+        callProtectedEndpoint();
     }
 
-    function populatePage(user) {
-        // Nav user pill
-        if (user.picture) document.getElementById('user-avatar').src = user.picture;
-        document.getElementById('user-name-nav').textContent = user.name || user.email || '';
-        document.getElementById('nav-user-li').classList.remove('hidden');
+    // ── Populate the whole dashboard ──────────────────────────────────────────
+    function populateDashboard(user) {
+        const profile  = TruRentProfile.get(user);
+        const name     = TruRentProfile.getDisplayName(user, profile);
+        const initials = TruRentProfile.getInitials(user, profile);
 
         // Welcome heading
-        const first = (user.name || '').split(' ')[0];
-        if (first) document.getElementById('welcome-heading').textContent = 'Welcome back, ' + first + '.';
+        document.getElementById('welcome-heading').textContent = `Welcome back, ${name}.`;
 
-        // Load profile from localStorage
-        const profileKey = 'trurent_profile_' + (user.email || user.sub || 'demo@trurent.app');
-        const saved = localStorage.getItem(profileKey);
-        if (saved) {
-            try {
-                renderProfile(JSON.parse(saved));
-            } catch (e) {}
+        // Account badge
+        const avatarEl = document.getElementById('badge-avatar');
+        if (user.picture) {
+            avatarEl.innerHTML = `<img src="${user.picture}" alt="${initials}" />`;
+        } else {
+            avatarEl.textContent = initials;
+        }
+        document.getElementById('badge-name').textContent  = name;
+        document.getElementById('dd-user-name').textContent  = profile?.displayName || user?.name || name;
+        document.getElementById('dd-user-email').textContent = user?.email || '';
+        document.getElementById('nav-badge-li').classList.remove('hidden');
+
+        // Profile summary
+        if (profile) {
+            renderProfile(profile);
+        } else {
+            document.getElementById('profile-fields').innerHTML =
+                '<p class="no-profile-msg">No profile yet. <a href="/Portal%20website/Auth0/onboarding.html" style="color:#60a5fa;">Complete setup →</a></p>';
+        }
+
+        // Show "Profile updated" toast if redirected after edit
+        if (new URLSearchParams(window.location.search).has('updated')) {
+            showToast('✅ Profile updated successfully.');
+            window.history.replaceState({}, '', REDIRECT_URI);
         }
     }
 
+    // ── Render profile fields ─────────────────────────────────────────────────
     function renderProfile(profile) {
-        const container = document.getElementById('profile-fields');
-        const summary   = document.getElementById('profile-summary');
-        const skip      = new Set(['onboardedAt']);
+        const skip = new Set(['onboardedAt', 'updatedAt']);
         let html = '';
 
         Object.entries(profile).forEach(([key, val]) => {
             if (skip.has(key) || val === null || val === undefined || val === '') return;
-            const label = FIELD_LABELS[key] || key;
-            const display = Array.isArray(val) ? (val.join(', ') || '—') : val;
-            if (key === 'salary') {
-                html += `<div class="profile-item"><span class="lbl">${label}</span><span class="val">$${Number(display).toLocaleString()}/yr</span></div>`;
-            } else {
-                html += `<div class="profile-item"><span class="lbl">${label}</span><span class="val">${display}</span></div>`;
-            }
+            const label   = FIELD_LABELS[key] || key;
+            const display = Array.isArray(val) ? (val.join(', ') || '—') : String(val);
+            if (!display || display === 'null') return;
+            const formatted = key === 'salary'
+                ? `$${Number(display).toLocaleString()}/yr`
+                : display;
+            html += `<div class="profile-item"><span class="lbl">${label}</span><span class="val">${formatted}</span></div>`;
         });
 
-        if (html) {
-            container.innerHTML = html;
-            summary.style.display = 'block';
-        }
+        document.getElementById('profile-fields').innerHTML = html ||
+            '<p class="no-profile-msg" style="grid-column:1/-1;">Profile is empty.</p>';
     }
 
+    // ── Badge dropdown toggle ─────────────────────────────────────────────────
+    function toggleBadgeMenu() {
+        const badge    = document.getElementById('account-badge');
+        const dropdown = document.getElementById('badge-dropdown');
+        const isOpen   = dropdown.classList.contains('open');
+        badge.classList.toggle('open', !isOpen);
+        dropdown.classList.toggle('open', !isOpen);
+    }
+
+    // Close dropdown on outside click
+    document.addEventListener('click', e => {
+        const wrap = document.getElementById('nav-badge-li');
+        if (wrap && !wrap.contains(e.target)) {
+            document.getElementById('account-badge').classList.remove('open');
+            document.getElementById('badge-dropdown').classList.remove('open');
+        }
+    });
+
     // ── Sign out ──────────────────────────────────────────────────────────────
-    async function signOut() {
+    function doSignOut() {
+        const returnTo = window.location.origin + PAGE_LOGIN;
         if (auth0Client) {
-            await auth0Client.logout({ logoutParams: { returnTo: REDIRECT_URI.replace('dashboard.html', PAGE_LOGIN) } });
+            auth0Client.logout({ logoutParams: { returnTo } });
         } else {
             window.location.href = PAGE_LOGIN;
         }
     }
 
-    document.getElementById('signout-btn').addEventListener('click',   e => { e.preventDefault(); signOut(); });
-    document.getElementById('menu-logout').addEventListener('click',   e => { e.preventDefault(); signOut(); });
+    // ── Switch account ────────────────────────────────────────────────────────
+    function doSwitchAccount() {
+        const returnTo = window.location.origin + PAGE_LOGIN;
+        if (auth0Client) {
+            // federated:true clears the IdP session (Google etc.) forcing account re-selection
+            auth0Client.logout({ logoutParams: { returnTo, federated: true } });
+        } else {
+            window.location.href = PAGE_LOGIN;
+        }
+    }
 
     // ── Clear profile ─────────────────────────────────────────────────────────
-    document.getElementById('clear-profile-btn').addEventListener('click', e => {
-        e.preventDefault();
+    function doClearProfile() {
         if (!currentUser) return;
-        const key = 'trurent_profile_' + (currentUser.email || currentUser.sub || 'demo@trurent.app');
-        localStorage.removeItem(key);
-        document.getElementById('profile-summary').style.display = 'none';
-    });
+        if (!confirm('This will delete your saved preferences. You\'ll be taken back to the setup form. Continue?')) return;
+        TruRentProfile.clear(currentUser);
+        window.location.href = PAGE_ONBOARDING;
+    }
+
+    // ── Wire all action buttons ───────────────────────────────────────────────
+    document.getElementById('signout-btn')      .addEventListener('click', e => { e.preventDefault(); doSignOut(); });
+    document.getElementById('switch-account-btn').addEventListener('click', e => { e.preventDefault(); doSwitchAccount(); });
+    document.getElementById('clear-profile-btn').addEventListener('click', e => { e.preventDefault(); doClearProfile(); });
+
+    document.getElementById('dd-signout')            .addEventListener('click', e => { e.preventDefault(); doSignOut(); });
+    document.getElementById('dd-switch-account')     .addEventListener('click', e => { e.preventDefault(); doSwitchAccount(); });
+    document.getElementById('menu-signout').addEventListener('click', e => { e.preventDefault(); doSignOut(); });
+    document.getElementById('menu-switch') .addEventListener('click', e => { e.preventDefault(); doSwitchAccount(); });
+
+    // ── Toast helper ──────────────────────────────────────────────────────────
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    // ── Backend integration (Ethan) ───────────────────────────────────────────
+    async function callProtectedEndpoint() {
+        try {
+            if (!auth0Client) return;
+            const token = await auth0Client.getTokenSilently();
+            const res   = await fetch('http://localhost:8000/protected', {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            console.log('[TruRent] Backend response:', data);
+        } catch (err) {
+            // Backend not running locally — expected during frontend-only dev
+            console.info('[TruRent] Backend unavailable or token error:', err.message);
+        }
+    }
 
     init();
 </script>
-
 </body>
 </html>

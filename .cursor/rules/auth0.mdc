@@ -1,0 +1,61 @@
+---
+description: Auth0 authentication pattern for this project
+alwaysApply: true
+---
+
+# Auth0 Authentication Pattern
+
+This project uses Auth0 Universal Login via the Auth0 SPA SDK (plain HTML/JS).
+All auth logic lives in `frontend/Auth0/auth.js`. Never recreate it elsewhere.
+
+## The One Rule
+
+**Do NOT build a custom login form. Do NOT skip Auth0.**
+
+The Explore button must call `TruRentAuth.login()` which calls `loginWithRedirect()`
+and opens the Auth0 hosted login page.
+
+## How to use auth.js on any page
+
+```html
+<!-- 1. Include Auth0 SPA SDK -->
+<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+<!-- 2. Include the centralised auth module -->
+<script src="../Auth0/auth.js"></script>
+
+<script>
+  // 3. Init on every page that needs auth
+  await TruRentAuth.init();
+  await TruRentAuth.handleCallback(); // handles ?code=...&state=... on return from Auth0
+</script>
+```
+
+## Trigger login (e.g. Explore button)
+
+```js
+// ✅ CORRECT — opens Auth0 Universal Login
+TruRentAuth.login(); // calls loginWithRedirect() internally
+
+// ❌ WRONG — never do this
+window.location.href = 'login.html';
+```
+
+## Post-auth routing (already handled in auth.js)
+
+```
+Auth0 redirects back → handleCallback() → check localStorage profile
+  No profile  → onboarding.html   (new user)
+  Has profile → dashboard.html    (existing user)
+```
+
+## Auth0 Dashboard checklist (REQUIRED or Auth0 never opens)
+
+Add to Allowed Callback URLs, Logout URLs, and Web Origins:
+- `http://localhost:8080`   (python3 -m http.server 8080)
+- `http://localhost:5173`   (if using Vite)
+- your deployed URL when live
+
+## Credentials location
+
+`frontend/Auth0/auth.js` — fill in `AUTH0_DOMAIN` and `AUTH0_CLIENT_ID`.
+Never hardcode credentials anywhere else.
