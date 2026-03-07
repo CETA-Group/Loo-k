@@ -3809,6 +3809,14 @@ input, select, textarea {
 
 		}
 
+		@media screen and (min-width: 981px) {
+
+			#banner .banner-form {
+				width: 90%;
+			}
+
+		}
+
 	body.is-preload #banner h2 {
 		-moz-transform: scale(0.95);
 		-webkit-transform: scale(0.95);
