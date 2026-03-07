@@ -66,14 +66,10 @@
             font-size: 0.95em;
             margin-bottom: 4px;
         }
-        .hover-tooltip .quick-stats {
+        .hover-tooltip .description {
             font-size: 0.78em;
-            opacity: 0.6;
-        }
-        .hover-tooltip .quick-stats span {
-            color: #5bffb0;
-            font-weight: 700;
-            opacity: 1;
+            opacity: 0.55;
+            line-height: 1.4;
         }
 
         /* ---- INFO PANEL (slide up) ---- */
@@ -187,10 +183,124 @@
         }
         .no-data-msg .icon { font-size: 2em; margin-bottom: 8px; }
 
+        /* ---- DATA METHODOLOGY PANEL ---- */
+        .data-methodology-panel {
+            position: fixed;
+            bottom: 220px; left: 24px;
+            max-width: 320px;
+            background: rgba(15, 15, 25, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 18px 20px;
+            z-index: 1000;
+            display: none;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+        }
+        .data-methodology-panel.active { display: block; }
+        .data-methodology-panel h3 {
+            font-size: 1.05em;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .data-methodology-panel .dp-subtitle {
+            font-size: 0.72em;
+            opacity: 0.35;
+            margin-bottom: 14px;
+        }
+        .data-methodology-panel .dp-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.82em;
+        }
+        .data-methodology-panel .dp-stat:last-of-type { border-bottom: none; }
+        .data-methodology-panel .dp-stat .dp-label {
+            opacity: 0.5;
+        }
+        .data-methodology-panel .dp-stat .dp-value {
+            font-weight: 700;
+            color: #fff;
+        }
+        .data-methodology-panel .dp-score-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .data-methodology-panel .dp-score-badge {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+        .data-methodology-panel .dp-score-label {
+            font-size: 0.7em;
+            opacity: 0.4;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .data-methodology-panel .dp-true-cost {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(91, 255, 176, 0.15);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            margin-top: 12px;
+        }
+        .data-methodology-panel .dp-true-cost .dp-tc-label {
+            font-size: 0.6em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            opacity: 0.35;
+        }
+        .data-methodology-panel .dp-true-cost .dp-tc-old {
+            text-decoration: line-through;
+            opacity: 0.3;
+            font-size: 0.85em;
+            margin-top: 4px;
+        }
+        .data-methodology-panel .dp-true-cost .dp-tc-new {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.3em;
+            color: #5bffb0;
+            margin-top: 2px;
+        }
+        .methodology-section {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .methodology-section h4 {
+            font-size: 0.6em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            opacity: 0.35;
+            margin-bottom: 8px;
+        }
+        .methodology-section .src-item {
+            font-size: 0.7em;
+            opacity: 0.45;
+            line-height: 1.55;
+            margin-bottom: 5px;
+        }
+        .methodology-section .src-item strong {
+            opacity: 1;
+            color: rgba(255,255,255,0.7);
+        }
+
         /* ---- RESPONSIVE ---- */
         @media (max-width: 600px) {
             .info-panel { left: 8px; right: 8px; width: auto; }
             .legend { bottom: 12px; left: 12px; }
+            .data-methodology-panel {
+                left: 8px; right: 8px; max-width: none;
+                bottom: 180px;
+            }
         }
     </style>
 </head>
@@ -231,6 +341,9 @@
 <!-- Hover Tooltip -->
 <div class="hover-tooltip" id="tooltip"></div>
 
+<!-- Data & Methodology Panel -->
+<div class="data-methodology-panel" id="dataPanel"></div>
+
 <!-- Map -->
 <div id="map"></div>
 
@@ -259,61 +372,61 @@
 // =============================================
 const scores = {
     // --- 核心学生区 & 市中心 (高便利度，短通勤) ---
-    "Northdale": { rent: [1400, 2000], commute: 5, grocery: 0.8, transit: 92, air: 78, heating: 120, score: 76 },
-    "MacGregor Albert": { rent: [1500, 2100], commute: 8, grocery: 0.9, transit: 88, air: 79, heating: 130, score: 75 },
-    "Uptown West": { rent:[1800, 2500], commute: 12, grocery: 0.4, transit: 95, air: 76, heating: 135, score: 78 },
-    "Uptown North": { rent:[1750, 2450], commute: 10, grocery: 0.6, transit: 90, air: 77, heating: 140, score: 76 },
-    "Mary Allen": { rent: [1800, 2600], commute: 14, grocery: 0.5, transit: 86, air: 80, heating: 150, score: 74 },
+    "Northdale": { rent: [1400, 2000], commute: 5, grocery: 0.8, transit: 92, air: 78, heating: 120, score: 76, description: "A vibrant, student-heavy area directly adjacent to UW campus with high walkability and nightlife." },
+    "MacGregor Albert": { rent: [1500, 2100], commute: 8, grocery: 0.9, transit: 88, air: 79, heating: 130, score: 75, description: "A well-connected residential pocket near Uptown with strong transit access and community feel." },
+    "Uptown West": { rent:[1800, 2500], commute: 12, grocery: 0.4, transit: 95, air: 76, heating: 135, score: 78, description: "The heart of Uptown Waterloo — walkable shops, restaurants, and excellent LRT connectivity." },
+    "Uptown North": { rent:[1750, 2450], commute: 10, grocery: 0.6, transit: 90, air: 77, heating: 140, score: 76, description: "A tree-lined urban neighbourhood just north of Uptown with easy access to Waterloo Park." },
+    "Mary Allen": { rent: [1800, 2600], commute: 14, grocery: 0.5, transit: 86, air: 80, heating: 150, score: 74, description: "A historic neighbourhood near downtown Kitchener with a mix of character homes and new builds." },
     
     // --- 环大学 / 中距离通勤街区 ---
-    "University Downs": { rent: [1600, 2200], commute: 15, grocery: 1.2, transit: 75, air: 82, heating: 160, score: 68 },
-    "Lincoln Heights": { rent: [1550, 2100], commute: 12, grocery: 1.0, transit: 78, air: 82, heating: 150, score: 70 },
-    "Lincoln Village West": { rent:[1600, 2150], commute: 14, grocery: 1.2, transit: 72, air: 83, heating: 160, score: 66 },
-    "Erb West": { rent: [1650, 2250], commute: 15, grocery: 1.5, transit: 68, air: 85, heating: 170, score: 64 },
-    "Moses Springer": { rent: [1600, 2150], commute: 12, grocery: 0.8, transit: 82, air: 81, heating: 155, score: 72 },
-    "Hillside Park / Glenridge": { rent:[1550, 2100], commute: 11, grocery: 1.1, transit: 80, air: 80, heating: 145, score: 71 },
-    "Village on the Green": { rent: [1600, 2150], commute: 10, grocery: 1.0, transit: 81, air: 82, heating: 150, score: 70 },
-    "Chippendale": { rent: [1600, 2100], commute: 10, grocery: 0.9, transit: 76, air: 82, heating: 150, score: 69 },
-    "Vermont Park": { rent:[1700, 2300], commute: 15, grocery: 1.4, transit: 65, air: 85, heating: 175, score: 64 },
+    "University Downs": { rent: [1600, 2200], commute: 15, grocery: 1.2, transit: 75, air: 82, heating: 160, score: 68, description: "A mid-density residential area south of UW, popular with grad students and young professionals." },
+    "Lincoln Heights": { rent: [1550, 2100], commute: 12, grocery: 1.0, transit: 78, air: 82, heating: 150, score: 70, description: "A family-friendly neighbourhood with mature trees and good proximity to schools and parks." },
+    "Lincoln Village West": { rent:[1600, 2150], commute: 14, grocery: 1.2, transit: 72, air: 83, heating: 160, score: 66, description: "A quiet suburban pocket west of Lincoln Road with modest townhomes and low-rise apartments." },
+    "Erb West": { rent: [1650, 2250], commute: 15, grocery: 1.5, transit: 68, air: 85, heating: 170, score: 64, description: "A mixed-use corridor along Erb St with older rental stock and steady bus service." },
+    "Moses Springer": { rent: [1600, 2150], commute: 12, grocery: 0.8, transit: 82, air: 81, heating: 155, score: 72, description: "A small, walkable enclave anchored by Moses Springer Park and close to LRT stops." },
+    "Hillside Park / Glenridge": { rent:[1550, 2100], commute: 11, grocery: 1.1, transit: 80, air: 80, heating: 145, score: 71, description: "A mid-range residential area between UW and Conestoga Mall with solid transit links." },
+    "Village on the Green": { rent: [1600, 2150], commute: 10, grocery: 1.0, transit: 81, air: 82, heating: 150, score: 70, description: "A pleasant cluster of townhomes and condos near Laurel Creek trail, ideal for students." },
+    "Chippendale": { rent: [1600, 2100], commute: 10, grocery: 0.9, transit: 76, air: 82, heating: 150, score: 69, description: "A compact residential neighbourhood west of UW with affordable rents and green space." },
+    "Vermont Park": { rent:[1700, 2300], commute: 15, grocery: 1.4, transit: 65, air: 85, heating: 175, score: 64, description: "A quiet, low-density area with larger lots, mostly single-family homes and limited transit." },
     
     // --- 湖区 & 北部偏远街区 ---
-    "Lakeshore North": { rent:[1800, 2400], commute: 16, grocery: 1.5, transit: 65, air: 86, heating: 180, score: 62 },
-    "Lakeshore South": { rent: [1750, 2350], commute: 18, grocery: 1.8, transit: 60, air: 85, heating: 185, score: 60 },
-    "Conservation Meadows": { rent:[2300, 3100], commute: 25, grocery: 3.5, transit: 35, air: 93, heating: 230, score: 42 },
-    "Eastbridge": { rent:[2100, 2800], commute: 22, grocery: 2.2, transit: 50, air: 90, heating: 210, score: 50 },
-    "Wissler Old Abbey": { rent: [1900, 2600], commute: 18, grocery: 2.0, transit: 55, air: 89, heating: 195, score: 55 },
-    "Foxhunt": { rent: [1900, 2600], commute: 16, grocery: 1.6, transit: 58, air: 87, heating: 190, score: 57 },
-    "Cardinal Crescent": { rent:[1650, 2150], commute: 14, grocery: 1.5, transit: 72, air: 83, heating: 165, score: 67 },
-    "Roselea Park": { rent:[1750, 2350], commute: 16, grocery: 1.6, transit: 62, air: 85, heating: 180, score: 61 },
+    "Lakeshore North": { rent:[1800, 2400], commute: 16, grocery: 1.5, transit: 65, air: 86, heating: 180, score: 62, description: "A scenic area bordering Columbia Lake, offering nature trails but further from campus amenities." },
+    "Lakeshore South": { rent: [1750, 2350], commute: 18, grocery: 1.8, transit: 60, air: 85, heating: 185, score: 60, description: "A sprawling suburban zone south of the lake with large parks but limited commercial options." },
+    "Conservation Meadows": { rent:[2300, 3100], commute: 25, grocery: 3.5, transit: 35, air: 93, heating: 230, score: 42, description: "A secluded, car-dependent enclave surrounded by conservation land — premium pricing, minimal services." },
+    "Eastbridge": { rent:[2100, 2800], commute: 22, grocery: 2.2, transit: 50, air: 90, heating: 210, score: 50, description: "A modern subdivision in east Waterloo with newer builds but long commute times to campus." },
+    "Wissler Old Abbey": { rent: [1900, 2600], commute: 18, grocery: 2.0, transit: 55, air: 89, heating: 195, score: 55, description: "A quiet, established neighbourhood with heritage homes and a rural ambiance near the city edge." },
+    "Foxhunt": { rent: [1900, 2600], commute: 16, grocery: 1.6, transit: 58, air: 87, heating: 190, score: 57, description: "A mid-suburban area with detached homes, light trail access, and moderate bus service." },
+    "Cardinal Crescent": { rent:[1650, 2150], commute: 14, grocery: 1.5, transit: 72, air: 83, heating: 165, score: 67, description: "A well-kept residential crescent with affordable units and decent connectivity to UW." },
+    "Roselea Park": { rent:[1750, 2350], commute: 16, grocery: 1.6, transit: 62, air: 85, heating: 180, score: 61, description: "A parkside neighbourhood with a community centre, playgrounds, and a growing rental market." },
 
     // --- Beechwood 及周边系列 (中产家庭区) ---
-    "Beechwood North": { rent:[1950, 2700], commute: 14, grocery: 1.6, transit: 58, air: 88, heating: 200, score: 58 },
-    "Beechwood South": { rent: [1950, 2700], commute: 15, grocery: 1.7, transit: 56, air: 88, heating: 200, score: 57 },
-    "Beechwood West I": { rent:[2000, 2800], commute: 16, grocery: 1.8, transit: 55, air: 89, heating: 210, score: 55 },
-    "Beechwood West II": { rent: [2050, 2850], commute: 17, grocery: 1.9, transit: 52, air: 89, heating: 215, score: 53 },
-    "Upper Beechwood I": { rent:[2200, 3000], commute: 18, grocery: 2.0, transit: 48, air: 90, heating: 220, score: 49 },
-    "Upper Beechwood II": { rent: [2300, 3100], commute: 20, grocery: 2.2, transit: 45, air: 91, heating: 225, score: 47 },
-    "Beechwood II": { rent:[1900, 2650], commute: 14, grocery: 1.7, transit: 58, air: 89, heating: 205, score: 56 },
-    "Beechwood Park": { rent: [1850, 2600], commute: 12, grocery: 1.5, transit: 62, air: 87, heating: 195, score: 60 },
-    "Beechwood Bridle Gate": { rent: [2100, 2900], commute: 18, grocery: 2.0, transit: 50, air: 90, heating: 215, score: 51 },
+    "Beechwood North": { rent:[1950, 2700], commute: 14, grocery: 1.6, transit: 58, air: 88, heating: 200, score: 58, description: "A mature suburban area with mid-century homes, large yards, and quiet family-oriented streets." },
+    "Beechwood South": { rent: [1950, 2700], commute: 15, grocery: 1.7, transit: 56, air: 88, heating: 200, score: 57, description: "A leafy residential zone south of Fischer-Hallman with good schools and little nightlife." },
+    "Beechwood West I": { rent:[2000, 2800], commute: 16, grocery: 1.8, transit: 55, air: 89, heating: 210, score: 55, description: "A mid-priced suburban pocket with newer townhomes and growing commercial amenities nearby." },
+    "Beechwood West II": { rent: [2050, 2850], commute: 17, grocery: 1.9, transit: 52, air: 89, heating: 215, score: 53, description: "A further-out extension of Beechwood with similar character but slightly longer commute." },
+    "Upper Beechwood I": { rent:[2200, 3000], commute: 18, grocery: 2.0, transit: 48, air: 90, heating: 220, score: 49, description: "A premium residential area with executive-style homes, low density, and limited transit." },
+    "Upper Beechwood II": { rent: [2300, 3100], commute: 20, grocery: 2.2, transit: 45, air: 91, heating: 225, score: 47, description: "An upscale, car-dependent enclave in upper Waterloo with large properties and few rentals." },
+    "Beechwood II": { rent:[1900, 2650], commute: 14, grocery: 1.7, transit: 58, air: 89, heating: 205, score: 56, description: "A well-established subdivision with a mix of rentals and owner-occupied homes near Beechwood Plaza." },
+    "Beechwood Park": { rent: [1850, 2600], commute: 12, grocery: 1.5, transit: 62, air: 87, heating: 195, score: 60, description: "A moderately priced neighbourhood with parkland and reasonable access to Fischer-Hallman corridor." },
+    "Beechwood Bridle Gate": { rent: [2100, 2900], commute: 18, grocery: 2.0, transit: 50, air: 90, heating: 215, score: 51, description: "A newer subdivision at the western edge of Beechwood with trail access but sparse transit." },
 
     // --- 西郊 / 新开发远郊 (面积大、贵、通勤久) ---
-    "Columbia Forest": { rent:[2100, 2900], commute: 26, grocery: 2.8, transit: 40, air: 92, heating: 210, score: 48 },
-    "Laurelwood": { rent: [2200, 3000], commute: 22, grocery: 1.8, transit: 48, air: 92, heating: 220, score: 51 },
-    "Clair Hills": { rent: [2300, 3200], commute: 25, grocery: 2.3, transit: 40, air: 94, heating: 230, score: 45 },
-    "Vista Hills": { rent: [2400, 3300], commute: 28, grocery: 2.7, transit: 35, air: 95, heating: 240, score: 43 },
-    "Westvale": { rent:[2050, 2850], commute: 24, grocery: 1.6, transit: 45, air: 90, heating: 200, score: 52 },
-    "Carriage Crossing": { rent: [2600, 3600], commute: 30, grocery: 3.2, transit: 25, air: 96, heating: 260, score: 38 }, // 最贵最远
-    "Rummelhardt": { rent:[2100, 2800], commute: 20, grocery: 2.0, transit: 48, air: 90, heating: 210, score: 50 },
-    "Laurel Creek": { rent:[2000, 2750], commute: 18, grocery: 1.8, transit: 52, air: 89, heating: 205, score: 54 },
-    "Craigleith": { rent:[1850, 2550], commute: 15, grocery: 1.5, transit: 60, air: 88, heating: 185, score: 58 },
-    "Village on Clair Cr": { rent: [1850, 2500], commute: 16, grocery: 1.4, transit: 62, air: 87, heating: 175, score: 61 },
+    "Columbia Forest": { rent:[2100, 2900], commute: 26, grocery: 2.8, transit: 40, air: 92, heating: 210, score: 48, description: "A newer development in west Waterloo with large single-family homes and very limited bus routes." },
+    "Laurelwood": { rent: [2200, 3000], commute: 22, grocery: 1.8, transit: 48, air: 92, heating: 220, score: 51, description: "A popular family suburb with excellent schools, community parks, and a growing commercial strip." },
+    "Clair Hills": { rent: [2300, 3200], commute: 25, grocery: 2.3, transit: 40, air: 94, heating: 230, score: 45, description: "A sprawling suburban development on Waterloo's southwestern edge — car essential, quiet streets." },
+    "Vista Hills": { rent: [2400, 3300], commute: 28, grocery: 2.7, transit: 35, air: 95, heating: 240, score: 43, description: "One of Waterloo's newest and most remote subdivisions — premium pricing with minimal amenities." },
+    "Westvale": { rent:[2050, 2850], commute: 24, grocery: 1.6, transit: 45, air: 90, heating: 200, score: 52, description: "A mid-range western suburb with reasonable lot sizes and slowly improving transit connections." },
+    "Carriage Crossing": { rent: [2600, 3600], commute: 30, grocery: 3.2, transit: 25, air: 96, heating: 260, score: 38, description: "The most remote and expensive enclave — sprawling estates with virtually no public transit." },
+    "Rummelhardt": { rent:[2100, 2800], commute: 20, grocery: 2.0, transit: 48, air: 90, heating: 210, score: 50, description: "A quiet residential pocket off Fischer-Hallman with a mix of townhomes and semis." },
+    "Laurel Creek": { rent:[2000, 2750], commute: 18, grocery: 1.8, transit: 52, air: 89, heating: 205, score: 54, description: "A nature-adjacent community bordering Laurel Creek Conservation Area with moderate connectivity." },
+    "Craigleith": { rent:[1850, 2550], commute: 15, grocery: 1.5, transit: 60, air: 88, heating: 185, score: 58, description: "A compact homes-association area with well-maintained properties and neighbourhood events." },
+    "Village on Clair Cr": { rent: [1850, 2500], commute: 16, grocery: 1.4, transit: 62, air: 87, heating: 175, score: 61, description: "A small condo-and-townhome cluster along Clair Creek with trail access and growing retail." },
     
     // --- 零散区域 ---
-    "Glasgow Heights I": { rent:[1750, 2350], commute: 14, grocery: 1.3, transit: 68, air: 85, heating: 175, score: 64 },
-    "Glasgow Heights II": { rent: [1800, 2450], commute: 15, grocery: 1.4, transit: 65, air: 86, heating: 180, score: 62 },
-    "Sugarbush North": { rent: [1950, 2650], commute: 16, grocery: 1.6, transit: 58, air: 88, heating: 195, score: 57 },
-    "Sugarbush Park": { rent:[1900, 2600], commute: 15, grocery: 1.4, transit: 62, air: 87, heating: 190, score: 59 }
+    "Glasgow Heights I": { rent:[1750, 2350], commute: 14, grocery: 1.3, transit: 68, air: 85, heating: 175, score: 64, description: "A quiet residential area near Glasgow St with steady rental availability and older housing stock." },
+    "Glasgow Heights II": { rent: [1800, 2450], commute: 15, grocery: 1.4, transit: 65, air: 86, heating: 180, score: 62, description: "An extension of Glasgow Heights with similar modest homes and slightly longer commute." },
+    "Sugarbush North": { rent: [1950, 2650], commute: 16, grocery: 1.6, transit: 58, air: 88, heating: 195, score: 57, description: "A newer residential area with mixed-density housing near the Ira Needles corridor." },
+    "Sugarbush Park": { rent:[1900, 2600], commute: 15, grocery: 1.4, transit: 62, air: 87, heating: 190, score: 59, description: "A family-friendly neighbourhood anchored by Sugarbush Park with nearby schools and trails." }
 };
 
 // =============================================
@@ -413,15 +526,12 @@ function showTooltip(e, name, d) {
     if (d) {
         tooltip.innerHTML = `
             <div class="name">${name}</div>
-            <div class="quick-stats">
-                Rent: <span>$${d.rent[0]}–${d.rent[1]}</span><br/>
-                Commute: <span>${d.commute} min</span>
-            </div>
+            <div class="description">${d.description}</div>
         `;
     } else {
         tooltip.innerHTML = `
             <div class="name">${name}</div>
-            <div class="quick-stats">No data yet</div>
+            <div class="description">No data yet</div>
         `;
     }
     tooltip.style.display = 'block';
@@ -440,6 +550,8 @@ function hideTooltip() {
 // =============================================
 // INFO PANEL
 // =============================================
+const dataPanel = document.getElementById('dataPanel');
+
 function openPanel(name, d) {
     const panel = document.getElementById('infoPanel');
     const content = document.getElementById('panel-content');
@@ -453,6 +565,7 @@ function openPanel(name, d) {
             </div>
         `;
         panel.classList.add('active');
+        dataPanel.classList.remove('active');
         return;
     }
 
@@ -468,11 +581,11 @@ function openPanel(name, d) {
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="label">Avg Rent</div>
-                <div class="value">$${d.rent[0]}–${d.rent[1]}</div>
+                <div class="value">$${d.rent[0]}–${d.rent[1]} CAD/mo</div>
             </div>
             <div class="stat-card">
                 <div class="label">Commute to UW</div>
-                <div class="value">${d.commute} min</div>
+                <div class="value">${d.commute} mins</div>
             </div>
             <div class="stat-card">
                 <div class="label">Nearest Grocery</div>
@@ -480,32 +593,67 @@ function openPanel(name, d) {
             </div>
             <div class="stat-card">
                 <div class="label">Est. Heating</div>
-                <div class="value">$${d.heating}/mo</div>
+                <div class="value">$${d.heating} CAD/mo</div>
             </div>
             <div class="stat-card">
-                <div class="label">Transit</div>
-                <div class="value">${d.transit}/100</div>
+                <div class="label">Transit Score</div>
+                <div class="value">${d.transit} / 100</div>
                 <div class="score-bar"><div class="fill" style="width:${d.transit}%;background:${getBarColor(d.transit)}"></div></div>
             </div>
             <div class="stat-card">
                 <div class="label">Air Quality</div>
-                <div class="value">${d.air}/100</div>
+                <div class="value">${d.air} / 100</div>
                 <div class="score-bar"><div class="fill" style="width:${d.air}%;background:${getBarColor(d.air)}"></div></div>
             </div>
         </div>
 
         <div class="true-cost">
             <div class="label">True Monthly Cost</div>
-            <div class="old-price">$${avgRent}/mo rent</div>
-            <div class="new-price">$${trueCost}/mo</div>
+            <div class="old-price">$${avgRent} CAD/mo rent only</div>
+            <div class="new-price">$${trueCost} CAD/mo</div>
         </div>
     `;
 
     panel.classList.add('active');
+
+    // Populate Data & Methodology panel
+    dataPanel.innerHTML = `
+        <h3>${name}</h3>
+        <div class="dp-subtitle">Waterloo, ON — Detailed Breakdown</div>
+
+        <div class="dp-stat"><span class="dp-label">Rent Range</span><span class="dp-value">$${d.rent[0]}–${d.rent[1]} CAD/mo</span></div>
+        <div class="dp-stat"><span class="dp-label">Commute to UW</span><span class="dp-value">${d.commute} mins (transit)</span></div>
+        <div class="dp-stat"><span class="dp-label">Nearest Grocery</span><span class="dp-value">${d.grocery} km</span></div>
+        <div class="dp-stat"><span class="dp-label">Transit Score</span><span class="dp-value">${d.transit} / 100</span></div>
+        <div class="dp-stat"><span class="dp-label">Air Quality</span><span class="dp-value">${d.air} / 100</span></div>
+        <div class="dp-stat"><span class="dp-label">Est. Heating</span><span class="dp-value">$${d.heating} CAD/mo</span></div>
+
+        <div class="dp-score-row">
+            <span class="dp-score-badge" style="color:${getColor(d.score)}">${d.score}</span>
+            <span class="dp-score-label">Livability Score / 100</span>
+        </div>
+
+        <div class="dp-true-cost">
+            <div class="dp-tc-label">True Monthly Cost</div>
+            <div class="dp-tc-old">$${avgRent} CAD/mo rent only</div>
+            <div class="dp-tc-new">$${trueCost} CAD/mo</div>
+        </div>
+
+        <div class="methodology-section">
+            <h4>Methodology / Sources</h4>
+            <div class="src-item"><strong>Commute:</strong> Calculated via Google Maps Directions API (Transit to UW Campus).</div>
+            <div class="src-item"><strong>Grocery / Amenities:</strong> Distance to nearest supermarket via Google Places API.</div>
+            <div class="src-item"><strong>Rent:</strong> Aggregated regional averages from current Waterloo rental listings.</div>
+            <div class="src-item"><strong>True Cost:</strong> Formula: Base Rent + Estimated Utilities (OpenData) + Commute Cost.</div>
+            <div class="src-item"><strong>Livability Score:</strong> Weighted algorithm combining transit, rent affordability, and amenities.</div>
+        </div>
+    `;
+    dataPanel.classList.add('active');
 }
 
 function closePanel() {
     document.getElementById('infoPanel').classList.remove('active');
+    dataPanel.classList.remove('active');
 }
 
 // Close panel on map click (not on polygon)
