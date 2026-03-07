@@ -6,25 +6,26 @@
     <title>TruRent — Complete Your Profile</title>
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <script src="auth.js"></script>
+    <script src="profile.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --accent:       #60a5fa;
-            --accent-glow:  rgba(96, 165, 250, 0.25);
-            --card-bg:      rgba(255, 255, 255, 0.04);
-            --card-border:  rgba(255, 255, 255, 0.09);
-            --input-bg:     rgba(255, 255, 255, 0.07);
-            --input-border: rgba(255, 255, 255, 0.14);
-            --text:         #f0f4ff;
-            --muted:        rgba(240, 244, 255, 0.45);
-            --error:        #f87171;
-            --success:      #4ade80;
+            --accent:      #60a5fa;
+            --accent-glow: rgba(96, 165, 250, 0.25);
+            --card-bg:     rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.09);
+            --input-bg:    rgba(255, 255, 255, 0.07);
+            --input-bdr:   rgba(255, 255, 255, 0.14);
+            --text:        #f0f4ff;
+            --muted:       rgba(240, 244, 255, 0.45);
+            --error:       #f87171;
+            --success:     #4ade80;
         }
 
         html, body {
             height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -38,25 +39,16 @@
             color: var(--text);
             background: #091525;
             background-image:
-                radial-gradient(ellipse 80% 60% at 20% 10%,  rgba(30, 64, 115, 0.55) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 50% at 80% 90%,  rgba(15, 52, 96, 0.6)  0%, transparent 55%),
-                radial-gradient(ellipse 50% 40% at 60% 40%,  rgba(10, 40, 80, 0.4)  0%, transparent 50%);
+                radial-gradient(ellipse 80% 60% at 20% 10%,  rgba(30,64,115,0.55) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 90%,  rgba(15,52,96,0.6)  0%, transparent 55%);
             background-attachment: fixed;
         }
 
-        /* Animated gradient overlay */
         body::before {
             content: '';
             position: fixed;
             inset: 0;
-            background: linear-gradient(
-                130deg,
-                #071220 0%,
-                #0d1f3a 25%,
-                #091b35 50%,
-                #0e2443 75%,
-                #071525 100%
-            );
+            background: linear-gradient(130deg, #071220 0%, #0d1f3a 25%, #091b35 50%, #0e2443 75%, #071525 100%);
             background-size: 300% 300%;
             animation: gradShift 20s ease infinite;
             z-index: -1;
@@ -69,7 +61,7 @@
             100% { background-position: 0%   30%; }
         }
 
-        /* ── Top nav ── */
+        /* ── Nav ── */
         .top-nav {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -79,440 +71,143 @@
             justify-content: space-between;
             padding: 0 2rem;
             z-index: 100;
-            background: rgba(7, 18, 32, 0.7);
-            backdrop-filter: blur(16px) saturate(1.5);
-            -webkit-backdrop-filter: blur(16px) saturate(1.5);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(7,18,32,0.7);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
 
-        .nav-brand {
-            font-size: 0.85rem;
-            font-weight: 800;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: #fff;
-            text-decoration: none;
-            opacity: 0.9;
-        }
+        .nav-brand { font-size: 0.85rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; text-decoration: none; opacity: 0.9; }
 
-        .nav-user {
-            display: none;
-            align-items: center;
-            gap: 0.55rem;
-            font-size: 0.78rem;
-            color: var(--muted);
-        }
-
-        .nav-user img {
-            width: 26px; height: 26px;
-            border-radius: 50%;
-            border: 1.5px solid rgba(255, 255, 255, 0.22);
-        }
-
-        /* ── Wizard container ── */
-        .wizard-wrap {
-            width: 100%;
-            max-width: 500px;
-        }
+        .nav-user { display: none; align-items: center; gap: 0.55rem; font-size: 0.78rem; color: var(--muted); }
+        .nav-user img { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.22); }
 
         /* ── Card ── */
+        .wizard-wrap { width: 100%; max-width: 500px; margin-top: 0; }
+
         .wizard-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 22px;
-            backdrop-filter: blur(28px) saturate(1.4);
-            -webkit-backdrop-filter: blur(28px) saturate(1.4);
+            backdrop-filter: blur(28px);
             padding: 2.4rem 2.6rem;
-            box-shadow:
-                0 32px 96px rgba(0, 0, 0, 0.45),
-                0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+            box-shadow: 0 32px 96px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.03) inset;
         }
 
-        /* ── Progress header ── */
-        .progress-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.9rem;
-        }
-
-        .step-dots {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
-
-        .step-dot {
-            height: 6px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.13);
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 6px;
-        }
-
-        .step-dot.done   { background: rgba(96, 165, 250, 0.5); width: 6px; }
-        .step-dot.active { background: var(--accent); width: 22px; box-shadow: 0 0 8px var(--accent-glow); }
-
-        .step-counter {
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--muted);
-            letter-spacing: 0.04em;
-        }
-
-        .progress-track {
-            height: 2px;
-            background: rgba(255, 255, 255, 0.07);
-            border-radius: 999px;
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
-            border-radius: 999px;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* ── Step panel ── */
-        .step-panel { display: none; }
-
-        .step-panel.active {
-            display: block;
-            animation: stepIn 0.28s ease;
-        }
-
-        @keyframes stepIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .step-eyebrow {
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
+        /* ── Edit mode banner ── */
+        .edit-banner {
+            display: none;
+            background: rgba(96,165,250,0.1);
+            border: 1px solid rgba(96,165,250,0.25);
+            border-radius: 10px;
+            padding: 0.7rem 1rem;
+            font-size: 0.8rem;
             color: var(--accent);
-            margin-bottom: 0.4rem;
-            opacity: 0.8;
+            margin-bottom: 1.4rem;
+            text-align: center;
         }
 
-        .step-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-            line-height: 1.2;
-            margin-bottom: 0.45rem;
-            color: #fff;
-        }
+        /* ── Progress ── */
+        .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
+        .step-dots { display: flex; gap: 5px; align-items: center; }
+        .step-dot { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.13); transition: all 0.35s cubic-bezier(0.4,0,0.2,1); width: 6px; }
+        .step-dot.done   { background: rgba(96,165,250,0.5); }
+        .step-dot.active { background: var(--accent); width: 22px; box-shadow: 0 0 8px var(--accent-glow); }
+        .step-counter { font-size: 0.72rem; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; }
 
-        .step-sub {
-            font-size: 0.83rem;
-            color: var(--muted);
-            line-height: 1.6;
-            margin-bottom: 1.8rem;
-        }
+        .progress-track { height: 2px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; margin-bottom: 2rem; }
+        .progress-fill  { height: 100%; background: linear-gradient(90deg,#3b82f6,#60a5fa); border-radius: 999px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+        /* ── Step panels ── */
+        .step-panel { display: none; }
+        .step-panel.active { display: block; animation: stepIn 0.28s ease; }
+        @keyframes stepIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+        .step-eyebrow { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; opacity: 0.8; }
+        .step-title   { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; line-height: 1.2; margin-bottom: 0.45rem; color: #fff; }
+        .step-sub     { font-size: 0.83rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.8rem; }
 
         /* ── Fields ── */
-        .field-group {
-            margin-bottom: 1.1rem;
-        }
-
-        .field-group label {
-            display: block;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 0.42rem;
-            letter-spacing: 0.01em;
-        }
-
+        .field-group { margin-bottom: 1.1rem; }
+        .field-group label { display: block; font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.6); margin-bottom: 0.42rem; }
         .req { color: var(--error); margin-left: 2px; }
 
         .field-group input[type="text"],
         .field-group input[type="number"],
         .field-group select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 11px;
-            color: #fff;
-            font-size: 0.9rem;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            width: 100%; padding: 0.75rem 1rem;
+            background: var(--input-bg); border: 1px solid var(--input-bdr);
+            border-radius: 11px; color: #fff; font-size: 0.9rem; font-family: inherit;
+            outline: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
         }
-
-        .field-group input:focus,
-        .field-group select:focus {
-            border-color: rgba(96, 165, 250, 0.55);
-            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
-            background: rgba(255, 255, 255, 0.09);
+        .field-group input:focus, .field-group select:focus {
+            border-color: rgba(96,165,250,0.55);
+            box-shadow: 0 0 0 3px rgba(96,165,250,0.1);
+            background: rgba(255,255,255,0.09);
         }
+        .field-group input::placeholder { color: rgba(255,255,255,0.2); }
 
-        .field-group input::placeholder { color: rgba(255, 255, 255, 0.2); }
-
-        /* $ prefix */
         .prefix-wrap { position: relative; }
-        .prefix-wrap .pfx {
-            position: absolute;
-            left: 0.9rem; top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 0.88rem;
-            pointer-events: none;
-        }
+        .prefix-wrap .pfx { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.88rem; pointer-events: none; }
         .prefix-wrap input { padding-left: 1.65rem; }
 
-        /* Select arrow */
         .field-group select {
-            appearance: none;
-            -webkit-appearance: none;
+            appearance: none; -webkit-appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7' fill='none'%3E%3Cpath d='M1 1L5.5 6L10 1' stroke='%23ffffff40' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
-            padding-right: 2.5rem;
-            cursor: pointer;
+            background-repeat: no-repeat; background-position: right 1rem center;
+            padding-right: 2.5rem; cursor: pointer;
         }
         .field-group select option { background: #112244; color: #fff; }
 
-        /* ── Toggle row (Yes / No) ── */
+        /* ── Toggle row ── */
         .toggle-row { display: flex; gap: 0.5rem; }
+        .tog { flex: 1; padding: 0.68rem 1rem; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.11); border-radius: 11px; color: var(--muted); font-size: 0.88rem; font-weight: 600; cursor: pointer; text-align: center; user-select: none; transition: all 0.15s; font-family: inherit; }
+        .tog:hover { border-color: rgba(255,255,255,0.28); color: rgba(255,255,255,0.85); }
+        .tog.active { background: rgba(96,165,250,0.13); border-color: rgba(96,165,250,0.45); color: var(--accent); }
 
-        .tog {
-            flex: 1;
-            padding: 0.68rem 1rem;
-            background: rgba(255, 255, 255, 0.045);
-            border: 1px solid rgba(255, 255, 255, 0.11);
-            border-radius: 11px;
-            color: var(--muted);
-            font-size: 0.88rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            user-select: none;
-            transition: all 0.15s;
-            font-family: inherit;
-        }
-
-        .tog:hover {
-            border-color: rgba(255, 255, 255, 0.28);
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        .tog.active {
-            background: rgba(96, 165, 250, 0.13);
-            border-color: rgba(96, 165, 250, 0.45);
-            color: var(--accent);
-        }
-
-        /* ── Fuel conditional ── */
+        /* ── Conditional fuel ── */
         #fuel-group { display: none; }
-        #fuel-group.show {
-            display: block;
-            animation: fadeSlide 0.22s ease;
-        }
-
-        @keyframes fadeSlide {
-            from { opacity: 0; transform: translateY(-5px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+        #fuel-group.show { display: block; animation: fadeSlide 0.22s ease; }
+        @keyframes fadeSlide { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
 
         /* ── Hobby chips ── */
-        .hobby-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.45rem;
-            margin-top: 0.45rem;
-        }
-
-        .hchip {
-            padding: 0.42rem 0.95rem;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.11);
-            border-radius: 999px;
-            color: var(--muted);
-            font-size: 0.79rem;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.15s;
-        }
-
-        .hchip:hover {
-            border-color: rgba(255, 255, 255, 0.28);
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        .hchip.on {
-            background: rgba(96, 165, 250, 0.13);
-            border-color: rgba(96, 165, 250, 0.45);
-            color: var(--accent);
-        }
+        .hobby-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.45rem; }
+        .hchip { padding: 0.42rem 0.95rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.11); border-radius: 999px; color: var(--muted); font-size: 0.79rem; cursor: pointer; user-select: none; transition: all 0.15s; }
+        .hchip:hover { border-color: rgba(255,255,255,0.28); color: rgba(255,255,255,0.85); }
+        .hchip.on { background: rgba(96,165,250,0.13); border-color: rgba(96,165,250,0.45); color: var(--accent); }
 
         /* ── Errors ── */
-        .ferr {
-            font-size: 0.73rem;
-            color: var(--error);
-            display: none;
-            margin-top: 5px;
-        }
+        .ferr { font-size: 0.73rem; color: var(--error); display: none; margin-top: 5px; }
+        .has-err input, .has-err select { border-color: rgba(248,113,113,0.6) !important; }
+        .has-err .tog  { border-color: rgba(248,113,113,0.6) !important; }
+        .has-err .ferr { display: block; }
 
-        .has-err input,
-        .has-err select          { border-color: rgba(248, 113, 113, 0.6) !important; }
-        .has-err .tog            { border-color: rgba(248, 113, 113, 0.6) !important; }
-        .has-err .ferr           { display: block; }
-
-        /* ── Step navigation ── */
-        .step-nav {
-            display: flex;
-            align-items: center;
-            margin-top: 2rem;
-            gap: 0.75rem;
-        }
-
-        .btn {
-            padding: 0.8rem 1.5rem;
-            border-radius: 11px;
-            font-size: 0.88rem;
-            font-weight: 650;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            font-family: inherit;
-            letter-spacing: 0.01em;
-            white-space: nowrap;
-        }
-
-        .btn-back {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.13);
-            color: var(--muted);
-        }
-        .btn-back:hover {
-            border-color: rgba(255, 255, 255, 0.28);
-            color: #fff;
-        }
-
-        .btn-next {
-            margin-left: auto;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: #fff;
-            box-shadow: 0 4px 18px rgba(59, 130, 246, 0.35);
-        }
-        .btn-next:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 24px rgba(59, 130, 246, 0.5);
-        }
+        /* ── Nav buttons ── */
+        .step-nav { display: flex; align-items: center; margin-top: 2rem; gap: 0.75rem; }
+        .btn { padding: 0.8rem 1.5rem; border-radius: 11px; font-size: 0.88rem; font-weight: 650; cursor: pointer; border: none; transition: all 0.2s; font-family: inherit; letter-spacing: 0.01em; white-space: nowrap; }
+        .btn-back { background: transparent; border: 1px solid rgba(255,255,255,0.13); color: var(--muted); }
+        .btn-back:hover { border-color: rgba(255,255,255,0.28); color: #fff; }
+        .btn-next { margin-left: auto; background: linear-gradient(135deg,#3b82f6,#2563eb); color: #fff; box-shadow: 0 4px 18px rgba(59,130,246,0.35); }
+        .btn-next:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(59,130,246,0.5); }
         .btn-next:active { transform: translateY(0); }
-
-        .btn-submit-final {
-            margin-left: auto;
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: #fff;
-            box-shadow: 0 4px 18px rgba(34, 197, 94, 0.3);
-        }
-        .btn-submit-final:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 24px rgba(34, 197, 94, 0.45);
-        }
+        .btn-save { margin-left: auto; background: linear-gradient(135deg,#22c55e,#16a34a); color: #fff; box-shadow: 0 4px 18px rgba(34,197,94,0.3); }
+        .btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(34,197,94,0.45); }
 
         /* ── Loading ── */
-        #state-loading {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: var(--muted);
-            font-size: 0.88rem;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 18px; height: 18px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.65s linear infinite;
-            vertical-align: middle;
-            margin-right: 7px;
-        }
+        #state-loading { text-align: center; padding: 3rem 2rem; color: var(--muted); font-size: 0.88rem; }
+        .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.65s linear infinite; vertical-align: middle; margin-right: 7px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ── Success ── */
-        #state-success {
-            text-align: center;
-            padding: 1rem 0 0.5rem;
-        }
+        #state-success { text-align: center; padding: 1rem 0 0.5rem; }
+        .success-ring { width: 78px; height: 78px; background: rgba(74,222,128,0.1); border: 1.5px solid rgba(74,222,128,0.35); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.6rem; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes popIn { from { opacity:0; transform:scale(0.6); } to { opacity:1; transform:scale(1); } }
+        .success-check { font-size: 2.2rem; line-height: 1; }
+        #state-success h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 0.55rem; color: #fff; }
+        #state-success p  { font-size: 0.85rem; color: var(--muted); line-height: 1.65; margin-bottom: 2rem; max-width: 340px; margin-left: auto; margin-right: auto; }
+        .btn-dashboard { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.85rem 2rem; background: linear-gradient(135deg,#3b82f6,#2563eb); color: #fff; border: none; border-radius: 11px; font-size: 0.9rem; font-weight: 650; cursor: pointer; font-family: inherit; box-shadow: 0 4px 18px rgba(59,130,246,0.35); transition: all 0.2s; }
+        .btn-dashboard:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(59,130,246,0.5); }
 
-        .success-ring {
-            width: 78px; height: 78px;
-            background: rgba(74, 222, 128, 0.1);
-            border: 1.5px solid rgba(74, 222, 128, 0.35);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.6rem;
-            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.6); }
-            to   { opacity: 1; transform: scale(1); }
-        }
-
-        .success-check {
-            font-size: 2.2rem;
-            line-height: 1;
-        }
-
-        #state-success h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-            margin-bottom: 0.55rem;
-            color: #fff;
-        }
-
-        #state-success p {
-            font-size: 0.85rem;
-            color: var(--muted);
-            line-height: 1.65;
-            margin-bottom: 2rem;
-            max-width: 340px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .btn-dashboard {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.85rem 2rem;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: #fff;
-            border: none;
-            border-radius: 11px;
-            font-size: 0.9rem;
-            font-weight: 650;
-            cursor: pointer;
-            font-family: inherit;
-            box-shadow: 0 4px 18px rgba(59, 130, 246, 0.35);
-            transition: all 0.2s;
-        }
-
-        .btn-dashboard:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 24px rgba(59, 130, 246, 0.5);
-        }
-
-        .footnote {
-            text-align: center;
-            font-size: 0.68rem;
-            color: rgba(255, 255, 255, 0.18);
-            margin-top: 1rem;
-        }
-
+        .footnote { text-align: center; font-size: 0.68rem; color: rgba(255,255,255,0.18); margin-top: 1rem; }
         .hidden { display: none !important; }
 
         @media (max-width: 540px) {
@@ -524,7 +219,6 @@
 </head>
 <body>
 
-<!-- Nav -->
 <nav class="top-nav">
     <a href="/Portal%20website/index.html" class="nav-brand">TruRent</a>
     <div class="nav-user" id="nav-user">
@@ -533,7 +227,6 @@
     </div>
 </nav>
 
-<!-- Wizard -->
 <div class="wizard-wrap">
     <div class="wizard-card">
 
@@ -545,20 +238,37 @@
         <!-- Multi-step form -->
         <div id="state-form" class="hidden">
 
+            <!-- Edit mode notice -->
+            <div class="edit-banner" id="edit-banner">
+                ✏️ Editing your profile — changes will overwrite your saved preferences.
+            </div>
+
             <div class="progress-header">
                 <div class="step-dots" id="step-dots"></div>
-                <span class="step-counter" id="step-counter">Step 1 of 5</span>
+                <span class="step-counter" id="step-counter">Step 1 of 6</span>
             </div>
-
             <div class="progress-track">
-                <div class="progress-fill" id="progress-fill" style="width: 20%"></div>
+                <div class="progress-fill" id="progress-fill" style="width:16.6%"></div>
             </div>
 
-            <!-- ── STEP 1: Work & Finances ── -->
+            <!-- ── STEP 1: Your Name ── -->
             <div class="step-panel active" data-step="1">
-                <div class="step-eyebrow">Step 1 — Work & Finances</div>
-                <h2 class="step-title">Let's start with the basics.</h2>
-                <p class="step-sub">Tell us about your income and how you work — we'll use this to personalise cost estimates.</p>
+                <div class="step-eyebrow">Step 1 — About You</div>
+                <h2 class="step-title">What should we call you?</h2>
+                <p class="step-sub">This name will appear on your dashboard greeting and account badge.</p>
+
+                <div class="field-group" id="g-displayName">
+                    <label for="displayName">Full Name or Display Name <span class="req">*</span></label>
+                    <input type="text" id="displayName" placeholder="e.g. Tony Zheng" maxlength="60" />
+                    <span class="ferr">Please enter your name.</span>
+                </div>
+            </div>
+
+            <!-- ── STEP 2: Work & Finances ── -->
+            <div class="step-panel" data-step="2">
+                <div class="step-eyebrow">Step 2 — Work & Finances</div>
+                <h2 class="step-title">Let's talk money.</h2>
+                <p class="step-sub">Your salary and schedule help us model the true cost of each city.</p>
 
                 <div class="field-group" id="g-salary">
                     <label for="salary">Annual Salary ($) <span class="req">*</span></label>
@@ -581,17 +291,17 @@
                 </div>
             </div>
 
-            <!-- ── STEP 2: Location & Commute ── -->
-            <div class="step-panel" data-step="2">
-                <div class="step-eyebrow">Step 2 — Location</div>
+            <!-- ── STEP 3: Location & Commute ── -->
+            <div class="step-panel" data-step="3">
+                <div class="step-eyebrow">Step 3 — Location</div>
                 <h2 class="step-title">Where are you headed?</h2>
-                <p class="step-sub">Your commute destination and transport choice shape cost-of-living significantly.</p>
+                <p class="step-sub">Your commute destination and transport shape living costs significantly.</p>
 
                 <div class="field-group" id="g-workAddress">
                     <label for="workAddress">Workplace / School Address <span class="req">*</span></label>
                     <!--
-                        TODO: Swap input for Google Places Autocomplete widget once Maps API key is wired in.
-                        API key is already in backend/google_places.py.
+                        TODO: Replace with Google Places Autocomplete.
+                        API key is in backend/google_places.py.
                         → new google.maps.places.Autocomplete(document.getElementById('workAddress'))
                     -->
                     <input type="text" id="workAddress" placeholder="e.g. 200 University Ave W, Waterloo, ON" />
@@ -611,11 +321,11 @@
                 </div>
             </div>
 
-            <!-- ── STEP 3: Vehicle ── -->
-            <div class="step-panel" data-step="3">
-                <div class="step-eyebrow">Step 3 — Your Vehicle</div>
+            <!-- ── STEP 4: Vehicle ── -->
+            <div class="step-panel" data-step="4">
+                <div class="step-eyebrow">Step 4 — Your Vehicle</div>
                 <h2 class="step-title">Tell us about your car.</h2>
-                <p class="step-sub">Car ownership and parking costs are major variables in any city's cost of living.</p>
+                <p class="step-sub">Car ownership and parking are major variables in any city's cost of living.</p>
 
                 <div class="field-group" id="g-carOwnership">
                     <label>Do you own a car? <span class="req">*</span></label>
@@ -647,11 +357,11 @@
                 </div>
             </div>
 
-            <!-- ── STEP 4: Housing ── -->
-            <div class="step-panel" data-step="4">
-                <div class="step-eyebrow">Step 4 — Housing</div>
+            <!-- ── STEP 5: Housing ── -->
+            <div class="step-panel" data-step="5">
+                <div class="step-eyebrow">Step 5 — Housing</div>
                 <h2 class="step-title">What kind of home?</h2>
-                <p class="step-sub">Help us understand your housing needs so we can compare the true rent across cities.</p>
+                <p class="step-sub">Help us compare the true rent cost across different neighbourhoods.</p>
 
                 <div class="field-group" id="g-housingType">
                     <label for="housingType">Housing Type Preference <span class="req">*</span></label>
@@ -679,11 +389,11 @@
                 </div>
             </div>
 
-            <!-- ── STEP 5: Lifestyle ── -->
-            <div class="step-panel" data-step="5">
-                <div class="step-eyebrow">Step 5 — Lifestyle</div>
+            <!-- ── STEP 6: Lifestyle ── -->
+            <div class="step-panel" data-step="6">
+                <div class="step-eyebrow">Step 6 — Lifestyle</div>
                 <h2 class="step-title">How do you live?</h2>
-                <p class="step-sub">Day-to-day spending habits round out your livability score.</p>
+                <p class="step-sub">Day-to-day spending habits complete your livability score.</p>
 
                 <div class="field-group" id="g-shopping">
                     <label for="shopping">Grocery Shopping Style <span class="req">*</span></label>
@@ -719,7 +429,7 @@
                 </div>
 
                 <div class="field-group">
-                    <label>Hobbies & Activities <span style="font-weight:400; opacity:0.45;">(optional)</span></label>
+                    <label>Hobbies & Activities <span style="font-weight:400;opacity:0.45;">(optional)</span></label>
                     <div class="hobby-chips">
                         <div class="hchip" data-val="Gym">🏋️ Gym</div>
                         <div class="hchip" data-val="Running">🏃 Running</div>
@@ -748,9 +458,9 @@
             <div class="success-ring">
                 <span class="success-check">✓</span>
             </div>
-            <h2>Preferences saved!</h2>
-            <p>Your profile has been successfully saved.<br>TruRent will now personalise livability scores for every neighbourhood you explore.</p>
-            <button class="btn-dashboard" onclick="window.location.href='dashboard.html'">
+            <h2 id="success-heading">Preferences saved!</h2>
+            <p id="success-sub">Your profile has been saved. TruRent will now personalise livability scores for every neighbourhood you explore.</p>
+            <button class="btn-dashboard" onclick="window.location.href='/Auth0/dashboard.html'">
                 Go to Dashboard →
             </button>
         </div>
@@ -760,12 +470,15 @@
 </div>
 
 <script>
-    // ── Auth0 credentials ─────────────────────────────────────────────────────
+    // ── Auth0 config ──────────────────────────────────────────────────────────
     const AUTH0_DOMAIN    = 'dev-s6ofaf4udt2w1nw1.us.auth0.com';
     const AUTH0_CLIENT_ID = 'aMvSv7X3MtUa1zF0TgF31E5jg5cRnxbx';
     const REDIRECT_URI    = window.location.href.split('?')[0].split('#')[0];
     const PAGE_LOGIN      = '/Portal%20website/index.html';
-    const PAGE_DASHBOARD  = 'dashboard.html';
+    const PAGE_DASHBOARD  = '/Auth0/dashboard.html';
+
+    // Detect edit mode (?edit=true in URL)
+    const IS_EDIT_MODE = new URLSearchParams(window.location.search).has('edit');
 
     let currentUser = null;
 
@@ -774,8 +487,8 @@
         const configured = AUTH0_DOMAIN !== 'YOUR_AUTH0_DOMAIN' && AUTH0_CLIENT_ID !== 'YOUR_CLIENT_ID';
 
         if (!configured) {
-            currentUser = { email: 'demo@trurent.app' };
-            showState('form');
+            currentUser = { sub: 'demo', email: 'demo@trurent.app' };
+            startForm();
             return;
         }
 
@@ -798,23 +511,75 @@
             if (currentUser.email)   document.getElementById('user-email-nav').textContent = currentUser.email;
             document.getElementById('nav-user').style.display = 'flex';
 
-            const profileKey = 'trurent_profile_' + (currentUser.email || currentUser.sub);
-            if (localStorage.getItem(profileKey)) {
+            // If not edit mode and profile already exists, skip to dashboard
+            if (!IS_EDIT_MODE && TruRentProfile.exists(currentUser)) {
                 window.location.href = PAGE_DASHBOARD;
                 return;
             }
 
-            showState('form');
+            startForm();
 
         } catch (err) {
             console.error('[TruRent]', err);
-            currentUser = { email: 'demo@trurent.app' };
-            showState('form');
+            currentUser = { sub: 'demo', email: 'demo@trurent.app' };
+            startForm();
         }
     }
 
+    function startForm() {
+        showState('form');
+
+        if (IS_EDIT_MODE) {
+            document.getElementById('edit-banner').style.display = 'block';
+            preloadProfile();
+        }
+    }
+
+    // ── Preload saved profile into form (edit mode) ───────────────────────────
+    function preloadProfile() {
+        const profile = TruRentProfile.get(currentUser);
+        if (!profile) return;
+
+        const set = (id, val) => {
+            const el = document.getElementById(id);
+            if (el && val !== null && val !== undefined) el.value = val;
+        };
+
+        set('displayName',  profile.displayName);
+        set('salary',       profile.salary);
+        set('workAddress',  profile.workAddress);
+        set('workSchedule', profile.workSchedule);
+        set('transport',    profile.transport);
+        set('fuelType',     profile.fuelType);
+        set('housingType',  profile.housingType);
+        set('householdSize',profile.householdSize);
+        set('shopping',     profile.shopping);
+        set('eating',       profile.eating);
+        set('recreation',   profile.recreation);
+
+        // Toggles: carOwnership, monthlyParking
+        ['carOwnership', 'monthlyParking'].forEach(key => {
+            if (!profile[key]) return;
+            const btn = document.querySelector(`.tog[data-for="${key}"][data-val="${profile[key]}"]`);
+            if (btn) {
+                btn.classList.add('active');
+                document.getElementById(key).value = profile[key];
+            }
+        });
+
+        // Hobby chips
+        if (Array.isArray(profile.hobbies)) {
+            document.querySelectorAll('.hchip').forEach(chip => {
+                chip.classList.toggle('on', profile.hobbies.includes(chip.dataset.val));
+            });
+        }
+
+        // Show fuel if applicable
+        updateFuel();
+    }
+
     // ── Step wizard ───────────────────────────────────────────────────────────
-    const TOTAL = 5;
+    const TOTAL = 6;
     let step = 1;
 
     function buildDots() {
@@ -841,8 +606,8 @@
 
         const nextBtn = document.getElementById('btn-next');
         if (step === TOTAL) {
-            nextBtn.textContent = 'Save Profile ✓';
-            nextBtn.className   = 'btn btn-submit-final';
+            nextBtn.textContent = IS_EDIT_MODE ? 'Save Changes ✓' : 'Save Profile ✓';
+            nextBtn.className   = 'btn btn-save';
         } else {
             nextBtn.textContent = 'Continue →';
             nextBtn.className   = 'btn btn-next';
@@ -869,16 +634,16 @@
     // ── Per-step validation ───────────────────────────────────────────────────
     function validateStep(s) {
         let ok = true;
-
-        if (s === 1) {
-            ok = check('salary',       'g-salary',       v => v !== '' && parseFloat(v) >= 0) & ok;
-            ok = check('workSchedule', 'g-workSchedule', v => !!v) & ok;
-        }
+        if (s === 1) ok = chk('displayName', 'g-displayName', v => v.trim().length > 0) & ok;
         if (s === 2) {
-            ok = check('workAddress', 'g-workAddress', v => v.trim().length > 2) & ok;
-            ok = check('transport',   'g-transport',   v => !!v) & ok;
+            ok = chk('salary',       'g-salary',       v => v !== '' && parseFloat(v) >= 0) & ok;
+            ok = chk('workSchedule', 'g-workSchedule', v => !!v) & ok;
         }
         if (s === 3) {
+            ok = chk('workAddress', 'g-workAddress', v => v.trim().length > 2) & ok;
+            ok = chk('transport',   'g-transport',   v => !!v) & ok;
+        }
+        if (s === 4) {
             if (!document.getElementById('carOwnership').value) {
                 document.getElementById('g-carOwnership').classList.add('has-err');
                 ok = false;
@@ -886,30 +651,29 @@
                 document.getElementById('g-carOwnership').classList.remove('has-err');
             }
             if (document.getElementById('fuel-group').classList.contains('show')) {
-                ok = check('fuelType', 'fuel-group', v => !!v) & ok;
+                ok = chk('fuelType', 'fuel-group', v => !!v) & ok;
             }
         }
-        if (s === 4) {
-            ok = check('housingType',   'g-housingType',   v => !!v) & ok;
-            ok = check('householdSize', 'g-householdSize', v => !!v) & ok;
-        }
         if (s === 5) {
-            ok = check('shopping',   'g-shopping',   v => !!v) & ok;
-            ok = check('eating',     'g-eating',     v => !!v) & ok;
-            ok = check('recreation', 'g-recreation', v => !!v) & ok;
+            ok = chk('housingType',   'g-housingType',   v => !!v) & ok;
+            ok = chk('householdSize', 'g-householdSize', v => !!v) & ok;
         }
-
+        if (s === 6) {
+            ok = chk('shopping',   'g-shopping',   v => !!v) & ok;
+            ok = chk('eating',     'g-eating',     v => !!v) & ok;
+            ok = chk('recreation', 'g-recreation', v => !!v) & ok;
+        }
         return !!ok;
     }
 
-    function check(fieldId, groupId, test) {
+    function chk(fieldId, groupId, test) {
         const v = document.getElementById(fieldId)?.value ?? '';
         const g = document.getElementById(groupId);
         if (test(v)) { g?.classList.remove('has-err'); return true; }
         else         { g?.classList.add('has-err');    return false; }
     }
 
-    // ── Toggle buttons ────────────────────────────────────────────────────────
+    // ── Toggles ───────────────────────────────────────────────────────────────
     function tog(btn) {
         const key = btn.dataset.for;
         document.querySelectorAll(`[data-for="${key}"]`).forEach(b => b.classList.remove('active'));
@@ -926,17 +690,15 @@
         document.getElementById('fuel-group').classList.toggle('show', show);
         if (!show) document.getElementById('fuelType').value = '';
     }
-
     document.getElementById('transport').addEventListener('change', updateFuel);
 
-    // Hobby chips
-    document.querySelectorAll('.hchip').forEach(c => {
-        c.addEventListener('click', () => c.classList.toggle('on'));
-    });
+    // Hobby chip toggle
+    document.querySelectorAll('.hchip').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
 
     // ── Submit ────────────────────────────────────────────────────────────────
     function submitForm() {
         const profile = {
+            displayName:    document.getElementById('displayName').value.trim(),
             salary:         document.getElementById('salary').value,
             workAddress:    document.getElementById('workAddress').value.trim(),
             workSchedule:   document.getElementById('workSchedule').value,
@@ -950,18 +712,21 @@
             eating:         document.getElementById('eating').value,
             recreation:     document.getElementById('recreation').value,
             hobbies:        [...document.querySelectorAll('.hchip.on')].map(c => c.dataset.val),
-            onboardedAt:    new Date().toISOString(),
         };
 
-        // Persist to localStorage — TODO: POST to /api/profile once backend is ready
-        const key = 'trurent_profile_' + (currentUser?.email || 'demo@trurent.app');
-        localStorage.setItem(key, JSON.stringify(profile));
+        // Save using the shared profile helper (keyed by user.sub)
+        TruRentProfile.save(currentUser, profile);
         console.log('[TruRent] Profile saved:', profile);
 
-        showState('success');
+        if (IS_EDIT_MODE) {
+            // Skip success screen on edit — go straight back to dashboard
+            window.location.href = PAGE_DASHBOARD + '?updated=true';
+        } else {
+            showState('success');
+        }
     }
 
-    // ── State helpers ─────────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
     function showState(which) {
         ['loading', 'form', 'success'].forEach(id => {
             document.getElementById('state-' + id).classList.toggle('hidden', id !== which);
