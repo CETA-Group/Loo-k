@@ -1,9 +1,10 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>TruRent</title>
+		<title>Loo-k</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="icon" type="image/png" href="../icon.png" />
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 		<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
@@ -100,7 +101,7 @@
 
 				<!-- Header -->
 					<header id="header" class="alt">
-						<h1><a href="index.html">TruRent</a></h1>
+						<h1><a href="index.html">Loo-k</a></h1>
 						<nav id="nav">
 							<ul>
 								<li class="special">
@@ -143,7 +144,7 @@
 							<header class="major">
 								<h2>Rent is only half the story</h2>
 								<p>Two apartments at the same price can feel completely different to live in.<br />
-								TruRent gives every listing a livability score so you can compare what actually matters.</p>
+								Loo-k gives every listing a livability score so you can compare what actually matters.</p>
 							</header>
 						</div>
 					</section>
@@ -238,7 +239,7 @@
 							</li>
 						</ul>
 						<ul class="copyright">
-							<li>&copy; 2026 TruRent &mdash; Hack Canada 2026</li>
+							<li>&copy; 2026 Loo-k &mdash; Hack Canada 2026</li>
 						</ul>
 					</footer>
 
@@ -255,23 +256,23 @@
 
 		<script>
 		async function boot() {
-			if (typeof TruRentAuth === 'undefined') return;
+			if (typeof LookAuth === 'undefined') return;
 
-			await TruRentAuth.init();
+			await LookAuth.init();
 
 			// Process Auth0 redirect callback if present (?code=&state=)
-			const wasCallback = await TruRentAuth.handleCallback();
+			const wasCallback = await LookAuth.handleCallback();
 			if (wasCallback) return; // handleCallback already navigated away
 
 			// ── Check if user is already authenticated ────────────────────────
-			if (TruRentAuth.IS_CONFIGURED && await TruRentAuth.isAuthenticated()) {
-				const user    = await TruRentAuth.getUser();
-				const profile = (typeof TruRentProfile !== 'undefined') ? TruRentProfile.get(user) : null;
-				const name    = (typeof TruRentProfile !== 'undefined')
-					? TruRentProfile.getDisplayName(user, profile)
+			if (LookAuth.IS_CONFIGURED && await LookAuth.isAuthenticated()) {
+				const user    = await LookAuth.getUser();
+				const profile = (typeof LookProfile !== 'undefined') ? LookProfile.get(user) : null;
+				const name    = (typeof LookProfile !== 'undefined')
+					? LookProfile.getDisplayName(user, profile)
 					: (user?.name || user?.email || 'You');
-				const initials = (typeof TruRentProfile !== 'undefined')
-					? TruRentProfile.getInitials(user, profile)
+				const initials = (typeof LookProfile !== 'undefined')
+					? LookProfile.getInitials(user, profile)
 					: (name[0] || '?').toUpperCase();
 
 				// Populate and show session bar
@@ -286,7 +287,7 @@
 
 				// Switch Account from session bar
 				document.getElementById('sb-switch-btn').addEventListener('click', () => {
-					TruRentAuth.switchAccount();
+					LookAuth.switchAccount();
 				});
 
 				// Explore/CTA buttons → go to dashboard (user is already in)
@@ -302,12 +303,12 @@
 			}
 
 			// ── Not authenticated — wire buttons to Auth0 login ───────────────
-			if (!TruRentAuth.IS_CONFIGURED) return;
+			if (!LookAuth.IS_CONFIGURED) return;
 
-			document.getElementById('btn-explore')    .addEventListener('click', e => { e.preventDefault(); TruRentAuth.login(); });
-			document.getElementById('btn-explore-cta').addEventListener('click', e => { e.preventDefault(); TruRentAuth.login(); });
-			document.getElementById('btn-nav-signup') .addEventListener('click', e => { e.preventDefault(); TruRentAuth.signup(); });
-			document.getElementById('btn-nav-login')  .addEventListener('click', e => { e.preventDefault(); TruRentAuth.login(); });
+			document.getElementById('btn-explore')    .addEventListener('click', e => { e.preventDefault(); LookAuth.login(); });
+			document.getElementById('btn-explore-cta').addEventListener('click', e => { e.preventDefault(); LookAuth.login(); });
+			document.getElementById('btn-nav-signup') .addEventListener('click', e => { e.preventDefault(); LookAuth.signup(); });
+			document.getElementById('btn-nav-login')  .addEventListener('click', e => { e.preventDefault(); LookAuth.login(); });
 		}
 
 		boot();

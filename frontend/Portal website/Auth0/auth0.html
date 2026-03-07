@@ -1,9 +1,10 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>TruRent — Sign In</title>
+    <title>Loo-k — Sign In</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="icon" type="image/png" href="../../icon.png" />
     <link rel="stylesheet" href="../Portal%20website/assets/css/main.css" />
     <noscript><link rel="stylesheet" href="../Portal%20website/assets/css/noscript.css" /></noscript>
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
@@ -140,7 +141,7 @@
         <!-- Footer -->
         <footer id="footer">
             <ul class="copyright">
-                <li>&copy; 2026 TruRent</li>
+                <li>&copy; 2026 Loo-k</li>
                 <li>Hack Canada 2026</li>
             </ul>
         </footer>
@@ -219,7 +220,7 @@
 
         // Save & load preferences using localStorage keyed by email
         function loadPreferences(email) {
-            const saved = localStorage.getItem('trurent_prefs_' + email);
+            const saved = localStorage.getItem('look_prefs_' + email);
             if (saved) {
                 const data = JSON.parse(saved);
                 document.getElementById('pref-budget').value = data.budget || '';
@@ -241,7 +242,7 @@
                 term: document.getElementById('pref-term').value,
                 notes: document.getElementById('pref-notes').value
             };
-            localStorage.setItem('trurent_prefs_' + user.email, JSON.stringify(data));
+            localStorage.setItem('look_prefs_' + user.email, JSON.stringify(data));
 
             const status = document.getElementById('save-status');
             status.textContent = 'Preferences saved!';

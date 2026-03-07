@@ -7,7 +7,7 @@ from jose import jwt
 import requests
 
 AUTH0_DOMAIN = "dev-s6ofaf4udt2w1nw1.us.auth0.com"
-API_AUDIENCE = "https://trurent/api"
+API_AUDIENCE = "https://look/api"
 ALGORITHMS = ["RS256"]
 
 token_auth_scheme = HTTPBearer()

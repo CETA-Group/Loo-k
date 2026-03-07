@@ -1,9 +1,10 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>TruRent — Sign Up / Log In</title>
+    <title>Loo-k — Sign Up / Log In</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="icon" type="image/png" href="../../icon.png" />
     <link rel="stylesheet" href="../Portal%20website/assets/css/main.css" />
     <noscript><link rel="stylesheet" href="../Portal%20website/assets/css/noscript.css" /></noscript>
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
@@ -130,7 +131,7 @@
 
     <!-- Header -->
     <header id="header">
-        <h1><a href="../Portal%20website/index.html">TruRent</a></h1>
+        <h1><a href="../Portal%20website/index.html">Loo-k</a></h1>
         <nav id="nav">
             <ul>
                 <li class="special">
@@ -157,7 +158,7 @@
 
         <!-- ── NOT logged in ── -->
         <div class="auth-panel" id="state-loggedout">
-            <p class="brand">TruRent</p>
+            <p class="brand">Loo-k</p>
             <h2>Your home,<br/>scored.</h2>
             <p class="tagline">
                 Create an account to unlock personalised livability scores,<br/>
@@ -248,7 +249,7 @@
             auth0Client = await auth0.createAuth0Client({
                 domain:           AUTH0_DOMAIN,
                 clientId:         AUTH0_CLIENT_ID,
-                authorizationParams: { redirect_uri: REDIRECT_URI, audience: 'https://trurent/api' },
+                authorizationParams: { redirect_uri: REDIRECT_URI, audience: 'https://look/api' },
                 cacheLocation:    'localstorage',
                 useRefreshTokens: true
             });
@@ -270,7 +271,7 @@
                 populateLoggedIn(user);
                 showPanel('loggedin');
 
-                const profileKey = 'trurent_profile_' + (user.email || user.sub);
+                const profileKey = 'look_profile_' + (user.email || user.sub);
                 const hasProfile = localStorage.getItem(profileKey) !== null;
                 document.getElementById('redirect-note').innerHTML =
                     '<span class="spinner"></span>' + (hasProfile ? 'Taking you to your dashboard…' : 'Setting up your profile…');
@@ -278,7 +279,7 @@
             }
 
         } catch (err) {
-            console.error('[TruRent] Auth0 init error:', err);
+            console.error('[Loo-k] Auth0 init error:', err);
             // Silent fallback — demo mode
         }
     }
@@ -334,7 +335,7 @@
             });
         } else {
             // Demo mode — if a saved profile exists go to dashboard, else onboarding
-            const hasProfile = Object.keys(localStorage).some(k => k.startsWith('trurent_profile_'));
+            const hasProfile = Object.keys(localStorage).some(k => k.startsWith('look_profile_'));
             window.location.href = hasProfile ? PAGE_DASHBOARD : PAGE_ONBOARDING;
         }
     });

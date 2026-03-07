@@ -1,5 +1,5 @@
 /**
- * profile.js — TruRent user profile storage helper
+ * profile.js — Loo-k user profile storage helper
  *
  * Include with: <script src="profile.js"></script>
  * No dependencies — pure localStorage.
@@ -8,13 +8,13 @@
  * is always consistent and one user's data never overwrites another's.
  *
  * Key strategy: uses Auth0 `sub` (stable permanent ID) as primary key,
- * falls back to email, then 'demo@trurent.app' in demo mode.
+ * falls back to email, then 'demo@look.app' in demo mode.
  */
-const TruRentProfile = (() => {
+const LookProfile = (() => {
 
     function _key(user) {
-        const id = user?.sub || user?.email || 'demo@trurent.app';
-        return 'trurent_profile_' + id;
+        const id = user?.sub || user?.email || 'demo@look.app';
+        return 'look_profile_' + id;
     }
 
     /** Load the saved profile for this user. Returns null if none exists. */
