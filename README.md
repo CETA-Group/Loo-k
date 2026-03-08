@@ -1,10 +1,9 @@
 # Loo-k
  
-> **[ FAST MAP VIEWER ](https://ceta-group.github.io/Loo-k/frontend/map/)**
+> **🌃[ FAST MAP VIEWER ](https://ceta-group.github.io/Loo-k/frontend/map/)🌃**
 
 > **Redefining Relocation: Bridging the Gap Between Raw Geospatial Data and Quality of Life.**
 
-[![Website](https://img.shields.io/badge/Website-Loo--k-1cb495)](https://ceta-group.github.io/Loo-k/frontend/main/)
 [![Organization](https://img.shields.io/badge/Organization-CETA--Group-blue)](https://github.com/CETA-Group)
 
 ## Our Mission
@@ -35,7 +34,7 @@ A collaborative engineering group dedicated to deploying cutting-edge web techno
 | <img src="https://github.com/mu142857.png" width="80px;"/><br>**Aaron Shangguan** | **Front End Architect**<br>Interactive Map UI & Full-system Portal Integration | [LinkedIn](https://www.linkedin.com/in/jiamu-shangguan-464092399/) ·[GitHub](https://github.com/mu142857) |
 | <img src="https://github.com/github.png" width="80px;"/><br>**Tony** | **Full Stack Engineer**<br>API Architecture & System Data Flow | [LinkedIn](https://www.linkedin.com/in/tonyzh-uwcs/) · [GitHub](https://github.com/tonyZh-7075) |
 | <img src="https://github.com/github.png" width="80px;"/><br>**Ethan** | **Back End Engineer**<br>Python Core Logic & Data Processing | [LinkedIn](https://www.linkedin.com/in/ethan-yiu-74668b315/) · [GitHub](https://github.com/ethancyyiu) |
-| <img src="https://github.com/github.png" width="80px;"/><br>**Catherine** | **Data & Pitch Specialist**<br>Data Curation & Project Storytelling | [LinkedIn](#) · [GitHub](https://github.com/catherinezhao0704-beep) |
+| <img src="https://github.com/github.png" width="80px;"/><br>**Catherine** | **Data & Pitch Specialist**<br>Data Curation & Project Storytelling |  [GitHub](https://github.com/catherinezhao0704-beep) |
 
 *(Note: Replace `github` in the image src and links with actual GitHub usernames to display real avatars)*
 
