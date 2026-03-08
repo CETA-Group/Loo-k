@@ -16,7 +16,7 @@ try:
 except Exception:
     BACKBOARD_AVAILABLE = False
 
-from backend.auth0 import verify_jwt
+from backend.auth0_service import verify_jwt
 from backend.gemini import generate_recommendation
 from backend.prompt_builder import build_prompt
 
