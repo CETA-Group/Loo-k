@@ -16,9 +16,9 @@ try:
 except Exception:
     BACKBOARD_AVAILABLE = False
 
-from auth0_service import verify_jwt
-from gemini import generate_recommendation
-from prompt_builder import build_prompt
+from backend.auth0_service import verify_jwt
+from backend.gemini import generate_recommendation
+from backend.prompt_builder import build_prompt
 
 app = FastAPI()
 
