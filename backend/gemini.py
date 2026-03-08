@@ -15,7 +15,7 @@ async def generate_recommendation(prompt: str) -> str:
             model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
-                max_output_tokens=1024,
+                max_output_tokens=2048,
                 thinking_config=types.ThinkingConfig(thinking_budget=0),
             ),
         ).text
