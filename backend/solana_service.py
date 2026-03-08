@@ -1,34 +1,57 @@
 from solana.rpc.api import Client
 from solders.keypair import Keypair
 from solders.transaction import Transaction
-from solders.system_program import TransferParams, transfer
+from solders.message import Message
+from solders.instruction import Instruction
 from solders.pubkey import Pubkey
+from solders.hash import Hash
 
 # Connect to devnet
 client = Client("https://api.devnet.solana.com")
 
-# Load your wallet
+# Load your wallet (random for now — replace with your real keypair later)
 keypair = Keypair()
 
-def write_score_to_solana(address, score):
-    message = f"{address} | score={score}"
 
-    # Convert message to bytes
+def write_score_to_solana(address: str, score: float):
+    # Create memo message
+    message = f"{address} | score={score}"
     data = message.encode("utf-8")
 
-    # We send 0 SOL but include the message as "memo"
-    from solders.instruction import Instruction
-    memo_program_id = Pubkey.from_string("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr")
+    # Memo program ID
+    memo_program_id = Pubkey.from_string(
+        "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
+    )
 
+    # Memo instruction (no accounts required)
     memo_ix = Instruction(
         program_id=memo_program_id,
         accounts=[],
         data=data
     )
 
-    # Build transaction
-    tx = Transaction().add(memo_ix)
+    # Fetch recent blockhash
+    resp = client.get_latest_blockhash()
+    recent_blockhash = resp.value.blockhash
 
-    # Send it
-    result = client.send_transaction(tx, keypair)
-    return result
+    # Build message with payer = your wallet
+    msg = Message(
+        instructions=[memo_ix],
+        payer=keypair.pubkey()
+    )
+
+    # Build transaction
+    tx = Transaction(
+        from_keypairs=[keypair],   # signer list
+        message=msg,
+        recent_blockhash=recent_blockhash
+    )
+
+    # Send transaction
+    result = client.send_transaction(tx)
+
+    # Extract signature
+    signature = result.value
+
+    # Return explorer link (same behavior as before)
+    return f"https://explorer.solana.com/tx/{signature}?cluster=devnet"
