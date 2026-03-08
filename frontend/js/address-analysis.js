@@ -40,9 +40,8 @@ function initMap() {
         styles: DARK_MAP_STYLE,
     });
 
-    google.maps.event.addListenerOnce(map, 'tilesloaded', () => {
-        document.getElementById('map-loading').classList.add('hide');
-    });
+    /* Hide spinner immediately once the API is ready — don't wait for tiles */
+    document.getElementById('map-loading').classList.add('hide');
 
     map.addListener('click', (e) => {
         const lat = e.latLng.lat();
@@ -168,8 +167,9 @@ async function fetchAnalysis(lat, lng, label) {
         if (data.ai_error) {
             document.getElementById('ai-error-text').textContent = data.ai_error;
             document.getElementById('ai-error-box').style.display = 'block';
-            /* Still render cost section even if AI failed */
+            /* Still render cost + solana even if AI failed */
             if (data.cost_breakdown) renderCostSection(data.cost_breakdown);
+            renderSolanaSection(data.solana_tx || null);
             return;
         }
 
@@ -181,6 +181,9 @@ async function fetchAnalysis(lat, lng, label) {
 
         /* Render cost breakdown */
         if (data.cost_breakdown) renderCostSection(data.cost_breakdown);
+
+        /* Render Solana verification */
+        renderSolanaSection(data.solana_tx || null);
 
     } catch (err) {
         document.getElementById('ai-loading-bar').classList.add('hidden');
@@ -431,6 +434,31 @@ function renderCostSection(cb) {
     }
 
     document.getElementById('cost-section').classList.add('show');
+}
+
+/* ── Render Solana verification section ──────────────────────── */
+function renderSolanaSection(txLink) {
+    const section = document.getElementById('solana-section');
+    const btn     = document.getElementById('solana-explorer-btn');
+    const status  = document.getElementById('solana-status');
+    const hash    = document.getElementById('solana-tx-hash');
+
+    if (txLink) {
+        /* Extract the tx signature from the URL for display */
+        const sig = txLink.split('/tx/')[1]?.split('?')[0] || '';
+        btn.href = txLink;
+        status.className = 'solana-status success';
+        status.textContent = 'Confirmed';
+        hash.textContent = sig ? `Tx: ${sig.slice(0, 20)}…${sig.slice(-8)}` : '';
+    } else {
+        /* Solana write failed or not available — show pending state */
+        btn.href = 'https://explorer.solana.com/?cluster=devnet';
+        status.className = 'solana-status pending';
+        status.textContent = 'Pending / Unavailable';
+        hash.textContent = 'Score computed — chain write unavailable (wallet needs SOL)';
+    }
+
+    section.classList.add('show');
 }
 
 /* ── Scroll helpers ──────────────────────────────────────────── */

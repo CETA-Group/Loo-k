@@ -15,8 +15,8 @@ async def generate_recommendation(prompt: str) -> str:
             model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
-                max_output_tokens=2048,
+                max_output_tokens=512,
                 thinking_config=types.ThinkingConfig(thinking_budget=0),
             ),
         ).text
-    return await asyncio.wait_for(asyncio.to_thread(_call), timeout=30)
+    return await asyncio.wait_for(asyncio.to_thread(_call), timeout=15)

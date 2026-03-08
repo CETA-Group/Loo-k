@@ -493,8 +493,8 @@ Return ONLY this JSON:
     solana_link = None
     score = None
 
-    if ai_analysis and "summary" in ai_analysis:
-        score = ai_analysis["summary"].get("livability_score")
+    if livability:
+        score = livability.get("overall_score")
     if score is not None:
         try:
             solana_link = write_score_to_solana(request.address, score)

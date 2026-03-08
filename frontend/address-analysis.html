@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TruRent — Cost Analysis</title>
+    <link rel="preconnect" href="https://maps.googleapis.com" />
+    <link rel="preconnect" href="https://maps.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://maps.googleapis.com" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkdw1isp4RCRU4r2NhDWiryE26LzRIgzQ&libraries=places&callback=initMap" async defer></script>
@@ -356,6 +359,109 @@
         .ci-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 0.75rem; }
 
         .range-note { font-size: 0.7rem; color: rgba(255,255,255,0.18); margin-top: 0.75rem; text-align: center; }
+
+        /* ═══════════════════════════════════════
+           SOLANA VERIFICATION CARD
+        ═══════════════════════════════════════ */
+        .solana-section {
+            display: none;
+            max-width: 1120px; margin: 0 auto 4rem; padding: 0 1.5rem;
+            animation: fadeUp 0.4s ease;
+        }
+        .solana-section.show { display: block; }
+
+        .solana-card {
+            background: linear-gradient(135deg, rgba(20,241,149,0.06) 0%, rgba(153,69,255,0.06) 100%);
+            border: 1px solid rgba(153,69,255,0.25);
+            border-radius: 18px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .solana-icon-wrap {
+            width: 48px; height: 48px; flex-shrink: 0;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #14f195, #9945ff);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.35rem;
+            box-shadow: 0 8px 24px rgba(153,69,255,0.3);
+        }
+
+        .solana-text { flex: 1; min-width: 180px; }
+
+        .solana-label {
+            font-size: 0.62rem; font-weight: 700; letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #14f195, #9945ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 0.3rem;
+        }
+
+        .solana-title {
+            font-size: 0.95rem; font-weight: 700; color: #fff;
+            margin-bottom: 0.3rem;
+        }
+
+        .solana-desc {
+            font-size: 0.78rem; color: var(--muted); line-height: 1.5;
+        }
+
+        .solana-status {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 99px;
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
+            margin-top: 0.6rem;
+        }
+
+        .solana-status.success {
+            background: rgba(20,241,149,0.1);
+            border: 1px solid rgba(20,241,149,0.3);
+            color: #14f195;
+        }
+
+        .solana-status.pending {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.4);
+        }
+
+        .solana-status::before {
+            content: '';
+            width: 6px; height: 6px; border-radius: 50%;
+            background: currentColor;
+        }
+
+        .solana-explorer-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.65rem 1.4rem;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(20,241,149,0.12), rgba(153,69,255,0.12));
+            border: 1px solid rgba(153,69,255,0.35);
+            color: #fff;
+            font-size: 0.8rem; font-weight: 700;
+            text-decoration: none;
+            transition: all 0.18s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .solana-explorer-btn:hover {
+            background: linear-gradient(135deg, rgba(20,241,149,0.2), rgba(153,69,255,0.2));
+            border-color: rgba(153,69,255,0.6);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(153,69,255,0.2);
+        }
+
+        .solana-tx-hash {
+            font-size: 0.68rem; color: rgba(255,255,255,0.2);
+            font-family: monospace;
+            margin-top: 0.35rem;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -483,6 +589,27 @@
     </div>
 
     <p class="range-note">Ranges reflect neighbourhood variation and lifestyle assumptions.</p>
+</div>
+
+<!-- ══ SOLANA VERIFICATION SECTION ══════════════════════════ -->
+<div class="solana-section" id="solana-section">
+    <p class="section-heading">⛓ Blockchain Verification</p>
+    <div class="solana-card">
+        <div class="solana-icon-wrap">◎</div>
+        <div class="solana-text">
+            <p class="solana-label">Solana Devnet</p>
+            <p class="solana-title">Score recorded on-chain</p>
+            <p class="solana-desc">
+                This livability score has been permanently written to the Solana blockchain as an immutable memo transaction.
+                Anyone can verify it on the Solana Explorer.
+            </p>
+            <span class="solana-status success" id="solana-status">Confirmed</span>
+            <p class="solana-tx-hash" id="solana-tx-hash"></p>
+        </div>
+        <a class="solana-explorer-btn" id="solana-explorer-btn" href="#" target="_blank" rel="noopener">
+            View on Explorer ↗
+        </a>
+    </div>
 </div>
 
 <script src="js/address-analysis.js"></script>
