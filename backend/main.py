@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import json
 import math
+from backend.solana_service import write_score_to_solana
 
 # ── Backboard imports (optional — server starts fine without backboard) ──
 try:
@@ -278,6 +279,14 @@ Return exactly this JSON (fill in all values, no zeros unless genuinely zero):
     except Exception as exc:
         ai_analysis = None
         ai_error = str(exc)
+        
+    # Extract livability score if AI succeeded
+    solana_link = None
+    if ai_analysis and "summary" in ai_analysis:
+        score = ai_analysis["summary"].get("livability_score")
+    if score is not None:
+        solana_link = write_score_to_solana(request.address, score)
+
 
     return {
         "success": ai_error is None,
@@ -286,4 +295,5 @@ Return exactly this JSON (fill in all values, no zeros unless genuinely zero):
         "cost_breakdown": costs,
         "ai_analysis": ai_analysis,
         "ai_error": ai_error,
+        "solana_tx": solana_link,
     }
