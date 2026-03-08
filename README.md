@@ -32,9 +32,9 @@ A collaborative engineering group dedicated to deploying cutting-edge web techno
 | Member | Focus & Expertise | Connectivity |
 | :--- | :--- | :--- |
 | <img src="https://github.com/mu142857.png" width="80px;"/><br>**Aaron Shangguan** | **Front End Architect**<br>Interactive Map UI & Full-system Portal Integration | [LinkedIn](https://www.linkedin.com/in/jiamu-shangguan-464092399/) ·[GitHub](https://github.com/mu142857) |
-| <img src="https://github.com/github.png" width="80px;"/><br>**Tony** | **Full Stack Engineer**<br>API Architecture & System Data Flow | [LinkedIn](https://www.linkedin.com/in/tonyzh-uwcs/) · [GitHub](https://github.com/tonyZh-7075) |
-| <img src="https://github.com/github.png" width="80px;"/><br>**Ethan** | **Back End Engineer**<br>Python Core Logic & Data Processing | [LinkedIn](https://www.linkedin.com/in/ethan-yiu-74668b315/) · [GitHub](https://github.com/ethancyyiu) |
-| <img src="https://github.com/github.png" width="80px;"/><br>**Catherine** | **Data & Pitch Specialist**<br>Data Curation & Project Storytelling |  [GitHub](https://github.com/catherinezhao0704-beep) |
+| <img src="https://github.com/tonyZh-7075" width="80px;"/><br>**Tony** | **Full Stack Engineer**<br>API Architecture & System Data Flow | [LinkedIn](https://www.linkedin.com/in/tonyzh-uwcs/) · [GitHub](https://github.com/tonyZh-7075) |
+| <img src="https://github.com/ethancyyiu" width="80px;"/><br>**Ethan** | **Back End Engineer**<br>Python Core Logic & Data Processing | [LinkedIn](https://www.linkedin.com/in/ethan-yiu-74668b315/) · [GitHub](https://github.com/ethancyyiu) |
+| <img src="https://github.com/catherinezhao0704-beep" width="80px;"/><br>**Catherine** | **Data & Pitch Specialist**<br>Data Curation & Project Storytelling |  [GitHub](https://github.com/catherinezhao0704-beep) |
 
 *(Note: Replace `github` in the image src and links with actual GitHub usernames to display real avatars)*
 
