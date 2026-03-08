@@ -235,9 +235,12 @@ async def api_cost_analysis(request: CostAnalysisRequest):
     """
     costs = _mock_costs(request.lat, request.lng)
 
-    prompt = f"""You are a housing cost analyst. Given this monthly cost breakdown for {request.address}, return ONLY a JSON object with your analysis. No markdown, no prose, just JSON.
+    prompt = f"""You are a housing cost and livability analyst. Analyse this address and return ONLY valid JSON, no markdown, no prose.
 
-Cost breakdown:
+Address: {request.address}
+Coordinates: lat={request.lat}, lng={request.lng}
+
+Monthly cost breakdown:
 - Rent: ${costs['rent']}
 - Commute: ${costs['commute']}
 - Groceries: ${costs['groceries']}
@@ -246,10 +249,19 @@ Cost breakdown:
 - Transport: ${costs['transport']}
 - Total: ${costs['total']}/month
 
-Return this exact JSON structure:
-{{"summary":{{"best_option_id":"target_location","best_option_label":"{request.address}","livability_score":0,"suitability_score":0,"confidence":0,"why_this_wins":""}},"ranked_options":[{{"option_id":"target_location","option_label":"{request.address}","rank":1,"livability_score":0,"suitability_score":0,"factor_scores":{{"rent_cost":0,"commute":0,"healthcare_access":0,"parks_recreation":0,"noise_pollution":0,"groceries_food_cost":0}},"strengths":[],"weaknesses":[],"tradeoffs":"","matched_preferences":[],"history_signals_used":[],"reason":""}}],"explainability":{{"used_logged_in_personalization":false,"preferences_used":[],"history_used":[],"hard_constraints_applied":[],"soft_preferences_applied":[],"missing_data_notes":[],"scoring_notes":""}}}}
+Instructions:
+- Score rent_cost 0-10: higher score = cheaper rent (e.g. rent<$1000 = 9, >$2000 = 3)
+- Score commute 0-10: higher score = lower commute cost (e.g. <$150 = 9, >$400 = 3)
+- Score groceries_food_cost 0-10: higher score = cheaper groceries (e.g. <$300 = 9, >$550 = 3)
+- Score healthcare_access 0-10: estimate based on the address location and neighbourhood type using your knowledge
+- Score parks_recreation 0-10: estimate based on the address location and neighbourhood type using your knowledge
+- Score noise_pollution 0-10: estimate based on address proximity to urban areas, highways, transit using your knowledge
+- livability_score 0-100: overall average quality of life score for this location
+- suitability_score 0-100: how suitable this location is for a typical renter
+- confidence 0-100: how confident you are in this assessment
 
-Fill in all scores (0-100 for livability/suitability, 0-10 for factor_scores) and text fields based on the cost data."""
+Return exactly this JSON (fill in all values, no zeros unless genuinely zero):
+{{"summary":{{"best_option_id":"target_location","best_option_label":"{request.address}","livability_score":0,"suitability_score":0,"confidence":0,"why_this_wins":""}},"ranked_options":[{{"option_id":"target_location","option_label":"{request.address}","rank":1,"livability_score":0,"suitability_score":0,"factor_scores":{{"rent_cost":0,"commute":0,"healthcare_access":0,"parks_recreation":0,"noise_pollution":0,"groceries_food_cost":0}},"strengths":[],"weaknesses":[],"tradeoffs":"","matched_preferences":[],"history_signals_used":[],"reason":""}}],"explainability":{{"used_logged_in_personalization":false,"preferences_used":[],"history_used":[],"hard_constraints_applied":[],"soft_preferences_applied":[],"missing_data_notes":[],"scoring_notes":""}}}}"""
 
     try:
         raw = await generate_recommendation(prompt)
