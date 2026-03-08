@@ -349,6 +349,132 @@
 
 <p class="footnote">Cost estimates are illustrative — real data pipeline coming soon.</p>
 
+<!-- AI Analysis section (shown after address is selected) -->
+<div class="ai-section" id="ai-section">
+    <div class="ai-header">
+        <span class="ai-icon">🤖</span>
+        <h2>AI Analysis</h2>
+        <span class="ai-badge">Gemini</span>
+    </div>
+
+    <!-- Loading state -->
+    <div class="ai-loading" id="ai-loading">
+        <div class="ai-spinner"></div>
+        <p>Asking Gemini to evaluate this location…</p>
+    </div>
+
+    <!-- Error state -->
+    <div class="ai-error-box" id="ai-error-box" style="display:none">
+        <strong>⚠️ AI Error:</strong>
+        <span id="ai-error-text"></span>
+        <p style="margin-top:6px;font-size:0.8rem;opacity:.6">Is the backend running? <code>uvicorn backend.main:app --reload</code></p>
+    </div>
+
+    <!-- Raw JSON output (quick display, formatting not a priority) -->
+    <pre class="ai-raw" id="ai-raw" style="display:none"></pre>
+</div>
+
+<style>
+    .ai-section {
+        display: none;
+        max-width: 1100px;
+        margin: 2rem auto 1rem;
+        padding: 0 1.5rem 2rem;
+    }
+    .ai-section.show { display: block; }
+
+    .ai-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 1.2rem;
+    }
+    .ai-icon { font-size: 1.4rem; }
+    .ai-header h2 { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .ai-badge {
+        background: rgba(96,165,250,0.15);
+        border: 1px solid rgba(96,165,250,0.3);
+        color: #60a5fa;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: .06em;
+        padding: 2px 8px;
+        border-radius: 99px;
+        text-transform: uppercase;
+    }
+
+    .ai-loading {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        padding: 1.5rem;
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+    }
+    .ai-spinner {
+        width: 22px; height: 22px;
+        border: 3px solid rgba(255,255,255,0.1);
+        border-top-color: #60a5fa;
+        border-radius: 50%;
+        animation: spin .8s linear infinite;
+        flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .ai-error-box {
+        background: rgba(239,68,68,0.08);
+        border: 1px solid rgba(239,68,68,0.25);
+        border-radius: 14px;
+        padding: 1rem 1.25rem;
+        color: #fca5a5;
+        font-size: 0.88rem;
+    }
+
+    .ai-raw {
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        padding: 1.5rem;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.88rem;
+        line-height: 1.7;
+    }
+    .ai-demo-note {
+        background: rgba(250,204,21,0.08);
+        border: 1px solid rgba(250,204,21,0.2);
+        border-radius: 8px;
+        color: #fde68a;
+        font-size: 0.78rem;
+        padding: 0.5rem 0.9rem;
+        margin-bottom: 1.2rem;
+    }
+    .ai-scores-row { display: flex; gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .ai-score-card {
+        flex: 1; min-width: 90px;
+        background: rgba(96,165,250,0.08);
+        border: 1px solid rgba(96,165,250,0.2);
+        border-radius: 12px;
+        padding: 0.9rem;
+        text-align: center;
+    }
+    .ai-score-val { font-size: 1.8rem; font-weight: 800; color: #60a5fa; line-height: 1; }
+    .ai-score-lbl { font-size: 0.72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .06em; }
+    .ai-summary-text { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.2rem; line-height: 1.6; }
+    .ai-factors { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.2rem; }
+    .ai-factor-row { display: flex; align-items: center; gap: 0.75rem; }
+    .ai-factor-name { width: 160px; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; }
+    .ai-factor-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+    .ai-factor-bar { height: 100%; border-radius: 99px; transition: width .8s ease; }
+    .ai-factor-score { width: 36px; text-align: right; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; }
+    .ai-sw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .ai-sw-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.82rem; color: var(--muted); }
+    .ai-tradeoffs { font-size: 0.83rem; color: var(--muted); margin-bottom: 0.6rem; }
+    .ai-notes { font-size: 0.75rem; color: rgba(232,240,255,0.3); margin-top: 0.5rem; }</style>
+
 <!-- JS -->
 <script src="js/address-analysis.js"></script>
 

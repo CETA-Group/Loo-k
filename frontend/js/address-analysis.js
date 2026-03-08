@@ -107,7 +107,123 @@ function placeMarker(location) {
     }
 }
 
-/* ── Trigger full analysis for a coordinate ──────────────────── */
+/* ── Read user preferences from localStorage (no auth.js needed) ── */
+function _loadUserPrefs() {
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('look_profile_')) {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : {};
+            }
+        }
+    } catch (_) { /* ignore */ }
+    return {};
+}
+
+const BACKEND_URL = 'http://localhost:8000';
+
+/* ── Call backend and render AI analysis ────────────────────── */
+async function fetchAiAnalysis(lat, lng, label) {
+    const aiSection  = document.getElementById('ai-section');
+    const aiLoading  = document.getElementById('ai-loading');
+    const aiErrorBox = document.getElementById('ai-error-box');
+    const aiRaw      = document.getElementById('ai-raw');
+
+    /* Show the section and loading state */
+    aiSection.classList.add('show');
+    aiLoading.style.display  = 'flex';
+    aiErrorBox.style.display = 'none';
+    aiRaw.style.display      = 'none';
+
+    try {
+        const res = await fetch(`${BACKEND_URL}/api/cost-analysis`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                lat,
+                lng,
+                address: label,
+                user_preferences: _loadUserPrefs(),
+            }),
+        });
+
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+        }
+
+        const data = await res.json();
+        aiLoading.style.display = 'none';
+
+        if (data.ai_error) {
+            document.getElementById('ai-error-text').textContent = data.ai_error;
+            aiErrorBox.style.display = 'block';
+        } else {
+            renderAiAnalysis(data.ai_analysis, data._demo_mode || data.ai_analysis?._demo_mode);
+            aiRaw.style.display = 'block';
+        }
+    } catch (err) {
+        aiLoading.style.display = 'none';
+        document.getElementById('ai-error-text').textContent = err.message;
+        aiErrorBox.style.display = 'block';
+    }
+}
+
+/* ── Render structured AI analysis ──────────────────────────── */
+function renderAiAnalysis(ai, isDemo) {
+    const aiRaw = document.getElementById('ai-raw');
+    if (!ai) { aiRaw.textContent = 'No AI data returned.'; aiRaw.style.display = 'block'; return; }
+
+    const s   = ai.summary || {};
+    const opt = (ai.ranked_options || [])[0] || {};
+    const exp = ai.explainability || {};
+    const fs  = opt.factor_scores || {};
+
+    const factorLabel = { rent_cost:'Rent Cost', commute:'Commute', healthcare_access:'Healthcare',
+                          parks_recreation:'Parks & Recreation', noise_pollution:'Noise / Pollution',
+                          groceries_food_cost:'Groceries' };
+
+    const factorRows = Object.entries(fs).map(([k, v]) => {
+        const pct = Math.round(v * 10);
+        const col = v >= 7 ? '#4ade80' : v >= 4 ? '#facc15' : '#f87171';
+        return `<div class="ai-factor-row">
+            <span class="ai-factor-name">${factorLabel[k] || k}</span>
+            <div class="ai-factor-bar-wrap"><div class="ai-factor-bar" style="width:${pct}%;background:${col}"></div></div>
+            <span class="ai-factor-score" style="color:${col}">${v}/10</span>
+        </div>`;
+    }).join('');
+
+    const strengths = (opt.strengths || []).map(t => `<li>✅ ${t}</li>`).join('');
+    const weaknesses = (opt.weaknesses || []).map(t => `<li>⚠️ ${t}</li>`).join('');
+
+    aiRaw.innerHTML = `
+        ${isDemo ? '<div class="ai-demo-note">⚡ Demo mode — connect a Gemini API key for live AI analysis</div>' : ''}
+        <div class="ai-scores-row">
+            <div class="ai-score-card">
+                <div class="ai-score-val">${s.livability_score ?? '—'}</div>
+                <div class="ai-score-lbl">Livability</div>
+            </div>
+            <div class="ai-score-card">
+                <div class="ai-score-val">${s.suitability_score ?? '—'}</div>
+                <div class="ai-score-lbl">Suitability</div>
+            </div>
+            <div class="ai-score-card">
+                <div class="ai-score-val">${s.confidence ?? '—'}%</div>
+                <div class="ai-score-lbl">Confidence</div>
+            </div>
+        </div>
+        <p class="ai-summary-text">${s.why_this_wins || ''}</p>
+        <div class="ai-factors">${factorRows}</div>
+        ${strengths || weaknesses ? `
+        <div class="ai-sw-grid">
+            ${strengths ? `<ul class="ai-sw-list">${strengths}</ul>` : ''}
+            ${weaknesses ? `<ul class="ai-sw-list">${weaknesses}</ul>` : ''}
+        </div>` : ''}
+        ${opt.tradeoffs ? `<p class="ai-tradeoffs">⚖️ ${opt.tradeoffs}</p>` : ''}
+        ${exp.scoring_notes ? `<p class="ai-notes">📝 ${exp.scoring_notes}</p>` : ''}
+    `;
+    aiRaw.style.display = 'block';
+}
 function triggerAnalysis(lat, lng, label) {
     document.getElementById('idle-panel').classList.add('hidden');
     document.getElementById('results-panel').classList.remove('show');
@@ -119,12 +235,14 @@ function triggerAnalysis(lat, lng, label) {
 
     document.getElementById('selected-addr-text').textContent = label;
 
-    /* ── TODO: replace mock with real POST /api/cost-analysis ── */
+    /* Render mock cost data immediately while Gemini is thinking */
     const data = mockCostAnalysis(lat, lng);
-
     renderCostNumber(data.total_cost);
     renderRadar(data.breakdown);
     renderBreakdown(data.breakdown);
+
+    /* Fire backend call (non-blocking) */
+    fetchAiAnalysis(lat, lng, label);
 
     /* Scroll the results into view smoothly */
     setTimeout(() => {
