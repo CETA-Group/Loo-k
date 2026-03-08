@@ -312,7 +312,7 @@
 			document.getElementById('btn-nav-login')  .addEventListener('click', e => { e.preventDefault(); LookAuth.login(); });
 		}
 
-		boot();
+		document.addEventListener('DOMContentLoaded', boot);
 		</script>
 
 	</body>
