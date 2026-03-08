@@ -4,11 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TruRent — Cost Analysis</title>
+    <link rel="preconnect" href="https://maps.googleapis.com" />
+    <link rel="preconnect" href="https://maps.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://maps.googleapis.com" />
 
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-    <!-- Google Maps + Places -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkdw1isp4RCRU4r2NhDWiryE26LzRIgzQ&libraries=places&callback=initMap" async defer></script>
 
     <style>
@@ -44,6 +44,9 @@
             50% { background-position: 100% 70%; }
             100%{ background-position: 0%  30%; }
         }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes spin   { to { transform: rotate(360deg); } }
+        @keyframes fillBar{ from { width: 0 } }
 
         /* ── Nav ── */
         nav {
@@ -59,7 +62,7 @@
         .nav-back  { font-size: 0.95rem; color: var(--muted); text-decoration: none; transition: color 0.15s; }
         .nav-back:hover { color: var(--accent); }
 
-        /* ── Hero ── */
+        /* ── Hero + Search ── */
         .hero {
             text-align: center;
             padding: 3rem 1.5rem 2rem;
@@ -74,11 +77,10 @@
             font-weight: 800; letter-spacing: -0.03em; line-height: 1.15;
             margin-bottom: 0.6rem;
         }
-        .hero p {
-            font-size: 1.05rem; color: var(--muted); line-height: 1.7;
-            max-width: 620px; margin: 0 auto 1.8rem;
-        }
+        .hero p { font-size: 1.05rem; color: var(--muted); line-height: 1.7; max-width: 620px; margin: 0 auto 1.8rem; }
 
+        .search-wrap { position: relative; max-width: 580px; margin: 0 auto; }
+        .search-icon { position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
         /* ── Search box ── */
         .search-wrap {
             position: relative; max-width: 580px; margin: 0 auto;
@@ -102,41 +104,27 @@
             background: rgba(255,255,255,0.09);
         }
         #address-input::placeholder { color: rgba(255,255,255,0.25); }
-
-        /* Google autocomplete dropdown dark theme */
-        .pac-container {
-            background: #0f1e32 !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            border-radius: 12px !important;
-            margin-top: 6px !important;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.6) !important;
-            font-family: inherit !important;
-            overflow: hidden;
-        }
+        .pac-container { background: #0f1e32 !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 12px !important; margin-top: 6px !important; box-shadow: 0 16px 48px rgba(0,0,0,0.6) !important; font-family: inherit !important; overflow: hidden; }
         .pac-item { color: rgba(232,240,255,0.65) !important; border-top: 1px solid rgba(255,255,255,0.05) !important; padding: 0.55rem 1rem !important; cursor: pointer; }
         .pac-item:hover, .pac-item-selected { background: rgba(96,165,250,0.1) !important; }
         .pac-item-query { color: #fff !important; font-size: 0.9rem !important; }
         .pac-matched { color: var(--accent) !important; }
         .pac-icon { display: none !important; }
 
-        /* ── Main layout: always-visible map + right panel ── */
+        /* ── Map + Right panel ── */
         .main-layout {
-            max-width: 1120px; margin: 0 auto 4rem;
+            max-width: 1120px; margin: 0 auto 2rem;
             padding: 0 1.5rem;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.2rem;
             align-items: start;
         }
-        @media (max-width: 740px) {
-            .main-layout { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 740px) { .main-layout { grid-template-columns: 1fr; } }
 
-        /* ── Map card ── */
         .map-card {
             position: relative; border-radius: 18px; overflow: hidden;
-            background: var(--card);
-            border: 1px solid var(--card-border);
+            background: var(--card); border: 1px solid var(--card-border);
             height: 460px;
         }
         #map { width: 100%; height: 100%; }
@@ -156,328 +144,483 @@
         .map-error.show { display: flex; }
         .map-error .err-icon { font-size: 2.5rem; opacity: 0.6; }
         .map-error h4 { font-size: 0.9rem; color: #f87171; }
-        .map-error p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+        .map-error p  { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
         .map-error code { background: rgba(255,255,255,0.07); padding: 0.2em 0.5em; border-radius: 4px; font-size: 0.8rem; color: #93c5fd; }
-        .spinner {
-            width: 34px; height: 34px;
-            border: 3px solid rgba(255,255,255,0.08); border-top-color: var(--accent);
-            border-radius: 50%; animation: spin 0.7s linear infinite;
-        }
+        .spinner { width: 34px; height: 34px; border: 3px solid rgba(255,255,255,0.08); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
         .map-loading p { font-size: 0.78rem; color: var(--muted); }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── Right panel ── */
-        .right-panel {
-            display: flex; flex-direction: column; gap: 1rem;
-            min-height: 460px;
-        }
-
-        /* Idle state (before address) */
+        /* Right panel */
+        .right-panel { display: flex; flex-direction: column; gap: 1rem; min-height: 460px; }
         .idle-panel {
             flex: 1; display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             gap: 1rem; padding: 2.5rem;
             background: var(--card); border: 1px solid var(--card-border);
-            border-radius: 18px; text-align: center;
-            transition: opacity 0.3s;
+            border-radius: 18px; text-align: center; transition: opacity 0.3s;
         }
         .idle-panel.hidden { display: none; }
-        .idle-panel .idle-icon { font-size: 3.4rem; opacity: 0.35; }
-        .idle-panel h3 { font-size: 1.15rem; color: rgba(255,255,255,0.75); font-weight: 600; }
-        .idle-panel p  { font-size: 0.95rem; color: var(--muted); line-height: 1.6; max-width: 300px; }
+        .idle-panel .idle-icon { font-size: 2.8rem; opacity: 0.35; }
+        .idle-panel h3 { font-size: 0.9rem; color: rgba(255,255,255,0.6); font-weight: 500; }
+        .idle-panel p  { font-size: 0.78rem; color: var(--muted); line-height: 1.6; max-width: 220px; }
 
-        /* Results panel (shown after address) */
-        .results-panel {
-            display: none; flex-direction: column; gap: 1rem;
-            animation: fadeUp 0.4s ease;
-        }
+        .results-panel { display: none; flex-direction: column; gap: 1rem; animation: fadeUp 0.4s ease; }
         .results-panel.show { display: flex; }
-        @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
 
-        .glass-card {
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: 18px;
-            backdrop-filter: blur(20px);
-        }
-
-        /* Selected address pill */
-        .addr-pill {
-            display: flex; align-items: center; gap: 0.5rem;
-            font-size: 0.95rem; /* was 0.78rem */
-            padding: 0.85rem 1rem; /* was 0.65rem 1rem */
-    }
+        .glass-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; backdrop-filter: blur(20px); }
+        .addr-pill { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: var(--muted); padding: 0.65rem 1rem; }
         .addr-pill strong { color: rgba(255,255,255,0.8); font-weight: 500; }
 
-        /* Radar */
-        .radar-card {
-            padding: 1.5rem 1.5rem 0.5rem;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .radar-card canvas { max-width: 300px; max-height: 300px; }
+        /* Radar in right panel */
+        .radar-card { padding: 1.2rem 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; }
+        .radar-card canvas { max-width: 230px; max-height: 230px; }
+        .radar-title { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
 
-        /* True monthly cost */
-        .cost-block {
-            text-align: center; padding: 0.5rem 1rem 1.5rem;
+        /* Overall livability score below radar */
+        .livability-score-block { text-align: center; padding: 0.3rem 1rem 1rem; }
+        .lsb-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+        .lsb-number {
+            font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -0.04em;
+            background: linear-gradient(135deg, #4ade80 0%, #60a5fa 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1;
         }
-        .cost-label {
-            font-size: 0.78rem; font-weight: 700; letter-spacing: 0.13em;
-            text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem;
+        .lsb-sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.25rem; }
+
+        /* ═══════════════════════════════════════
+           LIVABILITY SECTION (full width below map)
+        ═══════════════════════════════════════ */
+        .livability-section {
+            display: none; max-width: 1120px; margin: 0 auto 0; padding: 0 1.5rem 2rem;
+            animation: fadeUp 0.5s ease;
         }
-        .cost-number {
-            font-size: clamp(2.8rem, 5vw, 4rem);
-            font-weight: 800; letter-spacing: -0.04em;
+        .livability-section.show { display: block; }
+
+        .section-heading {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 1rem;
+        }
+
+        /* AI loading/error inside livability section */
+        .ai-loading-bar {
+            display: flex; align-items: center; gap: 1rem;
+            color: var(--muted); font-size: 0.88rem;
+            padding: 1.2rem 1.5rem;
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 14px; margin-bottom: 1rem;
+        }
+        .ai-loading-bar.hidden { display: none; }
+        .mini-spinner { width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,0.1); border-top-color: #60a5fa; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+
+        .ai-error-box {
+            background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 14px; padding: 1rem 1.25rem; color: #fca5a5; font-size: 0.88rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Livability card */
+        .livability-card {
+            display: none; background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 18px; padding: 1.5rem 2rem; animation: fadeUp 0.4s ease;
+        }
+        .livability-card.show { display: block; }
+
+        .lc-summary { font-size: 0.9rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.4rem; }
+
+        /* Factor bars */
+        .factor-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; }
+        .factor-row { display: flex; align-items: center; gap: 0.75rem; }
+        .factor-name { width: 155px; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; }
+        .factor-track { flex: 1; height: 7px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+        .factor-fill  { height: 100%; border-radius: 99px; transition: width 0.85s cubic-bezier(0.4,0,0.2,1); }
+        .factor-score { width: 36px; text-align: right; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; }
+
+        /* Pros / Warnings grid */
+        .pw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        @media (max-width: 600px) { .pw-grid { grid-template-columns: 1fr; } }
+        .pw-col-title { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .pw-col-title.green { color: #4ade80; }
+        .pw-col-title.yellow { color: #facc15; }
+        .pw-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+        .pw-list li { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+        /* View Cost Breakdown button */
+        .view-cost-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3);
+            color: #60a5fa; font-size: 0.82rem; font-weight: 600;
+            padding: 0.65rem 1.4rem; border-radius: 99px;
+            cursor: pointer; transition: all 0.2s; text-decoration: none;
+        }
+        .view-cost-btn:hover { background: rgba(96,165,250,0.18); border-color: rgba(96,165,250,0.55); }
+
+        /* ═══════════════════════════════════════
+           COST BREAKDOWN SECTION
+        ═══════════════════════════════════════ */
+        .cost-section {
+            display: none; max-width: 1120px; margin: 0 auto 4rem; padding: 0 1.5rem;
+            animation: fadeUp 0.4s ease;
+        }
+        .cost-section.show { display: block; }
+
+        /* Grand total hero */
+        .grand-total-card {
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 18px; padding: 2rem 2rem 1.8rem;
+            margin-bottom: 1.2rem; text-align: center;
+        }
+        .gt-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+        .gt-avg {
+            font-size: clamp(2.4rem, 5vw, 3.4rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1;
             background: linear-gradient(135deg, #fff 30%, #93c5fd);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text; line-height: 1;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-        .cost-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; }
+        .gt-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.35rem; }
+        .gt-range { font-size: 0.8rem; color: rgba(232,240,255,0.5); margin-top: 0.2rem; }
 
-        /* ── Breakdown section (below the two columns) ── */
-        .breakdown-section {
-            max-width: 1120px; margin: 0 auto 1.5rem;
-            padding: 0 1.5rem;
-            display: none; animation: fadeUp 0.4s ease;
+        /* Explore cost button (below radar) */
+        .explore-cost-btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.35);
+            color: #60a5fa; font-size: 0.8rem; font-weight: 600;
+            padding: 0.55rem 1.2rem; border-radius: 99px; margin: 0.4rem auto 0.8rem;
+            cursor: pointer; transition: all 0.2s; text-decoration: none;
+            letter-spacing: 0.02em;
         }
-        .breakdown-section.show { display: block; }
-        .breakdown-header {
-            font-size: 0.82rem; font-weight: 700; letter-spacing: 0.1em;
-            text-transform: uppercase; color: rgba(255,255,255,0.54);
-            margin-bottom: 0.85rem;
-        }
-        .breakdown-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 0.75rem;
-        }
-        .breakdown-item {
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: 14px; padding: 1rem 1.1rem;
-            transition: border-color 0.2s, transform 0.2s;
-        }
-        .breakdown-item:hover { border-color: rgba(96,165,250,0.28); transform: translateY(-2px); }
-        .bi-icon  { font-size: 1.5rem; margin-bottom: 0.4rem; display: block; }
-        .bi-label { font-size: 0.82rem; color: var(--muted); font-weight: 500; margin-bottom: 0.15rem; }
-        .bi-value { font-size: 1.2rem; font-weight: 700; color: #fff; }
-        .bi-bar   { height: 3px; background: rgba(255,255,255,0.07); border-radius: 999px; margin-top: 0.5rem; overflow: hidden; }
-        .bi-fill  { height: 100%; border-radius: 999px; transition: width 0.85s cubic-bezier(0.4,0,0.2,1); }
-        .rent-fill         { background: #60a5fa; }
-        .commute-fill      { background: #f59e0b; }
-        .groceries-fill    { background: #4ade80; }
-        .utilities-fill    { background: #a78bfa; }
-        .entertainment-fill{ background: #fb7185; }
-        .transport-fill    { background: #34d399; }
+        .explore-cost-btn:hover { background: rgba(96,165,250,0.22); border-color: rgba(96,165,250,0.6); }
 
-        /* ── Footnote ── */
-        .footnote {
-            text-align: center; font-size: 0.8rem;
-            color: rgba(255,255,255,0.22); padding-bottom: 3rem;
+        /* ── Horizontal range visualization ── */
+        .range-grid {
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 18px; padding: 1.8rem 2rem; margin-bottom: 1rem;
+        }
+        .range-grid-header {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            margin-bottom: 1.6rem; flex-wrap: wrap; gap: 0.6rem;
+        }
+        .range-grid-title { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+        .range-grid-sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.25rem; }
+
+        /* Legend */
+        .range-legend { display: flex; align-items: center; gap: 1.2rem; flex-shrink: 0; }
+        .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; color: var(--muted); }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; background: #60a5fa; }
+        .legend-dot.avg { width: 10px; height: 10px; box-shadow: 0 0 0 2px rgba(255,255,255,0.25); }
+        .legend-band { width: 22px; height: 5px; border-radius: 3px; background: rgba(96,165,250,0.4); }
+
+        /* Grand total range bar */
+        .gt-range-wrap { margin-top: 1rem; }
+        .gt-range-track {
+            position: relative; height: 16px;
+            background: rgba(255,255,255,0.06); border-radius: 99px; overflow: visible;
+        }
+        .gt-range-band {
+            position: absolute; top: 0; height: 100%; border-radius: 99px;
+            background: linear-gradient(90deg, rgba(96,165,250,0.35), rgba(96,165,250,0.55));
+            transition: left 0.9s ease, width 0.9s ease;
+        }
+        .gt-avg-marker {
+            position: absolute; top: 50%; transform: translate(-50%, -50%);
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #60a5fa; border: 3px solid #fff;
+            box-shadow: 0 0 14px rgba(96,165,250,0.7);
+            transition: left 0.9s ease;
+        }
+
+        /* Category rows */
+        .cost-row { padding: 1.1rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .cost-row:last-child { border-bottom: none; }
+        .cost-row-top {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 0.65rem; gap: 0.75rem;
+        }
+        .cost-row-label { display: flex; align-items: center; gap: 0.5rem; }
+        .cost-row-icon  { font-size: 1rem; line-height: 1; }
+        .cost-row-name  { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+        .cost-row-vals  { display: flex; align-items: center; gap: 1.2rem; }
+        .crv { display: flex; flex-direction: column; align-items: center; }
+        .crv-amount { font-size: 0.95rem; font-weight: 700; color: #fff; }
+        .crv-amount.muted { color: var(--muted); font-weight: 500; font-size: 0.85rem; }
+        .crv-lbl { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-top: 2px; }
+
+        /* Horizontal range track */
+        .cost-track {
+            position: relative; height: 14px;
+            background: rgba(255,255,255,0.06); border-radius: 99px; overflow: visible;
+        }
+        .cost-band {
+            position: absolute; top: 0; height: 100%; border-radius: 99px;
+            opacity: 0.5; transition: left 0.9s ease, width 0.9s ease;
+        }
+        .cost-avg-dot {
+            position: absolute; top: 50%; transform: translate(-50%, -50%);
+            width: 18px; height: 18px; border-radius: 50%;
+            border: 3px solid #fff; box-shadow: 0 0 10px currentColor;
+            transition: left 0.9s ease; cursor: pointer;
+        }
+
+        /* Cost insights */
+        .cost-insights {
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 14px; padding: 1.2rem 1.5rem;
+        }
+        .ci-title { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 0.75rem; }
+        .ci-list { list-style: none; display: flex; flex-direction: column; gap: 0.45rem; }
+        .ci-list li { font-size: 0.83rem; color: var(--muted); padding-left: 1.2rem; position: relative; line-height: 1.5; }
+        .ci-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 0.75rem; }
+
+        .range-note { font-size: 0.7rem; color: rgba(255,255,255,0.18); margin-top: 0.75rem; text-align: center; }
+
+        /* ═══════════════════════════════════════
+           SOLANA VERIFICATION CARD
+        ═══════════════════════════════════════ */
+        .solana-section {
+            display: none;
+            max-width: 1120px; margin: 0 auto 4rem; padding: 0 1.5rem;
+            animation: fadeUp 0.4s ease;
+        }
+        .solana-section.show { display: block; }
+
+        .solana-card {
+            background: linear-gradient(135deg, rgba(20,241,149,0.06) 0%, rgba(153,69,255,0.06) 100%);
+            border: 1px solid rgba(153,69,255,0.25);
+            border-radius: 18px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .solana-icon-wrap {
+            width: 48px; height: 48px; flex-shrink: 0;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #14f195, #9945ff);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.35rem;
+            box-shadow: 0 8px 24px rgba(153,69,255,0.3);
+        }
+
+        .solana-text { flex: 1; min-width: 180px; }
+
+        .solana-label {
+            font-size: 0.62rem; font-weight: 700; letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #14f195, #9945ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 0.3rem;
+        }
+
+        .solana-title {
+            font-size: 0.95rem; font-weight: 700; color: #fff;
+            margin-bottom: 0.3rem;
+        }
+
+        .solana-desc {
+            font-size: 0.78rem; color: var(--muted); line-height: 1.5;
+        }
+
+        .solana-status {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 99px;
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
+            margin-top: 0.6rem;
+        }
+
+        .solana-status.success {
+            background: rgba(20,241,149,0.1);
+            border: 1px solid rgba(20,241,149,0.3);
+            color: #14f195;
+        }
+
+        .solana-status.pending {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.4);
+        }
+
+        .solana-status::before {
+            content: '';
+            width: 6px; height: 6px; border-radius: 50%;
+            background: currentColor;
+        }
+
+        .solana-explorer-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.65rem 1.4rem;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(20,241,149,0.12), rgba(153,69,255,0.12));
+            border: 1px solid rgba(153,69,255,0.35);
+            color: #fff;
+            font-size: 0.8rem; font-weight: 700;
+            text-decoration: none;
+            transition: all 0.18s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .solana-explorer-btn:hover {
+            background: linear-gradient(135deg, rgba(20,241,149,0.2), rgba(153,69,255,0.2));
+            border-color: rgba(153,69,255,0.6);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(153,69,255,0.2);
+        }
+
+        .solana-tx-hash {
+            font-size: 0.68rem; color: rgba(255,255,255,0.2);
+            font-family: monospace;
+            margin-top: 0.35rem;
+            word-break: break-all;
         }
     </style>
 </head>
 <body>
 
-<!-- Nav -->
 <nav>
-    <a href="/Portal%20website/index.html" class="nav-brand">TruRent</a>
-    <a href="/Portal%20website/Auth0/dashboard.html" class="nav-back">← Dashboard</a>
+    <a href="/frontend/main/index.html" class="nav-brand">TruRent</a>
+    <a href="/frontend/main/Auth0/dashboard.html" class="nav-back">← Dashboard</a>
 </nav>
 
 <!-- Hero + Search -->
 <div class="hero">
-    <p class="hero-eyebrow">✦ Cost Analysis</p>
+    <p class="hero-eyebrow">✦ Location Intelligence</p>
     <h1>What does it really cost<br>to live here?</h1>
-    <p>Enter an address to calculate the true monthly cost of living — rent, commute, groceries, and lifestyle.</p>
+    <p>Enter an address to generate a full livability report — neighbourhood quality, commute, groceries, and true monthly cost.</p>
     <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input id="address-input" type="text" placeholder="Search any address in Waterloo-Kitchener…" autocomplete="off" />
     </div>
 </div>
 
-<!-- Main: Map (always visible) + Right Panel -->
+<!-- Map + Right Panel -->
 <div class="main-layout">
-
-    <!-- Left: Map -->
     <div class="map-card">
         <div id="map"></div>
         <div class="map-loading" id="map-loading">
             <div class="spinner"></div>
             <p>Loading map…</p>
         </div>
-        <!-- Shown if Maps API key doesn't have required APIs enabled -->
         <div class="map-error" id="map-error">
             <span class="err-icon">🗺️</span>
             <h4>Map failed to load</h4>
-            <p>The Google Maps API key needs <strong>Maps JavaScript API</strong> and <strong>Places API</strong> enabled in Google Cloud Console.<br><br>
-            Go to <a href="https://console.cloud.google.com/apis/library" target="_blank" style="color:#60a5fa;">console.cloud.google.com</a> → Enable both APIs for key <code>AIzaSy…sidM</code>.</p>
+            <p>The Google Maps API key needs <strong>Maps JavaScript API</strong> and <strong>Places API</strong> enabled.<br><br>
+            Go to <a href="https://console.cloud.google.com/apis/library" target="_blank" style="color:#60a5fa;">Google Cloud Console</a> and enable both APIs.</p>
         </div>
     </div>
 
-    <!-- Right: Idle placeholder → Results -->
     <div class="right-panel">
-
-        <!-- Idle state -->
         <div class="idle-panel" id="idle-panel">
             <span class="idle-icon">📍</span>
             <h3>No address selected yet</h3>
-            <p>Search above or click directly on the map to drop a pin and see the full cost breakdown.</p>
+            <p>Search above or click directly on the map to generate a livability report.</p>
         </div>
 
-        <!-- Results (shown after address picked) -->
         <div class="results-panel" id="results-panel">
             <div class="glass-card addr-pill">
                 📍 <strong id="selected-addr-text">—</strong>
             </div>
             <div class="glass-card radar-card">
+                <p class="radar-title">🏙 Neighbourhood Livability</p>
                 <canvas id="radar-chart"></canvas>
-                <div class="cost-block">
-                    <p class="cost-label">True Monthly Cost</p>
-                    <p class="cost-number" id="cost-number">$—</p>
-                    <p class="cost-sub">estimated / month</p>
+                <div class="livability-score-block">
+                    <p class="lsb-label">Overall Livability</p>
+                    <p class="lsb-number" id="livability-number">—</p>
+                    <p class="lsb-sub">out of 10</p>
                 </div>
+                <a class="explore-cost-btn" id="explore-cost-btn" href="#cost-section" onclick="scrollToCost(event)" style="display:none">
+                    Explore Cost Breakdown ↓
+                </a>
             </div>
         </div>
-
     </div>
 </div>
 
-<!-- Breakdown (shown after address picked) -->
-<div class="breakdown-section" id="breakdown-section">
-    <p class="breakdown-header">💰 Cost Breakdown</p>
-    <div class="breakdown-grid" id="breakdown-grid"></div>
-</div>
-
-<p class="footnote">Cost estimates are illustrative — real data pipeline coming soon.</p>
-
-<!-- AI Analysis section (shown after address is selected) -->
-<div class="ai-section" id="ai-section">
-    <div class="ai-header">
-        <span class="ai-icon">🤖</span>
-        <h2>AI Analysis</h2>
-        <span class="ai-badge">Gemini</span>
-    </div>
+<!-- ══ LIVABILITY SECTION ══════════════════════════════════ -->
+<div class="livability-section" id="livability-section">
+    <p class="section-heading">📊 Livability Report</p>
 
     <!-- Loading state -->
-    <div class="ai-loading" id="ai-loading">
-        <div class="ai-spinner"></div>
-        <p>Asking Gemini to evaluate this location…</p>
+    <div class="ai-loading-bar" id="ai-loading-bar">
+        <div class="mini-spinner"></div>
+        <span>Gemini is analysing this neighbourhood…</span>
     </div>
 
     <!-- Error state -->
     <div class="ai-error-box" id="ai-error-box" style="display:none">
-        <strong>⚠️ AI Error:</strong>
-        <span id="ai-error-text"></span>
-        <p style="margin-top:6px;font-size:0.8rem;opacity:.6">Is the backend running? <code>uvicorn backend.main:app --reload</code></p>
+        <strong>⚠️ AI Error:</strong> <span id="ai-error-text"></span>
+        <p style="margin-top:6px;font-size:0.78rem;opacity:.6">Is the backend running? <code>uvicorn backend.main:app --reload</code></p>
     </div>
 
-    <!-- Raw JSON output (quick display, formatting not a priority) -->
-    <pre class="ai-raw" id="ai-raw" style="display:none"></pre>
+    <!-- Livability card (populated by JS) -->
+    <div class="livability-card" id="livability-card">
+        <p class="lc-summary" id="lc-summary"></p>
+        <div class="factor-list" id="factor-list"></div>
+        <div class="pw-grid" id="pw-grid"></div>
+        <a class="view-cost-btn" id="view-cost-btn" href="#cost-section" onclick="scrollToCost(event)">
+            View Cost Breakdown ↓
+        </a>
+    </div>
 </div>
 
-<style>
-    .ai-section {
-        display: none;
-        max-width: 1100px;
-        margin: 2rem auto 1rem;
-        padding: 0 1.5rem 2rem;
-    }
-    .ai-section.show { display: block; }
+<!-- ══ COST BREAKDOWN SECTION ══════════════════════════════ -->
+<div class="cost-section" id="cost-section">
+    <p class="section-heading">💰 Cost Breakdown</p>
 
-    .ai-header {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        margin-bottom: 1.2rem;
-    }
-    .ai-icon { font-size: 1.4rem; }
-    .ai-header h2 { font-size: 1.5rem; font-weight: 700; color: var(--text); }
-    .ai-badge {
-        background: rgba(96,165,250,0.15);
-        border: 1px solid rgba(96,165,250,0.3);
-        color: #60a5fa;
-        font-size: 0.8rem;
-        font-weight: 700;
-        letter-spacing: .06em;
-        padding: 4px 10px;
-        border-radius: 99px;
-        text-transform: uppercase;
-    }
+    <div class="grand-total-card">
+        <p class="gt-label">Estimated Monthly Cost</p>
+        <p class="gt-avg" id="gt-avg">$—</p>
+        <p class="gt-sub">avg / month</p>
+        <p class="gt-range" id="gt-range"></p>
+        <div class="gt-range-wrap">
+            <div class="gt-range-track" id="gt-track">
+                <div class="gt-range-band" id="gt-band" style="left:0%;width:0%"></div>
+                <div class="gt-avg-marker" id="gt-marker" style="left:0%"></div>
+            </div>
+        </div>
+    </div>
 
-    .ai-loading {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        color: var(--muted);
-        font-size: 1rem;
-        padding: 1.5rem;
-        background: var(--card);
-        border: 1px solid var(--card-border);
-        border-radius: 14px;
-    }
-    .ai-spinner {
-        width: 22px; height: 22px;
-        border: 3px solid rgba(255,255,255,0.1);
-        border-top-color: #60a5fa;
-        border-radius: 50%;
-        animation: spin .8s linear infinite;
-        flex-shrink: 0;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    <div class="range-grid">
+        <div class="range-grid-header">
+            <div>
+                <p class="range-grid-title">Cost by Category</p>
+                <p class="range-grid-sub">Hover the ● marker to see exact average</p>
+            </div>
+            <div class="range-legend">
+                <div class="legend-item"><div class="legend-band"></div> Range</div>
+                <div class="legend-item"><div class="legend-dot avg" style="background:#60a5fa"></div> Average</div>
+            </div>
+        </div>
+        <div id="cost-rows"></div>
+    </div>
 
-    .ai-error-box {
-        background: rgba(239,68,68,0.08);
-        border: 1px solid rgba(239,68,68,0.25);
-        border-radius: 14px;
-        padding: 1rem 1.25rem;
-        color: #fca5a5;
-        font-size: 1rem;
-    }
+    <div class="cost-insights" id="cost-insights" style="display:none">
+        <p class="ci-title">Insights</p>
+        <ul class="ci-list" id="ci-list"></ul>
+    </div>
 
-    .ai-raw {
-        background: var(--card);
-        border: 1px solid var(--card-border);
-        border-radius: 14px;
-        padding: 1.5rem;
-        color: var(--text);
-        font-family: inherit;
-        font-size: 1rem;
-        line-height: 1.8;
-    }
-    .ai-demo-note {
-        background: rgba(250,204,21,0.08);
-        border: 1px solid rgba(250,204,21,0.2);
-        border-radius: 8px;
-        color: #fde68a;
-        font-size: 0.78rem;
-        padding: 0.5rem 0.9rem;
-        margin-bottom: 1.2rem;
-    }
-    .ai-scores-row { display: flex; gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
-    .ai-score-card {
-        flex: 1; min-width: 90px;
-        background: rgba(96,165,250,0.08);
-        border: 1px solid rgba(96,165,250,0.2);
-        border-radius: 12px;
-        padding: 0.9rem;
-        text-align: center;
-    }
-    .ai-score-val { font-size: 1.8rem; font-weight: 800; color: #60a5fa; line-height: 1; }
-    .ai-score-lbl { font-size: 0.72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .06em; }
-    .ai-summary-text { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.2rem; line-height: 1.6; }
-    .ai-factors { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.2rem; }
-    .ai-factor-row { display: flex; align-items: center; gap: 0.75rem; }
-    .ai-factor-name { width: 160px; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; }
-    .ai-factor-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
-    .ai-factor-bar { height: 100%; border-radius: 99px; transition: width .8s ease; }
-    .ai-factor-score { width: 36px; text-align: right; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; }
-    .ai-sw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-    .ai-sw-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.82rem; color: var(--muted); }
-    .ai-tradeoffs { font-size: 0.83rem; color: var(--muted); margin-bottom: 0.6rem; }
-    .ai-notes { font-size: 0.75rem; color: rgba(232,240,255,0.3); margin-top: 0.5rem; }</style>
+    <p class="range-note">Ranges reflect neighbourhood variation and lifestyle assumptions.</p>
+</div>
 
-<!-- JS -->
+<!-- ══ SOLANA VERIFICATION SECTION ══════════════════════════ -->
+<div class="solana-section" id="solana-section">
+    <p class="section-heading">⛓ Blockchain Verification</p>
+    <div class="solana-card">
+        <div class="solana-icon-wrap">◎</div>
+        <div class="solana-text">
+            <p class="solana-label">Solana Devnet</p>
+            <p class="solana-title">Score recorded on-chain</p>
+            <p class="solana-desc">
+                This livability score has been permanently written to the Solana blockchain as an immutable memo transaction.
+                Anyone can verify it on the Solana Explorer.
+            </p>
+            <span class="solana-status success" id="solana-status">Confirmed</span>
+            <p class="solana-tx-hash" id="solana-tx-hash"></p>
+        </div>
+        <a class="solana-explorer-btn" id="solana-explorer-btn" href="#" target="_blank" rel="noopener">
+            View on Explorer ↗
+        </a>
+    </div>
+</div>
+
 <script src="js/address-analysis.js"></script>
-
 </body>
 </html>

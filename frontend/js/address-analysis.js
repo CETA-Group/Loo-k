@@ -1,21 +1,32 @@
 /* ─── address-analysis.js ───────────────────────────────────────── */
 
 const WATERLOO_CENTER = { lat: 43.4723, lng: -80.5449 };
+const BACKEND_URL     = 'http://localhost:8000';
 
 let map        = null;
 let marker     = null;
 let radarChart = null;
 let geocoder   = null;
 
-/* ── Breakdown metadata ──────────────────────────────────────── */
-const BREAKDOWN_META = [
-    { key: 'rent',          label: 'Rent',         icon: '🏠', fillClass: 'rent-fill',          max: 3000 },
-    { key: 'commute',       label: 'Commute',       icon: '🚗', fillClass: 'commute-fill',       max: 600  },
-    { key: 'groceries',     label: 'Groceries',     icon: '🛒', fillClass: 'groceries-fill',     max: 800  },
-    { key: 'utilities',     label: 'Utilities',     icon: '💡', fillClass: 'utilities-fill',     max: 400  },
-    { key: 'entertainment', label: 'Entertainment', icon: '🎬', fillClass: 'entertainment-fill', max: 500  },
-    { key: 'transport',     label: 'Transport',     icon: '🚌', fillClass: 'transport-fill',     max: 400  },
+/* ── Category config for range bars ─────────────────────────────── */
+const COST_META = [
+    { key: 'rent',          label: 'Rent',          icon: '🏠', color: '#60a5fa', max: 3000 },
+    { key: 'commute',       label: 'Commute',        icon: '🚗', color: '#f59e0b', max: 600  },
+    { key: 'groceries',     label: 'Groceries',      icon: '🛒', color: '#4ade80', max: 800  },
+    { key: 'utilities',     label: 'Utilities',      icon: '💡', color: '#a78bfa', max: 400  },
+    { key: 'entertainment', label: 'Entertainment',  icon: '🎬', color: '#fb7185', max: 500  },
+    { key: 'transport',     label: 'Transport',      icon: '🚌', color: '#34d399', max: 400  },
 ];
+
+/* Livability factor labels */
+const FACTOR_LABELS = {
+    commute:          'Commute',
+    healthcare:       'Healthcare',
+    parks_recreation: 'Parks & Recreation',
+    noise_pollution:  'Noise / Pollution',
+    groceries:        'Groceries',
+    transport:        'Transport',
+};
 
 /* ── Google Maps callback ────────────────────────────────────── */
 function initMap() {
@@ -29,12 +40,9 @@ function initMap() {
         styles: DARK_MAP_STYLE,
     });
 
-    /* Hide spinner once tiles are loaded */
-    google.maps.event.addListenerOnce(map, 'tilesloaded', () => {
-        document.getElementById('map-loading').classList.add('hide');
-    });
+    /* Hide spinner immediately once the API is ready — don't wait for tiles */
+    document.getElementById('map-loading').classList.add('hide');
 
-    /* Click on map → drop pin + analyse */
     map.addListener('click', (e) => {
         const lat = e.latLng.lat();
         const lng = e.latLng.lng();
@@ -47,7 +55,6 @@ function initMap() {
         });
     });
 
-    /* Places Autocomplete */
     const input = document.getElementById('address-input');
     const autocomplete = new google.maps.places.Autocomplete(input, {
         fields: ['geometry', 'formatted_address'],
@@ -66,48 +73,40 @@ function initMap() {
     });
 }
 
-/* If Google Maps script fails to load (wrong key / APIs not enabled) */
 window.gm_authFailure = function () {
     document.getElementById('map-loading').classList.add('hide');
     document.getElementById('map-error').classList.add('show');
-    /* Fallback: still allow mock results if user types an address manually */
     setupManualFallback();
 };
 
-/* Manual fallback — press Enter in the search box without autocomplete */
 function setupManualFallback() {
     const input = document.getElementById('address-input');
     input.addEventListener('keydown', (e) => {
         if (e.key !== 'Enter') return;
         const label = input.value.trim();
         if (!label) return;
-        /* Use a fixed lat/lng so mock still works */
         triggerAnalysis(WATERLOO_CENTER.lat, WATERLOO_CENTER.lng, label);
     });
 }
 
-/* ── Place / move the marker ─────────────────────────────────── */
 function placeMarker(location) {
     if (marker) {
         marker.setPosition(location);
     } else {
         marker = new google.maps.Marker({
-            position: location,
-            map,
+            position: location, map,
             animation: google.maps.Animation.DROP,
             icon: {
                 path: google.maps.SymbolPath.CIRCLE,
                 scale: 10,
-                fillColor: '#60a5fa',
-                fillOpacity: 1,
-                strokeColor: '#fff',
-                strokeWeight: 2.5,
+                fillColor: '#60a5fa', fillOpacity: 1,
+                strokeColor: '#fff', strokeWeight: 2.5,
             },
         });
     }
 }
 
-/* ── Read user preferences from localStorage (no auth.js needed) ── */
+/* ── Read user preferences ───────────────────────────────────── */
 function _loadUserPrefs() {
     try {
         for (let i = 0; i < localStorage.length; i++) {
@@ -117,173 +116,157 @@ function _loadUserPrefs() {
                 return raw ? JSON.parse(raw) : {};
             }
         }
-    } catch (_) { /* ignore */ }
+    } catch (_) {}
     return {};
 }
 
-const BACKEND_URL = 'http://localhost:8000';
+/* ── Main trigger ────────────────────────────────────────────── */
+function triggerAnalysis(lat, lng, label) {
+    /* Show right panel with spinner radar */
+    document.getElementById('idle-panel').classList.add('hidden');
+    document.getElementById('results-panel').classList.remove('show');
+    setTimeout(() => document.getElementById('results-panel').classList.add('show'), 30);
 
-/* ── Call backend and render AI analysis ────────────────────── */
-async function fetchAiAnalysis(lat, lng, label) {
-    const aiSection  = document.getElementById('ai-section');
-    const aiLoading  = document.getElementById('ai-loading');
-    const aiErrorBox = document.getElementById('ai-error-box');
-    const aiRaw      = document.getElementById('ai-raw');
+    document.getElementById('selected-addr-text').textContent = label;
 
-    /* Show the section and loading state */
-    aiSection.classList.add('show');
-    aiLoading.style.display  = 'flex';
-    aiErrorBox.style.display = 'none';
-    aiRaw.style.display      = 'none';
+    /* Render a placeholder radar with zeros while loading */
+    renderRadarPlaceholder();
+    document.getElementById('livability-number').textContent = '—';
 
+    /* Show livability section in loading state */
+    const livSection = document.getElementById('livability-section');
+    livSection.classList.add('show');
+    document.getElementById('ai-loading-bar').classList.remove('hidden');
+    document.getElementById('ai-error-box').style.display = 'none';
+    document.getElementById('livability-card').classList.remove('show');
+
+    /* Hide cost section until data arrives */
+    document.getElementById('cost-section').classList.remove('show');
+
+    /* Call backend */
+    fetchAnalysis(lat, lng, label);
+}
+
+/* ── Backend call ────────────────────────────────────────────── */
+async function fetchAnalysis(lat, lng, label) {
     try {
         const res = await fetch(`${BACKEND_URL}/api/cost-analysis`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                lat,
-                lng,
-                address: label,
+                lat, lng, address: label,
                 user_preferences: _loadUserPrefs(),
             }),
         });
 
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${await res.text()}`);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
 
         const data = await res.json();
-        aiLoading.style.display = 'none';
+        document.getElementById('ai-loading-bar').classList.add('hidden');
 
         if (data.ai_error) {
             document.getElementById('ai-error-text').textContent = data.ai_error;
-            aiErrorBox.style.display = 'block';
-        } else {
-            renderAiAnalysis(data.ai_analysis, data._demo_mode || data.ai_analysis?._demo_mode);
-            aiRaw.style.display = 'block';
+            document.getElementById('ai-error-box').style.display = 'block';
+            /* Still render cost + solana even if AI failed */
+            if (data.cost_breakdown) renderCostSection(data.cost_breakdown);
+            renderSolanaSection(data.solana_tx || null);
+            return;
         }
+
+        /* Render livability */
+        if (data.livability) {
+            renderLivability(data.livability, data.personalized);
+            renderRadarFromLivability(data.livability);
+        }
+
+        /* Render cost breakdown */
+        if (data.cost_breakdown) renderCostSection(data.cost_breakdown);
+
+        /* Render Solana verification */
+        renderSolanaSection(data.solana_tx || null);
+
     } catch (err) {
-        aiLoading.style.display = 'none';
+        document.getElementById('ai-loading-bar').classList.add('hidden');
         document.getElementById('ai-error-text').textContent = err.message;
-        aiErrorBox.style.display = 'block';
+        document.getElementById('ai-error-box').style.display = 'block';
     }
 }
 
-/* ── Render structured AI analysis ──────────────────────────── */
-function renderAiAnalysis(ai, isDemo) {
-    const aiRaw = document.getElementById('ai-raw');
-    if (!ai) { aiRaw.textContent = 'No AI data returned.'; aiRaw.style.display = 'block'; return; }
+/* ── Render livability section ───────────────────────────────── */
+function renderLivability(liv, personalized) {
+    const criteria = liv.criteria || {};
+    const overall  = liv.overall_score ?? 0;
 
-    const s   = ai.summary || {};
-    const opt = (ai.ranked_options || [])[0] || {};
-    const exp = ai.explainability || {};
-    const fs  = opt.factor_scores || {};
+    /* Update overall score in right panel */
+    document.getElementById('livability-number').textContent = overall.toFixed(1);
 
-    const factorLabel = { rent_cost:'Rent Cost', commute:'Commute', healthcare_access:'Healthcare',
-                          parks_recreation:'Parks & Recreation', noise_pollution:'Noise / Pollution',
-                          groceries_food_cost:'Groceries' };
+    /* Show/update personalised badge */
+    let badge = document.getElementById('personalized-badge');
+    if (personalized) {
+        if (!badge) {
+            badge = document.createElement('div');
+            badge.id = 'personalized-badge';
+            badge.style.cssText = 'display:inline-flex;align-items:center;gap:0.35rem;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:#4ade80;font-size:0.7rem;font-weight:700;letter-spacing:0.06em;padding:3px 10px;border-radius:99px;margin-bottom:0.8rem;text-transform:uppercase;';
+            badge.innerHTML = '✦ Personalised for you';
+            document.getElementById('livability-card').prepend(badge);
+        }
+        badge.style.display = 'inline-flex';
+    } else if (badge) {
+        badge.style.display = 'none';
+    }
 
-    const factorRows = Object.entries(fs).map(([k, v]) => {
-        const pct = Math.round(v * 10);
-        const col = v >= 7 ? '#4ade80' : v >= 4 ? '#facc15' : '#f87171';
-        return `<div class="ai-factor-row">
-            <span class="ai-factor-name">${factorLabel[k] || k}</span>
-            <div class="ai-factor-bar-wrap"><div class="ai-factor-bar" style="width:${pct}%;background:${col}"></div></div>
-            <span class="ai-factor-score" style="color:${col}">${v}/10</span>
-        </div>`;
-    }).join('');
+    /* Show explore button now that cost section will be populated */
+    const exploreBtn = document.getElementById('explore-cost-btn');
+    if (exploreBtn) exploreBtn.style.display = 'inline-flex';
 
-    const strengths = (opt.strengths || []).map(t => `<li>✅ ${t}</li>`).join('');
-    const weaknesses = (opt.weaknesses || []).map(t => `<li>⚠️ ${t}</li>`).join('');
+    /* Summary */
+    document.getElementById('lc-summary').textContent = liv.summary || '';
 
-    aiRaw.innerHTML = `
-        ${isDemo ? '<div class="ai-demo-note">⚡ Demo mode — connect a Gemini API key for live AI analysis</div>' : ''}
-        <div class="ai-scores-row">
-            <div class="ai-score-card">
-                <div class="ai-score-val">${s.livability_score ?? '—'}</div>
-                <div class="ai-score-lbl">Livability</div>
-            </div>
-            <div class="ai-score-card">
-                <div class="ai-score-val">${s.suitability_score ?? '—'}</div>
-                <div class="ai-score-lbl">Suitability</div>
-            </div>
-            <div class="ai-score-card">
-                <div class="ai-score-val">${s.confidence ?? '—'}%</div>
-                <div class="ai-score-lbl">Confidence</div>
-            </div>
+    /* Factor bars */
+    const factorList = document.getElementById('factor-list');
+    factorList.innerHTML = '';
+    Object.entries(criteria).forEach(([key, val]) => {
+        const pct = Math.round(val * 10);
+        const col = val >= 7 ? '#4ade80' : val >= 4 ? '#facc15' : '#f87171';
+        const row = document.createElement('div');
+        row.className = 'factor-row';
+        row.innerHTML = `
+            <span class="factor-name">${FACTOR_LABELS[key] || key}</span>
+            <div class="factor-track"><div class="factor-fill" style="width:0%;background:${col}"></div></div>
+            <span class="factor-score" style="color:${col}">${val}/10</span>
+        `;
+        factorList.appendChild(row);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            row.querySelector('.factor-fill').style.width = pct + '%';
+        }));
+    });
+
+    /* Pros / Warnings */
+    const pwGrid = document.getElementById('pw-grid');
+    const pros  = liv.pros     || [];
+    const warns = liv.warnings || [];
+    pwGrid.innerHTML = `
+        <div>
+            <p class="pw-col-title green">✅ Strengths</p>
+            <ul class="pw-list">${pros.map(t => `<li>${t}</li>`).join('')}</ul>
         </div>
-        <p class="ai-summary-text">${s.why_this_wins || ''}</p>
-        <div class="ai-factors">${factorRows}</div>
-        ${strengths || weaknesses ? `
-        <div class="ai-sw-grid">
-            ${strengths ? `<ul class="ai-sw-list">${strengths}</ul>` : ''}
-            ${weaknesses ? `<ul class="ai-sw-list">${weaknesses}</ul>` : ''}
-        </div>` : ''}
-        ${opt.tradeoffs ? `<p class="ai-tradeoffs">⚖️ ${opt.tradeoffs}</p>` : ''}
-        ${exp.scoring_notes ? `<p class="ai-notes">📝 ${exp.scoring_notes}</p>` : ''}
+        <div>
+            <p class="pw-col-title yellow">⚠️ Considerations</p>
+            <ul class="pw-list">${warns.map(t => `<li>${t}</li>`).join('')}</ul>
+        </div>
     `;
-    aiRaw.style.display = 'block';
-}
-function triggerAnalysis(lat, lng, label) {
-    document.getElementById('idle-panel').classList.add('hidden');
-    document.getElementById('results-panel').classList.remove('show');
-    /* Slight delay so the remove-then-add triggers CSS animation again */
-    setTimeout(() => {
-        document.getElementById('results-panel').classList.add('show');
-        document.getElementById('breakdown-section').classList.add('show');
-    }, 30);
 
-    document.getElementById('selected-addr-text').textContent = label;
-
-    /* Render mock cost data immediately while Gemini is thinking */
-    const data = mockCostAnalysis(lat, lng);
-    renderCostNumber(data.total_cost);
-    renderRadar(data.breakdown);
-    renderBreakdown(data.breakdown);
-
-    /* Fire backend call (non-blocking) */
-    fetchAiAnalysis(lat, lng, label);
-
-    /* Scroll the results into view smoothly */
-    setTimeout(() => {
-        document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
+    document.getElementById('livability-card').classList.add('show');
 }
 
-/* ── Deterministic mock based on coordinates ─────────────────── */
-function mockCostAnalysis(lat, lng) {
-    let seed = Math.abs(Math.sin(lat * 127.1 + lng * 311.7)) * 1e6;
-    const rand = (min, max) => {
-        seed = (seed * 9301 + 49297) % 233280;
-        return Math.round(min + (seed / 233280) * (max - min));
-    };
-    const rent          = rand(900,  2200);
-    const commute       = rand(100,  500);
-    const groceries     = rand(280,  650);
-    const utilities     = rand(90,   260);
-    const entertainment = rand(80,   350);
-    const transport     = rand(60,   200);
-    return {
-        total_cost: rent + commute + groceries + utilities + entertainment + transport,
-        breakdown: { rent, commute, groceries, utilities, entertainment, transport },
-    };
-}
+/* ── Render radar from livability criteria ───────────────────── */
+function renderRadarFromLivability(liv) {
+    const criteria = liv.criteria || {};
+    const order = ['commute', 'healthcare', 'parks_recreation', 'noise_pollution', 'groceries', 'transport'];
+    const labels = order.map(k => FACTOR_LABELS[k] || k);
+    const values = order.map(k => criteria[k] ?? 0);
 
-/* ── Big cost number ─────────────────────────────────────────── */
-function renderCostNumber(total) {
-    const el = document.getElementById('cost-number');
-    el.textContent = '$' + total.toLocaleString();
-    el.style.animation = 'none';
-    void el.offsetWidth;
-    el.style.animation = 'pulseCost 0.5s ease';
-}
-
-/* ── Radar chart ─────────────────────────────────────────────── */
-function renderRadar(breakdown) {
-    const ctx    = document.getElementById('radar-chart').getContext('2d');
-    const labels = BREAKDOWN_META.map(m => m.label);
-    const norm   = BREAKDOWN_META.map(m => Math.min(100, Math.round((breakdown[m.key] / m.max) * 100)));
-
+    const ctx = document.getElementById('radar-chart').getContext('2d');
     if (radarChart) radarChart.destroy();
 
     radarChart = new Chart(ctx, {
@@ -291,12 +274,12 @@ function renderRadar(breakdown) {
         data: {
             labels,
             datasets: [{
-                label: 'Cost Score',
-                data: norm,
-                backgroundColor: 'rgba(96,165,250,0.15)',
-                borderColor: '#60a5fa',
+                label: 'Livability',
+                data: values,
+                backgroundColor: 'rgba(74,222,128,0.15)',
+                borderColor: '#4ade80',
                 borderWidth: 2,
-                pointBackgroundColor: '#60a5fa',
+                pointBackgroundColor: '#4ade80',
                 pointRadius: 4,
                 pointHoverRadius: 6,
             }],
@@ -306,21 +289,19 @@ function renderRadar(breakdown) {
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    callbacks: {
-                        label: (ctx) => `  $${BREAKDOWN_META.map(m => breakdown[m.key])[ctx.dataIndex].toLocaleString()}`,
-                    },
+                    callbacks: { label: (ctx) => `  ${ctx.raw}/10` },
                     backgroundColor: 'rgba(7,17,30,0.9)',
                     borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-                    titleColor: '#fff', bodyColor: '#93c5fd',
+                    titleColor: '#fff', bodyColor: '#4ade80',
                 },
             },
             scales: {
                 r: {
-                    min: 0, max: 100,
-                    ticks: { display: false },
+                    min: 0, max: 10,
+                    ticks: { display: false, stepSize: 2 },
                     grid:        { color: 'rgba(255,255,255,0.07)' },
                     angleLines:  { color: 'rgba(255,255,255,0.07)' },
-                    pointLabels: { color: 'rgba(232,240,255,0.5)', font: { size: 11, weight: '600' } },
+                    pointLabels: { color: 'rgba(232,240,255,0.55)', font: { size: 11, weight: '600' } },
                 },
             },
             animation: { duration: 700, easing: 'easeInOutQuart' },
@@ -328,46 +309,175 @@ function renderRadar(breakdown) {
     });
 }
 
-/* ── Breakdown cards ─────────────────────────────────────────── */
-function renderBreakdown(breakdown) {
-    const grid = document.getElementById('breakdown-grid');
-    grid.innerHTML = '';
-    BREAKDOWN_META.forEach(meta => {
-        const val  = breakdown[meta.key];
-        const pct  = Math.min(100, Math.round((val / meta.max) * 100));
-        const card = document.createElement('div');
-        card.className = 'breakdown-item';
-        card.innerHTML = `
-            <span class="bi-icon">${meta.icon}</span>
-            <div class="bi-label">${meta.label}</div>
-            <div class="bi-value">$${val.toLocaleString()}</div>
-            <div class="bi-bar"><div class="bi-fill ${meta.fillClass}" style="width:0%"></div></div>
+/* Placeholder radar while loading */
+function renderRadarPlaceholder() {
+    const order  = ['commute', 'healthcare', 'parks_recreation', 'noise_pollution', 'groceries', 'transport'];
+    const labels = order.map(k => FACTOR_LABELS[k]);
+    const ctx    = document.getElementById('radar-chart').getContext('2d');
+    if (radarChart) radarChart.destroy();
+
+    radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels,
+            datasets: [{
+                data: [0, 0, 0, 0, 0, 0],
+                backgroundColor: 'rgba(96,165,250,0.05)',
+                borderColor: 'rgba(96,165,250,0.2)',
+                borderWidth: 1.5,
+                pointRadius: 0,
+            }],
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            scales: {
+                r: {
+                    min: 0, max: 10,
+                    ticks: { display: false },
+                    grid:        { color: 'rgba(255,255,255,0.05)' },
+                    angleLines:  { color: 'rgba(255,255,255,0.05)' },
+                    pointLabels: { color: 'rgba(232,240,255,0.3)', font: { size: 11 } },
+                },
+            },
+            animation: { duration: 0 },
+        },
+    });
+}
+
+/* ── Render cost breakdown section ───────────────────────────── */
+function renderCostSection(cb) {
+    const gt   = cb.grand_total || {};
+    const cats = cb.categories  || {};
+
+    /* ── Grand total hero ── */
+    const gtLo  = gt.lowest  || 0;
+    const gtAvg = gt.average || 0;
+    const gtHi  = gt.highest || 0;
+
+    document.getElementById('gt-avg').textContent   = '$' + gtAvg.toLocaleString();
+    document.getElementById('gt-range').textContent = gtLo && gtHi
+        ? `Range: $${gtLo.toLocaleString()} – $${gtHi.toLocaleString()}` : '';
+
+    /* Grand total range bar */
+    const gtMax   = gtHi * 1.05;
+    const gtBandL = ((gtLo  / gtMax) * 100).toFixed(1);
+    const gtBandW = (((gtHi - gtLo) / gtMax) * 100).toFixed(1);
+    const gtMark  = ((gtAvg / gtMax) * 100).toFixed(1);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        document.getElementById('gt-band').style.left  = gtBandL + '%';
+        document.getElementById('gt-band').style.width = gtBandW + '%';
+        document.getElementById('gt-marker').style.left = gtMark + '%';
+    }));
+
+    /* ── Category rows ── */
+    // Find shared scale: max of all "highest" values
+    const maxVal = Math.max(...COST_META.map(m => (cats[m.key] || {}).highest || 0)) * 1.08;
+
+    const rowsEl = document.getElementById('cost-rows');
+    rowsEl.innerHTML = '';
+
+    COST_META.forEach(meta => {
+        const cat = cats[meta.key] || {};
+        const lo  = cat.lowest  || 0;
+        const avg = cat.average || 0;
+        const hi  = cat.highest || 0;
+
+        const bandL = ((lo  / maxVal) * 100).toFixed(1);
+        const bandW = (((hi - lo) / maxVal) * 100).toFixed(1);
+        const dotL  = ((avg / maxVal) * 100).toFixed(1);
+
+        const row = document.createElement('div');
+        row.className = 'cost-row';
+        row.innerHTML = `
+            <div class="cost-row-top">
+                <div class="cost-row-label">
+                    <span class="cost-row-icon">${meta.icon}</span>
+                    <span class="cost-row-name">${meta.label}</span>
+                </div>
+                <div class="cost-row-vals">
+                    <div class="crv">
+                        <span class="crv-amount muted">$${lo.toLocaleString()}</span>
+                        <span class="crv-lbl">Low</span>
+                    </div>
+                    <div class="crv">
+                        <span class="crv-amount">$${avg.toLocaleString()}</span>
+                        <span class="crv-lbl">Avg</span>
+                    </div>
+                    <div class="crv">
+                        <span class="crv-amount muted">$${hi.toLocaleString()}</span>
+                        <span class="crv-lbl">High</span>
+                    </div>
+                </div>
+            </div>
+            <div class="cost-track">
+                <div class="cost-band"  style="left:${bandL}%;width:0%;background:${meta.color}"></div>
+                <div class="cost-avg-dot" style="left:0%;background:${meta.color};color:${meta.color}"
+                     title="Avg $${avg.toLocaleString()}"></div>
+            </div>
         `;
-        grid.appendChild(card);
+        rowsEl.appendChild(row);
+
+        /* Animate after paint */
         requestAnimationFrame(() => requestAnimationFrame(() => {
-            card.querySelector('.bi-fill').style.width = pct + '%';
+            row.querySelector('.cost-band').style.width = bandW + '%';
+            row.querySelector('.cost-avg-dot').style.left = dotL + '%';
         }));
     });
+
+    /* ── Insights ── */
+    const insights = cb.insights || [];
+    if (insights.length) {
+        const ciList = document.getElementById('ci-list');
+        ciList.innerHTML = insights.map(t => `<li>${t}</li>`).join('');
+        document.getElementById('cost-insights').style.display = 'block';
+    }
+
+    document.getElementById('cost-section').classList.add('show');
+}
+
+/* ── Render Solana verification section ──────────────────────── */
+function renderSolanaSection(txLink) {
+    const section = document.getElementById('solana-section');
+    const btn     = document.getElementById('solana-explorer-btn');
+    const status  = document.getElementById('solana-status');
+    const hash    = document.getElementById('solana-tx-hash');
+
+    if (txLink) {
+        /* Extract the tx signature from the URL for display */
+        const sig = txLink.split('/tx/')[1]?.split('?')[0] || '';
+        btn.href = txLink;
+        status.className = 'solana-status success';
+        status.textContent = 'Confirmed';
+        hash.textContent = sig ? `Tx: ${sig.slice(0, 20)}…${sig.slice(-8)}` : '';
+    } else {
+        /* Solana write failed or not available — show pending state */
+        btn.href = 'https://explorer.solana.com/?cluster=devnet';
+        status.className = 'solana-status pending';
+        status.textContent = 'Pending / Unavailable';
+        hash.textContent = 'Score computed — chain write unavailable (wallet needs SOL)';
+    }
+
+    section.classList.add('show');
+}
+
+/* ── Scroll helpers ──────────────────────────────────────────── */
+function scrollToCost(e) {
+    e.preventDefault();
+    document.getElementById('cost-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /* ── Dark map style ──────────────────────────────────────────── */
 const DARK_MAP_STYLE = [
-    { elementType: 'geometry',      stylers: [{ color: '#0d1f38' }] },
+    { elementType: 'geometry',           stylers: [{ color: '#0d1f38' }] },
     { elementType: 'labels.text.fill',   stylers: [{ color: '#8ba3c4' }] },
     { elementType: 'labels.text.stroke', stylers: [{ color: '#07111e' }] },
     { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#93c5fd' }] },
-    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-    { featureType: 'road', elementType: 'geometry',        stylers: [{ color: '#1e3a5f' }] },
-    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#0a1a2e' }] },
-    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#2a5080' }] },
-    { featureType: 'transit', stylers: [{ visibility: 'simplified' }] },
-    { featureType: 'water', elementType: 'geometry',        stylers: [{ color: '#051422' }] },
-    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#3a6090' }] },
+    { featureType: 'poi',           stylers: [{ visibility: 'off' }] },
+    { featureType: 'road',          elementType: 'geometry',        stylers: [{ color: '#1e3a5f' }] },
+    { featureType: 'road',          elementType: 'geometry.stroke', stylers: [{ color: '#0a1a2e' }] },
+    { featureType: 'road.highway',  elementType: 'geometry',        stylers: [{ color: '#2a5080' }] },
+    { featureType: 'transit',       stylers: [{ visibility: 'simplified' }] },
+    { featureType: 'water',         elementType: 'geometry',        stylers: [{ color: '#051422' }] },
+    { featureType: 'water',         elementType: 'labels.text.fill', stylers: [{ color: '#3a6090' }] },
 ];
-
-/* ── Keyframe injection ──────────────────────────────────────── */
-(function () {
-    const s = document.createElement('style');
-    s.textContent = '@keyframes pulseCost { 0%{opacity:0;transform:scale(0.88)} 60%{opacity:1;transform:scale(1.04)} 100%{transform:scale(1)} }';
-    document.head.appendChild(s);
-})();
