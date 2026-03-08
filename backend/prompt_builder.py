@@ -1,3 +1,4 @@
+import json
 from typing import Dict, Any
 
 
@@ -34,7 +35,7 @@ You must NOT:
 - invent housing options
 - invent neighborhood facts
 - invent amenities
-- use outside knowledge
+- use outside knowledge except for the explicit fallback estimation rule below
 - ignore missing data
 - produce text outside the required JSON
 
@@ -103,6 +104,62 @@ If both noise and pollution are provided separately, combine them into the "nois
 If both grocery cost and grocery access are provided, combine them into the "groceries_food_cost" factor reasonably.
 
 ════════════════════
+RENT ESTIMATION FALLBACK
+════════════════════
+
+Rent must be handled conservatively.
+
+1. If a housing option contains an explicit rent value in the structured data, use that explicit value.
+
+2. If a housing option does NOT contain an explicit rent value, you may estimate rent conservatively using structural evidence from the provided data.
+
+3. This estimated rent is a fallback only.
+It is NOT a real observed rent value.
+Do NOT present it as ground truth.
+
+4. Allowed monthly rent estimate range:
+- minimum: 500
+- maximum: 2500
+
+5. You may use only structured evidence that appears in the provided data, such as:
+- ruralness
+- remoteness
+- urban density
+- busyness
+- number of roads
+- road density
+- traffic level
+- development intensity
+- amenity density
+- transit availability
+- downtown proximity
+- population density
+
+6. Heuristic direction:
+- more rural / remote / sparse / fewer roads / quieter / less developed => lower estimated rent
+- more urban / denser / busier / more roads / more developed / more connected / more amenities / stronger transit => higher estimated rent
+
+7. Do NOT use lakes, parks, water, scenery, or nature alone as a reason to increase rent.
+
+8. Do NOT assume luxury, prestige, or waterfront premium unless the structured data explicitly supports it.
+
+9. If structural evidence is weak, use a cautious middle-to-low estimate instead of an aggressive guess.
+
+10. Estimated rent must always remain between 500 and 2500.
+
+11. Use this rough guidance for more consistent estimates:
+- very rural, very sparse roads, very quiet, very low development => 500 to 900
+- somewhat rural or outer suburban, limited roads, lower activity => 900 to 1300
+- mixed suburban, moderate roads, moderate activity => 1300 to 1800
+- urban, denser roads, busy, developed, stronger transit => 1800 to 2200
+- very urban, very dense, very busy, highly connected => 2200 to 2500
+
+12. If estimated rent is used:
+- mention in missing_data_notes that rent was estimated from structural signals
+- mention in scoring_notes that rent was structurally estimated rather than directly observed
+- reduce confidence
+
+════════════════════
 6 CORE FACTORS
 ════════════════════
 
@@ -156,6 +213,7 @@ Guidelines:
 - if logged out, suitability_score may closely track livability_score
 - if data is incomplete, reduce confidence
 - scores must be consistent with provided values and tradeoffs
+- if rent is estimated rather than observed, reduce confidence accordingly
 
 ════════════════════
 TRADEOFF INSTRUCTIONS
@@ -176,8 +234,9 @@ UNCERTAINTY INSTRUCTIONS
 ════════════════════
 
 If some factor values are missing:
-- do not guess
-- mention the missing factor in missing_data_notes
+- do not guess exact values unless a fallback estimation rule explicitly allows it
+- for rent, you may use the structural rent estimation fallback rule above
+- mention the missing or estimated factor in missing_data_notes
 - lower confidence
 - continue ranking based on available data if possible
 
@@ -229,6 +288,11 @@ Return ONLY valid JSON in this exact structure:
     "scoring_notes": string
   }}
 }}
+
+Additional output behavior:
+- If rent was estimated rather than observed, make that clear in the explanation.
+- Use phrases such as "estimated from structural area signals" or "fallback estimate based on ruralness, roads, and busyness".
+- Do not claim the rent was directly observed if it was estimated.
 
 Return JSON only.
 No markdown.
