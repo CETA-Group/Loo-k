@@ -33,7 +33,7 @@ You must:
 
 You must NOT:
 - invent housing options
-- invent neighborhood facts
+- invent neighbourhood facts
 - invent amenities
 - use outside knowledge except for the explicit fallback estimation rule below
 - ignore missing data
