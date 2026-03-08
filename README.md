@@ -27,14 +27,14 @@ By aggregating complex geospatial data, we ensure every location is evaluated wi
 ---
 
 ## The Team: CETA-Group
-A collaborative engineering group focused on transforming complex geospatial data into accessible, data-driven tools for everyday decision-making.
+A collaborative engineering group working on geospatial data processing and interactive web applications.
 
 | Member | Focus & Expertise | Connectivity |
 | :--- | :--- | :--- |
-| <img src="https://github.com/mu142857.png" width="80px;"/><br>**Aaron Shangguan** | **Front End Architect**<br>Designed and implemented the main web portal and interactive map interface using HTML, CSS, and JavaScript. Focused on creating a clean user experience and integrating geospatial visualization components into the platform. | [LinkedIn](https://www.linkedin.com/in/jiamu-shangguan-464092399/) · [GitHub](https://github.com/mu142857) |
-| <img src="https://github.com/tonyZh-7075.png" width="80px;"/><br>**Tony** | **Full Stack Engineer**<br>Developed the authentication workflow using Auth0 and implemented the user information panel. Built the system that collects user preferences and connects them with the platform’s analysis outputs. | [LinkedIn](https://www.linkedin.com/in/tonyzh-uwcs/) · [GitHub](https://github.com/tonyZh-7075) |
-| <img src="https://github.com/ethancyyiu.png" width="80px;"/><br>**Ethan** | **Back End Engineer**<br>Implemented the Python-based processing logic responsible for handling data analysis and integrating user inputs with the underlying evaluation framework. | [LinkedIn](https://www.linkedin.com/in/ethan-yiu-74668b315/) · [GitHub](https://github.com/ethancyyiu) |
-| <img src="https://github.com/catherinezhao0704-beep.png" width="80px;"/><br>**Catherine** | **Data & Pitch Specialist**<br>Supported dataset organization and contributed to shaping the project narrative, helping translate technical functionality into a clear and compelling presentation of the platform’s purpose. | [GitHub](https://github.com/catherinezhao0704-beep) |
+| <img src="https://github.com/mu142857.png" width="80px;"/><br>**Aaron Shangguan** | **Front End Architect**<br>Developed the main web portal and map interface using HTML, CSS, and JavaScript. Implemented the layout of the frontend site and integrated the geospatial visualization components used to display neighborhood data. | [LinkedIn](https://www.linkedin.com/in/jiamu-shangguan-464092399/) · [GitHub](https://github.com/mu142857) |
+| <img src="https://github.com/tonyZh-7075.png" width="80px;"/><br>**Tony** | **Full Stack Engineer**<br>Implemented the authentication system using Auth0 and built the user information panel for collecting user preferences. Developed the interface for submitting user criteria and connected the input system to the analysis pipeline. Integrated external services including Google Maps for location-based routing and destination analysis. | [LinkedIn](https://www.linkedin.com/in/tonyzh-uwcs/) · [GitHub](https://github.com/tonyZh-7075) |
+| <img src="https://github.com/ethancyyiu.png" width="80px;"/><br>**Ethan** | **Back End Engineer**<br>Implemented the Python-based backend logic responsible for processing geographic and user input data. Developed the data analysis workflow used to evaluate neighborhoods based on commute and livability metrics. Integrated data storage and retrieval using blackboard.io and handled the data processing pipeline used by the platform. | [LinkedIn](https://www.linkedin.com/in/ethan-yiu-74668b315/) · [GitHub](https://github.com/ethancyyiu) |
+| <img src="https://github.com/catherinezhao0704-beep.png" width="80px;"/><br>**Catherine** | **Data & Presentation**<br>Collected and organized datasets used by the platform and contributed to preparing the project presentation and documentation. | [GitHub](https://github.com/catherinezhao0704-beep) |
 
 ---
 
