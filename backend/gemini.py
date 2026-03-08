@@ -1,13 +1,12 @@
 import asyncio
+import os
+from dotenv import load_dotenv
 from google import genai
 
-# Replace with teammate's API key (billing-enabled project required for gemini-2.0-flash)
-client = genai.Client(api_key="AIzaSyByIwaf-bNdPl-6kaS2snvzI9Be7NUo7F4")
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
-API_KEY = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
-genai.configure(api_key=API_KEY)
-client = genai.Client()
 
 async def generate_recommendation(prompt: str) -> str:
     def _call():
