@@ -284,7 +284,7 @@
 
     <!-- Header -->
     <header id="header">
-        <h1><a href="/Portal%20website/index.html">Loo-k</a></h1>
+        <h1><a href="/main/index.html">Loo-k</a></h1>
         <nav id="nav">
             <ul>
                 <!-- Polished account badge with dropdown -->
@@ -299,7 +299,7 @@
                             <div class="dd-user-name"  id="dd-user-name">—</div>
                             <div class="dd-user-email" id="dd-user-email">—</div>
                         </div>
-                        <a class="dd-item" href="/Portal%20website/Auth0/onboarding.html?edit=true">
+                        <a class="dd-item" href="/main/Auth0/onboarding.html?edit=true">
                             <span class="dd-icon">✏️</span> Edit Profile
                         </a>
                         <div class="dd-sep"></div>
@@ -316,8 +316,8 @@
                     <a href="#menu" class="menuToggle"><span>Menu</span></a>
                     <div id="menu">
                         <ul>
-                            <li><a href="/Portal%20website/index.html">Home</a></li>
-                            <li><a href="/Portal%20website/Auth0/onboarding.html?edit=true">Edit Profile</a></li>
+                            <li><a href="/main/index.html">Home</a></li>
+                            <li><a href="/main/Auth0/onboarding.html?edit=true">Edit Profile</a></li>
                             <li><a href="#" id="menu-switch">Switch Account</a></li>
                             <li><a href="#" id="menu-signout">Sign Out</a></li>
                         </ul>
@@ -330,9 +330,9 @@
     <!-- Banner -->
     <section id="banner">
         <div class="banner-slideshow">
-            <div class="banner-slide" style="background-image:url('../Portal%20website/images/banner.jpg')"></div>
-            <div class="banner-slide" style="background-image:url('../Portal%20website/images/banner2.jpg')"></div>
-            <div class="banner-slide" style="background-image:url('../Portal%20website/images/banner3.jpg')"></div>
+            <div class="banner-slide" style="background-image:url('../main/images/banner.jpg')"></div>
+            <div class="banner-slide" style="background-image:url('../main/images/banner2.jpg')"></div>
+            <div class="banner-slide" style="background-image:url('../main/images/banner3.jpg')"></div>
         </div>
         <div class="inner">
             <h2 id="welcome-heading">Welcome back.</h2>
@@ -374,7 +374,7 @@
                 <div class="profile-card-header">
                     <span class="profile-card-title">📋 Your Saved Profile</span>
                     <div class="profile-actions">
-                        <a href="/Portal%20website/Auth0/onboarding.html?edit=true" class="btn-sm edit">✏️ Edit Profile</a>
+                        <a href="/main/Auth0/onboarding.html?edit=true" class="btn-sm edit">✏️ Edit Profile</a>
                         <button class="btn-sm clear" id="clear-profile-btn">🗑 Clear Profile</button>
                     </div>
                 </div>
@@ -419,8 +419,8 @@
     const AUTH0_DOMAIN    = 'dev-s6ofaf4udt2w1nw1.us.auth0.com';
     const AUTH0_CLIENT_ID = 'aMvSv7X3MtUa1zF0TgF31E5jg5cRnxbx';
     const REDIRECT_URI    = window.location.href.split('?')[0].split('#')[0];
-    const PAGE_LOGIN      = '/Portal%20website/index.html';
-    const PAGE_ONBOARDING = '/Portal%20website/Auth0/onboarding.html';
+    const PAGE_LOGIN      = '/main/index.html';
+    const PAGE_ONBOARDING = '/main/Auth0/onboarding.html';
 
     const FIELD_LABELS = {
         displayName:    'Name',
@@ -513,7 +513,7 @@
             renderProfile(profile);
         } else {
             document.getElementById('profile-fields').innerHTML =
-                '<p class="no-profile-msg">No profile yet. <a href="/Portal%20website/Auth0/onboarding.html" style="color:#60a5fa;">Complete setup →</a></p>';
+                '<p class="no-profile-msg">No profile yet. <a href="/main/Auth0/onboarding.html" style="color:#60a5fa;">Complete setup →</a></p>';
         }
 
         // Show "Profile updated" toast if redirected after edit

@@ -221,7 +221,7 @@
 <body>
 
 <nav class="top-nav">
-    <a href="/Portal%20website/index.html" class="nav-brand">Loo-k</a>
+    <a href="/main/index.html" class="nav-brand">Loo-k</a>
     <div class="nav-user" id="nav-user">
         <img id="user-avatar" src="" alt="" />
         <span id="user-email-nav"></span>
@@ -461,7 +461,7 @@
             </div>
             <h2 id="success-heading">Preferences saved!</h2>
             <p id="success-sub">Your profile has been saved. Loo-k will now personalise livability scores for every neighbourhood you explore.</p>
-            <button class="btn-dashboard" onclick="window.location.href='/Portal%20website/Auth0/dashboard.html'">
+            <button class="btn-dashboard" onclick="window.location.href='/main/Auth0/dashboard.html'">
                 Go to Dashboard →
             </button>
         </div>
@@ -475,8 +475,8 @@
     const AUTH0_DOMAIN    = 'dev-s6ofaf4udt2w1nw1.us.auth0.com';
     const AUTH0_CLIENT_ID = 'aMvSv7X3MtUa1zF0TgF31E5jg5cRnxbx';
     const REDIRECT_URI    = window.location.href.split('?')[0].split('#')[0];
-    const PAGE_LOGIN      = '/Portal%20website/index.html';
-    const PAGE_DASHBOARD  = '/Portal%20website/Auth0/dashboard.html';
+    const PAGE_LOGIN      = '/main/index.html';
+    const PAGE_DASHBOARD  = '/main/Auth0/dashboard.html';
 
     // Detect edit mode (?edit=true in URL)
     const IS_EDIT_MODE = new URLSearchParams(window.location.search).has('edit');

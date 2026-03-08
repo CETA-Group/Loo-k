@@ -23,7 +23,7 @@
  *  3. Add ALL of the following to Allowed Callback URLs, Allowed Logout URLs,
  *     and Allowed Web Origins:
  *
- *       http://localhost:8080/Portal%20website/index.html  ← local dev callback
+ *       http://localhost:8080/main/index.html  ← local dev callback
  *       http://localhost:8080                              ← web origin
  *
  *  If Allowed Callback URLs is missing, Auth0 will never open — it silently
@@ -39,9 +39,9 @@ const LookAuth = (() => {
     const AUTH0_AUDIENCE  = 'https://look/api';
     // ──────────────────────────────────────────────────────────────────────────
 
-    const PAGE_LANDING    = '/Portal%20website/index.html';
-    const PAGE_ONBOARDING = '/Portal%20website/Auth0/onboarding.html';
-    const PAGE_DASHBOARD  = '/Portal%20website/Auth0/dashboard.html';
+    const PAGE_LANDING    = '/main/index.html';
+    const PAGE_ONBOARDING = '/main/Auth0/onboarding.html';
+    const PAGE_DASHBOARD  = '/main/Auth0/dashboard.html';
 
     const REDIRECT_URI  = window.location.href.split('?')[0].split('#')[0];
     const IS_CONFIGURED = AUTH0_DOMAIN !== 'YOUR_AUTH0_DOMAIN' && AUTH0_CLIENT_ID !== 'YOUR_CLIENT_ID';
