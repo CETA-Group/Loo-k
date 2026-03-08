@@ -27,6 +27,7 @@
         body {
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 18px; /* added */;
             -webkit-font-smoothing: antialiased;
             background: var(--bg);
             color: var(--text);
@@ -54,8 +55,8 @@
             backdrop-filter: blur(18px);
             border-bottom: 1px solid rgba(255,255,255,0.07);
         }
-        .nav-brand { font-size: 0.82rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; text-decoration: none; }
-        .nav-back  { font-size: 0.8rem; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+        .nav-brand { font-size: 1rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; text-decoration: none; }
+        .nav-back  { font-size: 0.95rem; color: var(--muted); text-decoration: none; transition: color 0.15s; }
         .nav-back:hover { color: var(--accent); }
 
         /* ── Hero ── */
@@ -64,18 +65,18 @@
             padding: 3rem 1.5rem 2rem;
         }
         .hero-eyebrow {
-            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.13em;
+            font-size: 0.82rem; font-weight: 700; letter-spacing: 0.13em;
             text-transform: uppercase; color: var(--accent); opacity: 0.8;
             margin-bottom: 0.75rem;
         }
         .hero h1 {
-            font-size: clamp(1.7rem, 4vw, 2.5rem);
+            font-size: clamp(2.2rem, 4vw, 3.2rem);
             font-weight: 800; letter-spacing: -0.03em; line-height: 1.15;
             margin-bottom: 0.6rem;
         }
         .hero p {
-            font-size: 0.88rem; color: var(--muted); line-height: 1.7;
-            max-width: 480px; margin: 0 auto 1.8rem;
+            font-size: 1.05rem; color: var(--muted); line-height: 1.7;
+            max-width: 620px; margin: 0 auto 1.8rem;
         }
 
         /* ── Search box ── */
@@ -83,15 +84,15 @@
             position: relative; max-width: 580px; margin: 0 auto;
         }
         .search-icon {
-            position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%);
+            position: absolute; left: 1.15rem; top: 50%; transform: translateY(-50%);
             color: var(--muted); pointer-events: none; font-size: 1rem;
         }
         #address-input {
-            width: 100%; padding: 1rem 1.2rem 1rem 3rem;
+            width: 100%; padding: 1.1rem 1.2rem 1.1rem 3.2rem;
             background: rgba(255,255,255,0.07);
             border: 1px solid rgba(255,255,255,0.16);
             border-radius: 14px; color: #fff;
-            font-size: 0.95rem; font-family: inherit;
+            font-size: 1.05rem; font-family: inherit;
             outline: none; transition: all 0.2s;
             box-shadow: 0 4px 24px rgba(0,0,0,0.3);
         }
@@ -181,9 +182,9 @@
             transition: opacity 0.3s;
         }
         .idle-panel.hidden { display: none; }
-        .idle-panel .idle-icon { font-size: 2.8rem; opacity: 0.35; }
-        .idle-panel h3 { font-size: 0.9rem; color: rgba(255,255,255,0.6); font-weight: 500; }
-        .idle-panel p  { font-size: 0.78rem; color: var(--muted); line-height: 1.6; max-width: 220px; }
+        .idle-panel .idle-icon { font-size: 3.4rem; opacity: 0.35; }
+        .idle-panel h3 { font-size: 1.15rem; color: rgba(255,255,255,0.75); font-weight: 600; }
+        .idle-panel p  { font-size: 0.95rem; color: var(--muted); line-height: 1.6; max-width: 300px; }
 
         /* Results panel (shown after address) */
         .results-panel {
@@ -203,9 +204,9 @@
         /* Selected address pill */
         .addr-pill {
             display: flex; align-items: center; gap: 0.5rem;
-            font-size: 0.78rem; color: var(--muted);
-            padding: 0.65rem 1rem;
-        }
+            font-size: 0.95rem; /* was 0.78rem */
+            padding: 0.85rem 1rem; /* was 0.65rem 1rem */
+    }
         .addr-pill strong { color: rgba(255,255,255,0.8); font-weight: 500; }
 
         /* Radar */
@@ -213,18 +214,18 @@
             padding: 1.5rem 1.5rem 0.5rem;
             display: flex; flex-direction: column; align-items: center;
         }
-        .radar-card canvas { max-width: 240px; max-height: 240px; }
+        .radar-card canvas { max-width: 300px; max-height: 300px; }
 
         /* True monthly cost */
         .cost-block {
             text-align: center; padding: 0.5rem 1rem 1.5rem;
         }
         .cost-label {
-            font-size: 0.62rem; font-weight: 700; letter-spacing: 0.13em;
+            font-size: 0.78rem; font-weight: 700; letter-spacing: 0.13em;
             text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem;
         }
         .cost-number {
-            font-size: clamp(2.2rem, 4vw, 3.2rem);
+            font-size: clamp(2.8rem, 5vw, 4rem);
             font-weight: 800; letter-spacing: -0.04em;
             background: linear-gradient(135deg, #fff 30%, #93c5fd);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -240,13 +241,13 @@
         }
         .breakdown-section.show { display: block; }
         .breakdown-header {
-            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
-            text-transform: uppercase; color: rgba(255,255,255,0.3);
+            font-size: 0.82rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: rgba(255,255,255,0.54);
             margin-bottom: 0.85rem;
         }
         .breakdown-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 0.75rem;
         }
         .breakdown-item {
@@ -256,9 +257,9 @@
             transition: border-color 0.2s, transform 0.2s;
         }
         .breakdown-item:hover { border-color: rgba(96,165,250,0.28); transform: translateY(-2px); }
-        .bi-icon  { font-size: 1.25rem; margin-bottom: 0.4rem; display: block; }
-        .bi-label { font-size: 0.68rem; color: var(--muted); font-weight: 500; margin-bottom: 0.15rem; }
-        .bi-value { font-size: 1.05rem; font-weight: 700; color: #fff; }
+        .bi-icon  { font-size: 1.5rem; margin-bottom: 0.4rem; display: block; }
+        .bi-label { font-size: 0.82rem; color: var(--muted); font-weight: 500; margin-bottom: 0.15rem; }
+        .bi-value { font-size: 1.2rem; font-weight: 700; color: #fff; }
         .bi-bar   { height: 3px; background: rgba(255,255,255,0.07); border-radius: 999px; margin-top: 0.5rem; overflow: hidden; }
         .bi-fill  { height: 100%; border-radius: 999px; transition: width 0.85s cubic-bezier(0.4,0,0.2,1); }
         .rent-fill         { background: #60a5fa; }
@@ -270,8 +271,8 @@
 
         /* ── Footnote ── */
         .footnote {
-            text-align: center; font-size: 0.68rem;
-            color: rgba(255,255,255,0.15); padding-bottom: 3rem;
+            text-align: center; font-size: 0.8rem;
+            color: rgba(255,255,255,0.22); padding-bottom: 3rem;
         }
     </style>
 </head>
@@ -390,15 +391,15 @@
         margin-bottom: 1.2rem;
     }
     .ai-icon { font-size: 1.4rem; }
-    .ai-header h2 { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .ai-header h2 { font-size: 1.5rem; font-weight: 700; color: var(--text); }
     .ai-badge {
         background: rgba(96,165,250,0.15);
         border: 1px solid rgba(96,165,250,0.3);
         color: #60a5fa;
-        font-size: 0.7rem;
+        font-size: 0.8rem;
         font-weight: 700;
         letter-spacing: .06em;
-        padding: 2px 8px;
+        padding: 4px 10px;
         border-radius: 99px;
         text-transform: uppercase;
     }
@@ -408,7 +409,7 @@
         align-items: center;
         gap: 1rem;
         color: var(--muted);
-        font-size: 0.9rem;
+        font-size: 1rem;
         padding: 1.5rem;
         background: var(--card);
         border: 1px solid var(--card-border);
@@ -430,7 +431,7 @@
         border-radius: 14px;
         padding: 1rem 1.25rem;
         color: #fca5a5;
-        font-size: 0.88rem;
+        font-size: 1rem;
     }
 
     .ai-raw {
@@ -440,8 +441,8 @@
         padding: 1.5rem;
         color: var(--text);
         font-family: inherit;
-        font-size: 0.88rem;
-        line-height: 1.7;
+        font-size: 1rem;
+        line-height: 1.8;
     }
     .ai-demo-note {
         background: rgba(250,204,21,0.08);
