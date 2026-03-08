@@ -280,12 +280,19 @@ Return exactly this JSON (fill in all values, no zeros unless genuinely zero):
         ai_analysis = None
         ai_error = str(exc)
         
+        
     # Extract livability score if AI succeeded
     solana_link = None
+    score = None
+
     if ai_analysis and "summary" in ai_analysis:
         score = ai_analysis["summary"].get("livability_score")
     if score is not None:
-        solana_link = write_score_to_solana(request.address, score)
+        try:
+            solana_link = write_score_to_solana(request.address, score)
+        except Exception as exc:
+            solana_link = None
+            print("Solana write failed:", exc)
 
 
     return {
