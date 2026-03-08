@@ -235,38 +235,30 @@ async def api_cost_analysis(request: CostAnalysisRequest):
     """
     costs = _mock_costs(request.lat, request.lng)
 
-    map_data = {
-        "address": request.address,
-        "coordinates": {"lat": request.lat, "lng": request.lng},
-        "candidates": [{
-            "id": "target_location",
-            "label": request.address,
-            "lat": request.lat,
-            "lng": request.lng,
-            "monthly_rent": costs["rent"],
-            "commute_cost_monthly": costs["commute"],
-            "grocery_cost_monthly": costs["groceries"],
-            "utilities_monthly": costs["utilities"],
-            "entertainment_monthly": costs["entertainment"],
-            "transport_monthly": costs["transport"],
-            "estimated_total_monthly": costs["total"],
-            # Rough proxy scores for the 6 Gemini factors
-            "healthcare_access_score": 7,
-            "parks_recreation_score": 6,
-            "noise_pollution_score": 6,
-        }]
-    }
+    prompt = f"""You are a housing cost analyst. Given this monthly cost breakdown for {request.address}, return ONLY a JSON object with your analysis. No markdown, no prose, just JSON.
 
-    prompt = build_prompt(
-        user_preferences=request.user_preferences,
-        user_history={},
-        map_data=map_data,
-        is_logged_in=bool(request.user_preferences),
-    )
+Cost breakdown:
+- Rent: ${costs['rent']}
+- Commute: ${costs['commute']}
+- Groceries: ${costs['groceries']}
+- Utilities: ${costs['utilities']}
+- Entertainment: ${costs['entertainment']}
+- Transport: ${costs['transport']}
+- Total: ${costs['total']}/month
+
+Return this exact JSON structure:
+{{"summary":{{"best_option_id":"target_location","best_option_label":"{request.address}","livability_score":0,"suitability_score":0,"confidence":0,"why_this_wins":""}},"ranked_options":[{{"option_id":"target_location","option_label":"{request.address}","rank":1,"livability_score":0,"suitability_score":0,"factor_scores":{{"rent_cost":0,"commute":0,"healthcare_access":0,"parks_recreation":0,"noise_pollution":0,"groceries_food_cost":0}},"strengths":[],"weaknesses":[],"tradeoffs":"","matched_preferences":[],"history_signals_used":[],"reason":""}}],"explainability":{{"used_logged_in_personalization":false,"preferences_used":[],"history_used":[],"hard_constraints_applied":[],"soft_preferences_applied":[],"missing_data_notes":[],"scoring_notes":""}}}}
+
+Fill in all scores (0-100 for livability/suitability, 0-10 for factor_scores) and text fields based on the cost data."""
 
     try:
         raw = await generate_recommendation(prompt)
-        ai_analysis = json.loads(raw)
+        # Strip markdown code fences if present
+        raw = raw.strip()
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[1]
+            raw = raw.rsplit("```", 1)[0]
+        ai_analysis = json.loads(raw.strip())
         ai_error = None
     except json.JSONDecodeError:
         ai_analysis = None
