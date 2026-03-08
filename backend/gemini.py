@@ -1,15 +1,13 @@
-import google.generativeai as genai
-import json
+import asyncio
+from google import genai
 
-genai.configure(
-    api_key="AIzaSyByIwaf-bNdPl-6kaS2snvzI9Be7NUo7F4"
-)
-
-model = genai.GenerativeModel("gemini-1.5-flash")
+# Replace with teammate's API key (billing-enabled project required for gemini-2.0-flash)
+client = genai.Client(api_key="AIzaSyAd-AVRF5CrDYjPiJpOV0CNUMNdhEEO9gI")
 
 async def generate_recommendation(prompt: str) -> str:
-    """
-    Generate a recommendation using Gemini AI
-    """
-    response = model.generate_content(prompt)
-    return response.text
+    def _call():
+        return client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+        ).text
+    return await asyncio.to_thread(_call)

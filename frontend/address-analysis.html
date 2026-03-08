@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TruRent — Cost Analysis</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Google Maps + Places -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkdw1isp4RCRU4r2NhDWiryE26LzRIgzQ&libraries=places&callback=initMap" async defer></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:          #07111e;
+            --card:        rgba(255,255,255,0.045);
+            --card-border: rgba(255,255,255,0.09);
+            --accent:      #60a5fa;
+            --text:        #e8f0ff;
+            --muted:       rgba(232,240,255,0.45);
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background: var(--bg);
+            color: var(--text);
+        }
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: -1;
+            background: linear-gradient(130deg, #07111e 0%, #0d1f38 35%, #091a30 65%, #0c2040 100%);
+            background-size: 300% 300%;
+            animation: gradShift 18s ease infinite;
+        }
+        @keyframes gradShift {
+            0%  { background-position: 0%  30%; }
+            50% { background-position: 100% 70%; }
+            100%{ background-position: 0%  30%; }
+        }
+
+        /* ── Nav ── */
+        nav {
+            position: sticky; top: 0; z-index: 200;
+            height: 54px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2rem;
+            background: rgba(7,17,30,0.85);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .nav-brand { font-size: 0.82rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; text-decoration: none; }
+        .nav-back  { font-size: 0.8rem; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+        .nav-back:hover { color: var(--accent); }
+
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 3rem 1.5rem 2rem;
+        }
+        .hero-eyebrow {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.13em;
+            text-transform: uppercase; color: var(--accent); opacity: 0.8;
+            margin-bottom: 0.75rem;
+        }
+        .hero h1 {
+            font-size: clamp(1.7rem, 4vw, 2.5rem);
+            font-weight: 800; letter-spacing: -0.03em; line-height: 1.15;
+            margin-bottom: 0.6rem;
+        }
+        .hero p {
+            font-size: 0.88rem; color: var(--muted); line-height: 1.7;
+            max-width: 480px; margin: 0 auto 1.8rem;
+        }
+
+        /* ── Search box ── */
+        .search-wrap {
+            position: relative; max-width: 580px; margin: 0 auto;
+        }
+        .search-icon {
+            position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%);
+            color: var(--muted); pointer-events: none; font-size: 1rem;
+        }
+        #address-input {
+            width: 100%; padding: 1rem 1.2rem 1rem 3rem;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 14px; color: #fff;
+            font-size: 0.95rem; font-family: inherit;
+            outline: none; transition: all 0.2s;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+        }
+        #address-input:focus {
+            border-color: rgba(96,165,250,0.6);
+            box-shadow: 0 0 0 3px rgba(96,165,250,0.1), 0 4px 24px rgba(0,0,0,0.35);
+            background: rgba(255,255,255,0.09);
+        }
+        #address-input::placeholder { color: rgba(255,255,255,0.25); }
+
+        /* Google autocomplete dropdown dark theme */
+        .pac-container {
+            background: #0f1e32 !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 12px !important;
+            margin-top: 6px !important;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.6) !important;
+            font-family: inherit !important;
+            overflow: hidden;
+        }
+        .pac-item { color: rgba(232,240,255,0.65) !important; border-top: 1px solid rgba(255,255,255,0.05) !important; padding: 0.55rem 1rem !important; cursor: pointer; }
+        .pac-item:hover, .pac-item-selected { background: rgba(96,165,250,0.1) !important; }
+        .pac-item-query { color: #fff !important; font-size: 0.9rem !important; }
+        .pac-matched { color: var(--accent) !important; }
+        .pac-icon { display: none !important; }
+
+        /* ── Main layout: always-visible map + right panel ── */
+        .main-layout {
+            max-width: 1120px; margin: 0 auto 4rem;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            align-items: start;
+        }
+        @media (max-width: 740px) {
+            .main-layout { grid-template-columns: 1fr; }
+        }
+
+        /* ── Map card ── */
+        .map-card {
+            position: relative; border-radius: 18px; overflow: hidden;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            height: 460px;
+        }
+        #map { width: 100%; height: 100%; }
+        .map-loading {
+            position: absolute; inset: 0; z-index: 10;
+            background: rgba(7,17,30,0.75); backdrop-filter: blur(6px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 1rem; transition: opacity 0.4s;
+        }
+        .map-loading.hide { opacity: 0; pointer-events: none; }
+        .map-error {
+            position: absolute; inset: 0; z-index: 20;
+            background: rgba(7,17,30,0.9);
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            gap: 0.75rem; padding: 2rem; text-align: center;
+        }
+        .map-error.show { display: flex; }
+        .map-error .err-icon { font-size: 2.5rem; opacity: 0.6; }
+        .map-error h4 { font-size: 0.9rem; color: #f87171; }
+        .map-error p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+        .map-error code { background: rgba(255,255,255,0.07); padding: 0.2em 0.5em; border-radius: 4px; font-size: 0.8rem; color: #93c5fd; }
+        .spinner {
+            width: 34px; height: 34px;
+            border: 3px solid rgba(255,255,255,0.08); border-top-color: var(--accent);
+            border-radius: 50%; animation: spin 0.7s linear infinite;
+        }
+        .map-loading p { font-size: 0.78rem; color: var(--muted); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Right panel ── */
+        .right-panel {
+            display: flex; flex-direction: column; gap: 1rem;
+            min-height: 460px;
+        }
+
+        /* Idle state (before address) */
+        .idle-panel {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 1rem; padding: 2.5rem;
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 18px; text-align: center;
+            transition: opacity 0.3s;
+        }
+        .idle-panel.hidden { display: none; }
+        .idle-panel .idle-icon { font-size: 2.8rem; opacity: 0.35; }
+        .idle-panel h3 { font-size: 0.9rem; color: rgba(255,255,255,0.6); font-weight: 500; }
+        .idle-panel p  { font-size: 0.78rem; color: var(--muted); line-height: 1.6; max-width: 220px; }
+
+        /* Results panel (shown after address) */
+        .results-panel {
+            display: none; flex-direction: column; gap: 1rem;
+            animation: fadeUp 0.4s ease;
+        }
+        .results-panel.show { display: flex; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+        .glass-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            backdrop-filter: blur(20px);
+        }
+
+        /* Selected address pill */
+        .addr-pill {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.78rem; color: var(--muted);
+            padding: 0.65rem 1rem;
+        }
+        .addr-pill strong { color: rgba(255,255,255,0.8); font-weight: 500; }
+
+        /* Radar */
+        .radar-card {
+            padding: 1.5rem 1.5rem 0.5rem;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .radar-card canvas { max-width: 240px; max-height: 240px; }
+
+        /* True monthly cost */
+        .cost-block {
+            text-align: center; padding: 0.5rem 1rem 1.5rem;
+        }
+        .cost-label {
+            font-size: 0.62rem; font-weight: 700; letter-spacing: 0.13em;
+            text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem;
+        }
+        .cost-number {
+            font-size: clamp(2.2rem, 4vw, 3.2rem);
+            font-weight: 800; letter-spacing: -0.04em;
+            background: linear-gradient(135deg, #fff 30%, #93c5fd);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; line-height: 1;
+        }
+        .cost-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; }
+
+        /* ── Breakdown section (below the two columns) ── */
+        .breakdown-section {
+            max-width: 1120px; margin: 0 auto 1.5rem;
+            padding: 0 1.5rem;
+            display: none; animation: fadeUp 0.4s ease;
+        }
+        .breakdown-section.show { display: block; }
+        .breakdown-header {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: rgba(255,255,255,0.3);
+            margin-bottom: 0.85rem;
+        }
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+            gap: 0.75rem;
+        }
+        .breakdown-item {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 14px; padding: 1rem 1.1rem;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .breakdown-item:hover { border-color: rgba(96,165,250,0.28); transform: translateY(-2px); }
+        .bi-icon  { font-size: 1.25rem; margin-bottom: 0.4rem; display: block; }
+        .bi-label { font-size: 0.68rem; color: var(--muted); font-weight: 500; margin-bottom: 0.15rem; }
+        .bi-value { font-size: 1.05rem; font-weight: 700; color: #fff; }
+        .bi-bar   { height: 3px; background: rgba(255,255,255,0.07); border-radius: 999px; margin-top: 0.5rem; overflow: hidden; }
+        .bi-fill  { height: 100%; border-radius: 999px; transition: width 0.85s cubic-bezier(0.4,0,0.2,1); }
+        .rent-fill         { background: #60a5fa; }
+        .commute-fill      { background: #f59e0b; }
+        .groceries-fill    { background: #4ade80; }
+        .utilities-fill    { background: #a78bfa; }
+        .entertainment-fill{ background: #fb7185; }
+        .transport-fill    { background: #34d399; }
+
+        /* ── Footnote ── */
+        .footnote {
+            text-align: center; font-size: 0.68rem;
+            color: rgba(255,255,255,0.15); padding-bottom: 3rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+    <a href="/Portal%20website/index.html" class="nav-brand">TruRent</a>
+    <a href="/Portal%20website/Auth0/dashboard.html" class="nav-back">← Dashboard</a>
+</nav>
+
+<!-- Hero + Search -->
+<div class="hero">
+    <p class="hero-eyebrow">✦ Cost Analysis</p>
+    <h1>What does it really cost<br>to live here?</h1>
+    <p>Enter an address to calculate the true monthly cost of living — rent, commute, groceries, and lifestyle.</p>
+    <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input id="address-input" type="text" placeholder="Search any address in Waterloo-Kitchener…" autocomplete="off" />
+    </div>
+</div>
+
+<!-- Main: Map (always visible) + Right Panel -->
+<div class="main-layout">
+
+    <!-- Left: Map -->
+    <div class="map-card">
+        <div id="map"></div>
+        <div class="map-loading" id="map-loading">
+            <div class="spinner"></div>
+            <p>Loading map…</p>
+        </div>
+        <!-- Shown if Maps API key doesn't have required APIs enabled -->
+        <div class="map-error" id="map-error">
+            <span class="err-icon">🗺️</span>
+            <h4>Map failed to load</h4>
+            <p>The Google Maps API key needs <strong>Maps JavaScript API</strong> and <strong>Places API</strong> enabled in Google Cloud Console.<br><br>
+            Go to <a href="https://console.cloud.google.com/apis/library" target="_blank" style="color:#60a5fa;">console.cloud.google.com</a> → Enable both APIs for key <code>AIzaSy…sidM</code>.</p>
+        </div>
+    </div>
+
+    <!-- Right: Idle placeholder → Results -->
+    <div class="right-panel">
+
+        <!-- Idle state -->
+        <div class="idle-panel" id="idle-panel">
+            <span class="idle-icon">📍</span>
+            <h3>No address selected yet</h3>
+            <p>Search above or click directly on the map to drop a pin and see the full cost breakdown.</p>
+        </div>
+
+        <!-- Results (shown after address picked) -->
+        <div class="results-panel" id="results-panel">
+            <div class="glass-card addr-pill">
+                📍 <strong id="selected-addr-text">—</strong>
+            </div>
+            <div class="glass-card radar-card">
+                <canvas id="radar-chart"></canvas>
+                <div class="cost-block">
+                    <p class="cost-label">True Monthly Cost</p>
+                    <p class="cost-number" id="cost-number">$—</p>
+                    <p class="cost-sub">estimated / month</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Breakdown (shown after address picked) -->
+<div class="breakdown-section" id="breakdown-section">
+    <p class="breakdown-header">💰 Cost Breakdown</p>
+    <div class="breakdown-grid" id="breakdown-grid"></div>
+</div>
+
+<p class="footnote">Cost estimates are illustrative — real data pipeline coming soon.</p>
+
+<!-- AI Analysis section (shown after address is selected) -->
+<div class="ai-section" id="ai-section">
+    <div class="ai-header">
+        <span class="ai-icon">🤖</span>
+        <h2>AI Analysis</h2>
+        <span class="ai-badge">Gemini</span>
+    </div>
+
+    <!-- Loading state -->
+    <div class="ai-loading" id="ai-loading">
+        <div class="ai-spinner"></div>
+        <p>Asking Gemini to evaluate this location…</p>
+    </div>
+
+    <!-- Error state -->
+    <div class="ai-error-box" id="ai-error-box" style="display:none">
+        <strong>⚠️ AI Error:</strong>
+        <span id="ai-error-text"></span>
+        <p style="margin-top:6px;font-size:0.8rem;opacity:.6">Is the backend running? <code>uvicorn backend.main:app --reload</code></p>
+    </div>
+
+    <!-- Raw JSON output (quick display, formatting not a priority) -->
+    <pre class="ai-raw" id="ai-raw" style="display:none"></pre>
+</div>
+
+<style>
+    .ai-section {
+        display: none;
+        max-width: 1100px;
+        margin: 2rem auto 1rem;
+        padding: 0 1.5rem 2rem;
+    }
+    .ai-section.show { display: block; }
+
+    .ai-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 1.2rem;
+    }
+    .ai-icon { font-size: 1.4rem; }
+    .ai-header h2 { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .ai-badge {
+        background: rgba(96,165,250,0.15);
+        border: 1px solid rgba(96,165,250,0.3);
+        color: #60a5fa;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: .06em;
+        padding: 2px 8px;
+        border-radius: 99px;
+        text-transform: uppercase;
+    }
+
+    .ai-loading {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        padding: 1.5rem;
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+    }
+    .ai-spinner {
+        width: 22px; height: 22px;
+        border: 3px solid rgba(255,255,255,0.1);
+        border-top-color: #60a5fa;
+        border-radius: 50%;
+        animation: spin .8s linear infinite;
+        flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .ai-error-box {
+        background: rgba(239,68,68,0.08);
+        border: 1px solid rgba(239,68,68,0.25);
+        border-radius: 14px;
+        padding: 1rem 1.25rem;
+        color: #fca5a5;
+        font-size: 0.88rem;
+    }
+
+    .ai-raw {
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        padding: 1.5rem;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.88rem;
+        line-height: 1.7;
+    }
+    .ai-demo-note {
+        background: rgba(250,204,21,0.08);
+        border: 1px solid rgba(250,204,21,0.2);
+        border-radius: 8px;
+        color: #fde68a;
+        font-size: 0.78rem;
+        padding: 0.5rem 0.9rem;
+        margin-bottom: 1.2rem;
+    }
+    .ai-scores-row { display: flex; gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .ai-score-card {
+        flex: 1; min-width: 90px;
+        background: rgba(96,165,250,0.08);
+        border: 1px solid rgba(96,165,250,0.2);
+        border-radius: 12px;
+        padding: 0.9rem;
+        text-align: center;
+    }
+    .ai-score-val { font-size: 1.8rem; font-weight: 800; color: #60a5fa; line-height: 1; }
+    .ai-score-lbl { font-size: 0.72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .06em; }
+    .ai-summary-text { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.2rem; line-height: 1.6; }
+    .ai-factors { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.2rem; }
+    .ai-factor-row { display: flex; align-items: center; gap: 0.75rem; }
+    .ai-factor-name { width: 160px; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; }
+    .ai-factor-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+    .ai-factor-bar { height: 100%; border-radius: 99px; transition: width .8s ease; }
+    .ai-factor-score { width: 36px; text-align: right; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; }
+    .ai-sw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .ai-sw-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.82rem; color: var(--muted); }
+    .ai-tradeoffs { font-size: 0.83rem; color: var(--muted); margin-bottom: 0.6rem; }
+    .ai-notes { font-size: 0.75rem; color: rgba(232,240,255,0.3); margin-top: 0.5rem; }</style>
+
+<!-- JS -->
+<script src="js/address-analysis.js"></script>
+
+</body>
+</html>
