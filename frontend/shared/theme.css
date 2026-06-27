@@ -1,0 +1,63 @@
+/* ============================================================
+   Loo-K shared theme tokens
+   Default = "Loo-K" soft-green / beige design language.
+   data-theme="dark" on <html> = legacy dark/navy style.
+   ============================================================ */
+
+:root {
+  /* ── Loo-K green (default) ── */
+  --bg:          #f8f8f6;                               /* page background (beige)   */
+  --bg-grad:     linear-gradient(135deg, #f8f8f6 0%, #eef1ec 50%, #f3f4f0 100%);
+  --card:        #eef1ec;                               /* card / placeholder fill   */
+  --card-2:      #f3f4f0;
+  --bdr:         #dfe5df;                               /* card stroke               */
+  --text:        #3d553d;                               /* body text (deep green)    */
+  --muted:       #a7afa7;                               /* secondary / placeholder   */
+  --accent:      #557755;                               /* primary (soft green)      */
+  --accent-2:    #6d8f6d;                               /* secondary accent          */
+  --accent-soft: rgba(85, 119, 85, 0.10);
+  --brand:       #557755;                               /* logo / brand text         */
+  --on-accent:   #f8f8f6;                               /* text on accent fills      */
+  --shadow:      0 6px 24px rgba(61, 85, 61, 0.08);
+
+  /* flippable ink: foreground text/lines as rgb triplet (use rgba(var(--ink),A)) */
+  --ink:         61, 85, 61;                            /* deep green */
+  --panel:       238, 241, 236;                         /* light surface for overlays */
+  --strong:      #2b3f2b;                               /* near-solid emphasised text */
+
+  /* legacy aliases used by existing pages */
+  --a: var(--accent);
+  --b: var(--accent-2);
+  --card-border: var(--bdr);
+}
+
+html[data-theme="dark"] {
+  /* ── Legacy dark / navy ── */
+  --bg:          #07111e;
+  --bg-grad:     linear-gradient(135deg, #07111e 0%, #0d1f38 45%, #0a1530 100%);
+  --card:        rgba(255, 255, 255, 0.045);
+  --card-2:      rgba(255, 255, 255, 0.06);
+  --bdr:         rgba(255, 255, 255, 0.09);
+  --text:        #e8f0ff;
+  --muted:       rgba(232, 240, 255, 0.45);
+  --accent:      #60a5fa;
+  --accent-2:    #c084fc;
+  --accent-soft: rgba(96, 165, 250, 0.12);
+  --brand:       #ffffff;
+  --on-accent:   #07111e;
+  --shadow:      0 6px 24px rgba(0, 0, 0, 0.4);
+
+  --ink:         255, 255, 255;
+  --panel:       7, 17, 30;
+  --strong:      #ffffff;
+
+  --a: var(--accent);
+  --b: var(--accent-2);
+  --card-border: var(--bdr);
+}
+
+/* smooth transition when switching themes */
+html.theme-ready body,
+html.theme-ready body * {
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}

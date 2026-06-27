@@ -5,8 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="icon" type="image/png" href="../../icon.png" />
+    <script src="../../shared/theme.js"></script>
     <link rel="stylesheet" href="../main/assets/css/main.css" />
     <noscript><link rel="stylesheet" href="../main/assets/css/noscript.css" /></noscript>
+    <link rel="stylesheet" href="../../shared/theme.css" />
+    <link rel="stylesheet" href="../assets/css/theme-overrides.css" />
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <style>
         #banner input {
@@ -14,21 +17,21 @@
             max-width: 100%;
             padding: 0.8em;
             margin-bottom: 1em;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(var(--ink),0.2);
             border-radius: 6px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(var(--ink),0.05);
             color: #fff;
             font-size: 1em;
             box-sizing: border-box;
         }
         #banner input::placeholder {
-            color: rgba(255,255,255,0.4);
+            color: rgba(var(--ink),0.4);
         }
         #banner label {
             display: block;
             margin-bottom: 0.4em;
             font-weight: bold;
-            color: rgba(255,255,255,0.8);
+            color: rgba(var(--ink),0.8);
         }
         .user-info {
             display: flex;
@@ -44,7 +47,7 @@
             padding: 0.8em;
             border-radius: 6px;
             margin-bottom: 1em;
-            background: rgba(255,255,255,0.1);
+            background: rgba(var(--ink),0.1);
             text-align: center;
         }
         .error-msg {

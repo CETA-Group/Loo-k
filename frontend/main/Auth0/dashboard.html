@@ -5,6 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="icon" type="image/png" href="../../icon.png" />
+    <script src="../../shared/theme.js"></script>
+    <link rel="stylesheet" href="../../shared/theme.css" />
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <script src="auth.js"></script>
     <script src="profile.js"></script>
@@ -16,8 +18,8 @@
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #0d1117;
-            color: #e6edf3;
+            background: var(--bg);
+            color: var(--text);
             line-height: 1.6;
             min-height: 100vh;
         }
@@ -44,10 +46,10 @@
             top: 0; left: 0; right: 0;
             height: 56px;
             z-index: 1000;
-            background: rgba(13, 17, 23, 0.88);
+            background: rgba(var(--panel), 0.88);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255,255,255,0.07);
+            border-bottom: 1px solid rgba(var(--ink),0.07);
         }
 
         .navbar-inner {
@@ -65,7 +67,7 @@
             font-weight: 800;
             letter-spacing: 0.25em;
             text-transform: uppercase;
-            color: #fff;
+            color: var(--text);
         }
 
         .navbar-right {
@@ -80,8 +82,8 @@
             align-items: center;
             gap: 0.45rem;
             padding: 0.28rem 0.65rem 0.28rem 0.28rem;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.11);
+            background: rgba(var(--ink),0.07);
+            border: 1px solid rgba(var(--ink),0.11);
             border-radius: 999px;
             cursor: pointer;
             user-select: none;
@@ -90,8 +92,8 @@
         }
 
         .profile-chip:hover {
-            background: rgba(255,255,255,0.11);
-            border-color: rgba(255,255,255,0.2);
+            background: rgba(var(--ink),0.11);
+            border-color: rgba(var(--ink),0.2);
         }
 
         .profile-avatar {
@@ -99,7 +101,7 @@
             border-radius: 50%;
             background: linear-gradient(135deg, #3b82f6, #7c3aed);
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.6rem; font-weight: 700; color: #fff;
+            font-size: 0.6rem; font-weight: 700; color: var(--text);
             flex-shrink: 0; overflow: hidden;
         }
 
@@ -110,7 +112,7 @@
         .profile-chip-name {
             font-size: 0.8rem;
             font-weight: 600;
-            color: rgba(255,255,255,0.82);
+            color: rgba(var(--ink),0.82);
             max-width: 90px;
             white-space: nowrap;
             overflow: hidden;
@@ -119,7 +121,7 @@
 
         .profile-chip-chevron {
             font-size: 0.5rem;
-            color: rgba(255,255,255,0.3);
+            color: rgba(var(--ink),0.3);
             transition: transform 0.2s;
             margin-left: 1px;
         }
@@ -132,8 +134,8 @@
             top: calc(100% + 8px);
             right: 0;
             min-width: 200px;
-            background: #131e32;
-            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--card-2);
+            border: 1px solid rgba(var(--ink),0.1);
             border-radius: 14px;
             padding: 0.4rem;
             box-shadow: 0 24px 64px rgba(0,0,0,0.55);
@@ -151,28 +153,28 @@
 
         .dd-user-info {
             padding: 0.5rem 0.6rem 0.55rem;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
+            border-bottom: 1px solid rgba(var(--ink),0.07);
             margin-bottom: 0.3rem;
         }
 
-        .dd-user-name  { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.88); margin-bottom: 0.12rem; }
-        .dd-user-email { font-size: 0.7rem; color: rgba(255,255,255,0.32); }
+        .dd-user-name  { font-size: 0.82rem; font-weight: 600; color: rgba(var(--ink),0.88); margin-bottom: 0.12rem; }
+        .dd-user-email { font-size: 0.7rem; color: rgba(var(--ink),0.32); }
 
         .dd-item {
             display: flex; align-items: center; gap: 0.5rem;
             padding: 0.52rem 0.6rem;
             border-radius: 9px;
             font-size: 0.8rem;
-            color: rgba(255,255,255,0.62);
+            color: rgba(var(--ink),0.62);
             cursor: pointer;
             transition: background 0.12s, color 0.12s;
         }
 
-        .dd-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .dd-item:hover { background: rgba(var(--ink),0.07); color: var(--text); }
         .dd-item .dd-icon { font-size: 0.85rem; width: 16px; text-align: center; flex-shrink: 0; }
         .dd-item.danger { color: rgba(248,113,113,0.72); }
         .dd-item.danger:hover { background: rgba(248,113,113,0.07); color: #f87171; }
-        .dd-sep { height: 1px; background: rgba(255,255,255,0.06); margin: 0.25rem 0; }
+        .dd-sep { height: 1px; background: rgba(var(--ink),0.06); margin: 0.25rem 0; }
 
         /* Menu button */
         .menu-btn {
@@ -181,21 +183,21 @@
             gap: 0.4rem;
             padding: 0.4rem 0.7rem;
             background: transparent;
-            border: 1px solid rgba(255,255,255,0.11);
+            border: 1px solid rgba(var(--ink),0.11);
             border-radius: 8px;
             cursor: pointer;
             font-size: 0.78rem;
             font-weight: 600;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.5);
+            color: rgba(var(--ink),0.5);
             transition: all 0.15s;
         }
 
         .menu-btn:hover {
-            border-color: rgba(255,255,255,0.22);
-            color: rgba(255,255,255,0.8);
-            background: rgba(255,255,255,0.05);
+            border-color: rgba(var(--ink),0.22);
+            color: rgba(var(--ink),0.8);
+            background: rgba(var(--ink),0.05);
         }
 
         .menu-btn .hamburger {
@@ -212,8 +214,8 @@
             display: none;
             position: fixed;
             top: 56px; left: 0; right: 0;
-            background: #131e32;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: var(--card-2);
+            border-bottom: 1px solid rgba(var(--ink),0.08);
             z-index: 999;
             padding: 0.75rem 2rem 1rem;
         }
@@ -224,13 +226,13 @@
             display: block;
             padding: 0.65rem 0;
             font-size: 0.88rem;
-            color: rgba(255,255,255,0.65);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: rgba(var(--ink),0.65);
+            border-bottom: 1px solid rgba(var(--ink),0.05);
             transition: color 0.12s;
         }
 
         .nav-drawer a:last-child { border-bottom: none; }
-        .nav-drawer a:hover { color: #fff; }
+        .nav-drawer a:hover { color: var(--text); }
 
         .hidden { display: none !important; }
 
@@ -240,8 +242,8 @@
             padding: 5rem 0 4rem;
             background:
                 radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.12) 0%, transparent 60%),
-                linear-gradient(180deg, #0d1117 0%, #111827 100%);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+                linear-gradient(180deg, var(--bg) 0%, var(--card-2) 100%);
+            border-bottom: 1px solid rgba(var(--ink),0.06);
             text-align: center;
         }
 
@@ -250,7 +252,7 @@
             font-weight: 700;
             letter-spacing: 0.22em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.3);
+            color: rgba(var(--ink),0.3);
             margin-bottom: 1.1rem;
         }
 
@@ -258,14 +260,14 @@
             font-size: clamp(2rem, 4vw, 2.75rem);
             font-weight: 800;
             letter-spacing: -0.02em;
-            color: #fff;
+            color: var(--text);
             line-height: 1.15;
             margin-bottom: 1rem;
         }
 
         .hero-sub {
             font-size: 1rem;
-            color: rgba(255,255,255,0.48);
+            color: rgba(var(--ink),0.48);
             max-width: 520px;
             margin: 0 auto 2rem;
             line-height: 1.75;
@@ -275,7 +277,7 @@
         .features-section {
             flex: 1;
             padding: 4rem 0 5rem;
-            background: #0d1117;
+            background: var(--bg);
         }
 
         .section-label {
@@ -283,7 +285,7 @@
             font-weight: 700;
             letter-spacing: 0.2em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.25);
+            color: rgba(var(--ink),0.25);
             margin-bottom: 2.5rem;
             text-align: center;
         }
@@ -296,14 +298,14 @@
             align-items: center;
             padding: 3rem 2.5rem;
             border-radius: 24px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.07);
+            background: rgba(var(--ink),0.03);
+            border: 1px solid rgba(var(--ink),0.07);
             margin-bottom: 1.75rem;
             transition: border-color 0.2s;
         }
 
         .feature-row:hover {
-            border-color: rgba(255,255,255,0.12);
+            border-color: rgba(var(--ink),0.12);
         }
 
         .feature-row.reverse .feature-copy { order: 2; }
@@ -346,17 +348,17 @@
         .status-pill.live::before { background: #4ade80; }
 
         .status-pill.soon {
-            color: rgba(255,255,255,0.38);
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(var(--ink),0.38);
+            background: rgba(var(--ink),0.05);
+            border: 1px solid rgba(var(--ink),0.1);
         }
 
-        .status-pill.soon::before { background: rgba(255,255,255,0.3); }
+        .status-pill.soon::before { background: rgba(var(--ink),0.3); }
 
         .feature-title {
             font-size: 1.45rem;
             font-weight: 800;
-            color: #fff;
+            color: var(--text);
             letter-spacing: -0.02em;
             line-height: 1.2;
             margin-bottom: 0.85rem;
@@ -364,7 +366,7 @@
 
         .feature-desc {
             font-size: 0.93rem;
-            color: rgba(255,255,255,0.5);
+            color: rgba(var(--ink),0.5);
             line-height: 1.8;
             margin-bottom: 1.75rem;
             max-width: 36em;
@@ -393,7 +395,7 @@
 
         .btn-primary {
             background: linear-gradient(135deg, #ef5e4a 0%, #e8391f 100%);
-            color: #fff;
+            color: var(--text);
             box-shadow: 0 8px 24px rgba(232,57,31,0.28);
         }
 
@@ -403,9 +405,9 @@
         }
 
         .btn-disabled {
-            background: rgba(255,255,255,0.05);
-            color: rgba(255,255,255,0.25);
-            border: 1px solid rgba(255,255,255,0.09);
+            background: rgba(var(--ink),0.05);
+            color: rgba(var(--ink),0.25);
+            border: 1px solid rgba(var(--ink),0.09);
             cursor: default;
             pointer-events: none;
         }
@@ -420,9 +422,9 @@
         .visual-panel {
             border-radius: 18px;
             padding: 1.25rem;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+            background: rgba(var(--ink),0.03);
+            border: 1px solid rgba(var(--ink),0.08);
+            box-shadow: inset 0 1px 0 rgba(var(--ink),0.04);
             min-height: 260px;
             display: flex;
             flex-direction: column;
@@ -433,7 +435,7 @@
             font-weight: 700;
             letter-spacing: 0.16em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.28);
+            color: rgba(var(--ink),0.28);
             margin-bottom: 0.55rem;
         }
 
@@ -442,14 +444,14 @@
             font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.7);
+            color: rgba(var(--ink),0.7);
             margin-bottom: 0.85rem;
         }
 
         .visual-screen {
             flex: 1;
             border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.07);
+            border: 1px solid rgba(var(--ink),0.07);
             overflow: hidden;
             position: relative;
             min-height: 160px;
@@ -458,11 +460,11 @@
         /* Map mock */
         .visual-map {
             background:
-                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+                linear-gradient(rgba(var(--ink),0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(var(--ink),0.04) 1px, transparent 1px),
                 radial-gradient(ellipse at 35% 40%, rgba(96,165,250,0.3), transparent 30%),
                 radial-gradient(ellipse at 65% 65%, rgba(124,58,237,0.22), transparent 28%),
-                linear-gradient(180deg, #0f1f35 0%, #0a1525 100%);
+                linear-gradient(180deg, var(--card-2) 0%, var(--bg) 100%);
             background-size: 30px 30px, 30px 30px, auto, auto, auto;
         }
 
@@ -483,7 +485,7 @@
                 radial-gradient(circle at 62% 30%, rgba(239,68,68,0.65), transparent 13%),
                 radial-gradient(circle at 78% 68%, rgba(59,130,246,0.6), transparent 12%),
                 radial-gradient(circle at 55% 72%, rgba(168,85,247,0.5), transparent 11%),
-                linear-gradient(180deg, #0f1f35 0%, #0a1525 100%);
+                linear-gradient(180deg, var(--card-2) 0%, var(--bg) 100%);
         }
 
         /* Comparison mock */
@@ -503,7 +505,7 @@
 
         .visual-compare-half:first-child {
             background: rgba(59,130,246,0.08);
-            border-right: 1px solid rgba(255,255,255,0.07);
+            border-right: 1px solid rgba(var(--ink),0.07);
         }
 
         .visual-compare-half:last-child {
@@ -514,13 +516,13 @@
             font-size: 0.62rem;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.28);
+            color: rgba(var(--ink),0.28);
         }
 
         .vc-score {
             font-size: 1.6rem;
             font-weight: 800;
-            color: rgba(255,255,255,0.55);
+            color: rgba(var(--ink),0.55);
         }
 
         .vc-bars {
@@ -537,29 +539,29 @@
             gap: 6px;
         }
 
-        .vc-bar-lbl { font-size: 0.55rem; color: rgba(255,255,255,0.25); width: 38px; text-align: right; }
+        .vc-bar-lbl { font-size: 0.55rem; color: rgba(var(--ink),0.25); width: 38px; text-align: right; }
 
         .vc-bar-track {
             flex: 1; height: 4px;
-            background: rgba(255,255,255,0.07);
+            background: rgba(var(--ink),0.07);
             border-radius: 2px;
             overflow: hidden;
         }
 
         .vc-bar-fill {
             height: 100%; border-radius: 2px;
-            background: rgba(255,255,255,0.25);
+            background: rgba(var(--ink),0.25);
         }
 
         /* ── Profile card ─────────────────────────────────────────── */
         .profile-section {
             padding: 0 0 5rem;
-            background: #0d1117;
+            background: var(--bg);
         }
 
         .profile-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.07);
+            background: rgba(var(--ink),0.03);
+            border: 1px solid rgba(var(--ink),0.07);
             border-radius: 20px;
             padding: 1.75rem 2rem;
         }
@@ -578,7 +580,7 @@
             font-weight: 700;
             letter-spacing: 0.16em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.3);
+            color: rgba(var(--ink),0.3);
         }
 
         .profile-actions {
@@ -593,9 +595,9 @@
             font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.04);
-            color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(var(--ink),0.12);
+            background: rgba(var(--ink),0.04);
+            color: rgba(var(--ink),0.6);
             font-family: inherit;
             transition: all 0.14s;
             text-decoration: none;
@@ -604,8 +606,8 @@
             gap: 0.3em;
         }
 
-        .btn-sm:hover { background: rgba(255,255,255,0.09); color: #fff; border-color: rgba(255,255,255,0.22); }
-        .btn-sm.edit:hover { border-color: rgba(96,165,250,0.45); color: #60a5fa; background: rgba(96,165,250,0.07); }
+        .btn-sm:hover { background: rgba(var(--ink),0.09); color: var(--text); border-color: rgba(var(--ink),0.22); }
+        .btn-sm.edit:hover { border-color: rgba(96,165,250,0.45); color: var(--accent); background: rgba(96,165,250,0.07); }
         .btn-sm.clear:hover { border-color: rgba(248,113,113,0.45); color: #f87171; background: rgba(248,113,113,0.07); }
 
         .profile-row {
@@ -615,13 +617,13 @@
         }
 
         .profile-item { display: flex; flex-direction: column; gap: 0.18rem; }
-        .profile-item .lbl { font-size: 0.68rem; color: rgba(255,255,255,0.28); letter-spacing: 0.04em; }
-        .profile-item .val { font-size: 0.88rem; color: rgba(255,255,255,0.82); font-weight: 600; }
+        .profile-item .lbl { font-size: 0.68rem; color: rgba(var(--ink),0.28); letter-spacing: 0.04em; }
+        .profile-item .val { font-size: 0.88rem; color: rgba(var(--ink),0.82); font-weight: 600; }
 
         .no-profile-msg {
             text-align: center;
             padding: 1.75rem 1rem;
-            color: rgba(255,255,255,0.35);
+            color: rgba(var(--ink),0.35);
             font-size: 0.84rem;
         }
 
@@ -654,7 +656,7 @@
         .btn-account-switch {
             background: rgba(96,165,250,0.1);
             border: 1px solid rgba(96,165,250,0.3);
-            color: #60a5fa;
+            color: var(--accent);
         }
 
         .btn-account-switch:hover {
@@ -664,9 +666,9 @@
         }
 
         .btn-account-signout {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.5);
+            background: rgba(var(--ink),0.03);
+            border: 1px solid rgba(var(--ink),0.1);
+            color: rgba(var(--ink),0.5);
         }
 
         .btn-account-signout:hover {
@@ -678,15 +680,15 @@
         /* ── Footer ───────────────────────────────────────────────── */
         .site-footer {
             padding: 2rem;
-            border-top: 1px solid rgba(255,255,255,0.06);
-            background: #0d1117;
+            border-top: 1px solid rgba(var(--ink),0.06);
+            background: var(--bg);
             text-align: center;
         }
 
         .site-footer p {
             font-size: 0.72rem;
             letter-spacing: 0.14em;
-            color: rgba(255,255,255,0.22);
+            color: rgba(var(--ink),0.22);
             text-transform: uppercase;
         }
 
@@ -700,7 +702,7 @@
             border-radius: 12px;
             padding: 0.7rem 1.35rem;
             font-size: 0.84rem;
-            color: #60a5fa;
+            color: var(--accent);
             z-index: 9999;
             transition: transform 0.32s cubic-bezier(0.34,1.56,0.64,1), opacity 0.28s;
             opacity: 0;
@@ -1023,7 +1025,7 @@
             renderProfile(profile);
         } else {
             document.getElementById('profile-fields').innerHTML =
-                '<p class="no-profile-msg">No profile yet. <a href="/frontend/main/Auth0/onboarding.html" style="color:#60a5fa;">Complete setup →</a></p>';
+                '<p class="no-profile-msg">No profile yet. <a href="/frontend/main/Auth0/onboarding.html" style="color:var(--accent);">Complete setup →</a></p>';
         }
 
         if (new URLSearchParams(window.location.search).has('updated')) {

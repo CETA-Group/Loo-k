@@ -37,8 +37,9 @@ function initMap() {
         zoom: 13,
         disableDefaultUI: true,
         zoomControl: true,
-        styles: DARK_MAP_STYLE,
+        styles: lookMapStyle(),
     });
+    window.addEventListener('lookthemechange', function () { if (map) map.setOptions({ styles: lookMapStyle() }); });
 
     /* Hide spinner immediately once the API is ready — don't wait for tiles */
     document.getElementById('map-loading').classList.add('hide');
@@ -299,9 +300,9 @@ function renderRadarFromLivability(liv) {
                 r: {
                     min: 0, max: 10,
                     ticks: { display: false, stepSize: 2 },
-                    grid:        { color: 'rgba(255,255,255,0.07)' },
-                    angleLines:  { color: 'rgba(255,255,255,0.07)' },
-                    pointLabels: { color: 'rgba(232,240,255,0.55)', font: { size: 11, weight: '600' } },
+                    grid:        { color: 'rgba(85,119,85,0.13)' },
+                    angleLines:  { color: 'rgba(85,119,85,0.13)' },
+                    pointLabels: { color: '#557755', font: { size: 11, weight: '600' } },
                 },
             },
             animation: { duration: 700, easing: 'easeInOutQuart' },
@@ -335,9 +336,9 @@ function renderRadarPlaceholder() {
                 r: {
                     min: 0, max: 10,
                     ticks: { display: false },
-                    grid:        { color: 'rgba(255,255,255,0.05)' },
-                    angleLines:  { color: 'rgba(255,255,255,0.05)' },
-                    pointLabels: { color: 'rgba(232,240,255,0.3)', font: { size: 11 } },
+                    grid:        { color: 'rgba(85,119,85,0.09)' },
+                    angleLines:  { color: 'rgba(85,119,85,0.09)' },
+                    pointLabels: { color: '#6d8f6d', font: { size: 11 } },
                 },
             },
             animation: { duration: 0 },
@@ -468,6 +469,21 @@ function scrollToCost(e) {
 }
 
 /* ── Dark map style ──────────────────────────────────────────── */
+const LIGHT_MAP_STYLE = [
+    { elementType: 'geometry',           stylers: [{ color: '#f3f4f0' }] },
+    { elementType: 'labels.text.fill',   stylers: [{ color: '#6d8f6d' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#f8f8f6' }] },
+    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#557755' }] },
+    { featureType: 'poi',           stylers: [{ visibility: 'off' }] },
+    { featureType: 'poi.park',      elementType: 'geometry',        stylers: [{ color: '#e3ebe1' }] },
+    { featureType: 'road',          elementType: 'geometry',        stylers: [{ color: '#ffffff' }] },
+    { featureType: 'road',          elementType: 'geometry.stroke', stylers: [{ color: '#e6eae3' }] },
+    { featureType: 'road.highway',  elementType: 'geometry',        stylers: [{ color: '#eef1ec' }] },
+    { featureType: 'transit',       stylers: [{ visibility: 'simplified' }] },
+    { featureType: 'water',         elementType: 'geometry',        stylers: [{ color: '#dde6e6' }] },
+    { featureType: 'water',         elementType: 'labels.text.fill', stylers: [{ color: '#9bb0b0' }] },
+];
+function lookMapStyle() { return (window.LookTheme && window.LookTheme.get() === 'dark') ? DARK_MAP_STYLE : LIGHT_MAP_STYLE; }
 const DARK_MAP_STYLE = [
     { elementType: 'geometry',           stylers: [{ color: '#0d1f38' }] },
     { elementType: 'labels.text.fill',   stylers: [{ color: '#8ba3c4' }] },

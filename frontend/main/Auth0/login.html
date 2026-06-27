@@ -5,8 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="icon" type="image/png" href="../../icon.png" />
+    <script src="../../shared/theme.js"></script>
     <link rel="stylesheet" href="../main/assets/css/main.css" />
     <noscript><link rel="stylesheet" href="../main/assets/css/noscript.css" /></noscript>
+    <link rel="stylesheet" href="../../shared/theme.css" />
+    <link rel="stylesheet" href="../assets/css/theme-overrides.css" />
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <style>
         /* ── Dedicated auth page — no scrolling sections below ── */
@@ -29,7 +32,7 @@
             max-width: 480px;
             padding: 2.8em 2.6em;
             background: rgba(0,0,0,0.52);
-            border: 1px solid rgba(255,255,255,0.14);
+            border: 1px solid rgba(var(--ink),0.14);
             border-radius: 16px;
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
@@ -42,7 +45,7 @@
             font-weight: 700;
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.45);
+            color: rgba(var(--ink),0.45);
             margin-bottom: 1.6em;
         }
 
@@ -53,7 +56,7 @@
         }
 
         .auth-panel .tagline {
-            color: rgba(255,255,255,0.5);
+            color: rgba(var(--ink),0.5);
             font-size: 0.88em;
             line-height: 1.6;
             margin-bottom: 2.2em;
@@ -73,7 +76,7 @@
             align-items: center;
             gap: 0.8em;
             margin-bottom: 1.8em;
-            color: rgba(255,255,255,0.25);
+            color: rgba(var(--ink),0.25);
             font-size: 0.75em;
             letter-spacing: 0.06em;
             text-transform: uppercase;
@@ -82,40 +85,40 @@
         .auth-divider::after {
             content: '';
             flex: 1;
-            border-top: 1px solid rgba(255,255,255,0.14);
+            border-top: 1px solid rgba(var(--ink),0.14);
         }
 
         /* ── Trust line ── */
         .trust-line {
             font-size: 0.7em;
-            color: rgba(255,255,255,0.22);
+            color: rgba(var(--ink),0.22);
             letter-spacing: 0.04em;
             margin-top: 0.5em;
         }
-        .trust-line strong { color: rgba(255,255,255,0.38); }
+        .trust-line strong { color: rgba(var(--ink),0.38); }
 
         /* ── Logged-in state ── */
         .user-pill {
             display: flex;
             align-items: center;
             gap: 0.9em;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(var(--ink),0.08);
+            border: 1px solid rgba(var(--ink),0.14);
             border-radius: 999px;
             padding: 0.55em 1em 0.55em 0.55em;
             margin-bottom: 1.4em;
             text-align: left;
         }
-        .user-pill img { border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); }
+        .user-pill img { border-radius: 50%; border: 2px solid rgba(var(--ink),0.3); }
         .user-pill strong { color: #fff; display: block; font-size: 0.9em; }
-        .user-pill span   { color: rgba(255,255,255,0.45); font-size: 0.78em; }
-        #redirect-note { color: rgba(255,255,255,0.5); font-size: 0.85em; margin-bottom: 1.4em; }
+        .user-pill span   { color: rgba(var(--ink),0.45); font-size: 0.78em; }
+        #redirect-note { color: rgba(var(--ink),0.5); font-size: 0.85em; margin-bottom: 1.4em; }
 
         /* ── Spinner ── */
         .spinner {
             display: inline-block; width: 14px; height: 14px;
-            border: 2px solid rgba(255,255,255,0.15);
-            border-top-color: rgba(255,255,255,0.8);
+            border: 2px solid rgba(var(--ink),0.15);
+            border-top-color: rgba(var(--ink),0.8);
             border-radius: 50%;
             animation: spin 0.65s linear infinite;
             vertical-align: middle; margin-right: 6px;
