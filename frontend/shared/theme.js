@@ -6,13 +6,19 @@
    ============================================================ */
 (function () {
   var KEY = "lookTheme";
+  var THEMES = ["light", "dark", "pride"]; // "light" = default Loo-K green
   var root = document.documentElement;
 
+  function normalize(theme) {
+    return THEMES.indexOf(theme) >= 0 ? theme : "light";
+  }
+
   function apply(theme) {
-    if (theme === "dark") {
-      root.setAttribute("data-theme", "dark");
-    } else {
+    theme = normalize(theme);
+    if (theme === "light") {
       root.removeAttribute("data-theme"); // default = green
+    } else {
+      root.setAttribute("data-theme", theme);
     }
   }
 
@@ -27,7 +33,7 @@
       try { return localStorage.getItem(KEY) || "light"; } catch (e) { return "light"; }
     },
     set: function (theme) {
-      theme = theme === "dark" ? "dark" : "light";
+      theme = normalize(theme);
       try { localStorage.setItem(KEY, theme); } catch (e) {}
       apply(theme);
       window.dispatchEvent(new CustomEvent("lookthemechange", { detail: theme }));

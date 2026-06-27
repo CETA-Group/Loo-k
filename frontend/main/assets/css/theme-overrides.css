@@ -148,3 +148,56 @@ html:not([data-theme="dark"]) .sb-btn-switch:hover {
     color: var(--accent) !important;
     background: var(--accent-soft) !important;
 }
+
+/* ============================================================
+   Pride theme flourishes — full-spectrum rainbow accents.
+   These layer on top of the (non-dark) green skin above.
+   ============================================================ */
+
+/* Rainbow logo in header + session bar brand */
+html[data-theme="pride"] #header h1 a {
+    background: var(--rainbow);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+/* Thin rainbow rule under the header */
+html[data-theme="pride"] #header {
+    border-bottom: 3px solid transparent;
+    border-image: var(--rainbow) 1;
+}
+
+/* CTA strip → rainbow band, white text */
+html[data-theme="pride"] #cta,
+html[data-theme="pride"] .wrapper.style4 {
+    background: var(--rainbow);
+    color: #fff;
+}
+html[data-theme="pride"] #cta .button.primary {
+    background-color: #fff !important;
+    color: #2a2233 !important;
+}
+
+/* style1 feature band → rainbow */
+html[data-theme="pride"] .wrapper.style1 { background: var(--rainbow); }
+
+/* Footer → rainbow band */
+html[data-theme="pride"] #footer {
+    background: var(--rainbow) !important;
+    color: #fff;
+}
+
+/* Slide-out menu → keep a rainbow top accent */
+html[data-theme="pride"] #menu {
+    background: #2a2233;
+    border-left: 4px solid transparent;
+    border-image: var(--rainbow) 1;
+}
+
+/* Feature icons cycle through the flag colors */
+html[data-theme="pride"] .features li:nth-child(1):before { color: #e40303 !important; }
+html[data-theme="pride"] .features li:nth-child(2):before { color: #ff8c00 !important; }
+html[data-theme="pride"] .features li:nth-child(3):before { color: #008026 !important; }
+html[data-theme="pride"] .features li:nth-child(4):before { color: #750787 !important; }

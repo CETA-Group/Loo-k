@@ -56,6 +56,42 @@ html[data-theme="dark"] {
   --card-border: var(--bdr);
 }
 
+html[data-theme="pride"] {
+  /* ── Pride: clean light base, rainbow accents ── */
+  --bg:          #fdfcff;
+  --bg-grad:     linear-gradient(135deg,
+                   rgba(228,3,3,0.05)   0%,
+                   rgba(255,140,0,0.05) 20%,
+                   rgba(255,237,0,0.06) 40%,
+                   rgba(0,128,38,0.05)  60%,
+                   rgba(0,77,255,0.05)  80%,
+                   rgba(117,7,135,0.06) 100%);
+  --card:        #f6f2fb;
+  --card-2:      #fbf7fd;
+  --bdr:         #e7dcf0;
+  --text:        #2a2233;                               /* dark plum */
+  --muted:       #9a8aa9;
+  --accent:      #d4145a;                               /* magenta-red */
+  --accent-2:    #5b51e6;                               /* indigo */
+  --accent-soft: rgba(212, 20, 90, 0.10);
+  --brand:       #d4145a;
+  --on-accent:   #ffffff;
+  --shadow:      0 6px 24px rgba(91, 81, 230, 0.12);
+
+  --ink:         42, 34, 51;
+  --panel:       246, 242, 251;
+  --strong:      #1d1726;
+
+  --a: var(--accent);
+  --b: var(--accent-2);
+  --card-border: var(--bdr);
+
+  /* reusable full-spectrum rainbow for flourishes */
+  --rainbow: linear-gradient(90deg,
+               #e40303 0%, #ff8c00 20%, #ffed00 40%,
+               #008026 60%, #004dff 80%, #750787 100%);
+}
+
 /* smooth transition when switching themes */
 html.theme-ready body,
 html.theme-ready body * {
