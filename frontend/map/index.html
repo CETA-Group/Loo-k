@@ -64,7 +64,9 @@
             font-size: 0.7em;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            opacity: 0.4;
+            font-weight: 700;
+            color: var(--accent);
+            opacity: 1;
             margin-bottom: 12px;
         }
 
@@ -176,7 +178,8 @@
 
         .dp-hover-hint {
             font-size: 0.55em;
-            opacity: 0.3;
+            color: var(--text);
+            opacity: 0.6;
             text-align: center;
             padding: 8px 0 2px;
             font-style: italic;
@@ -278,10 +281,12 @@
             font-size: 0.55em;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            opacity: 0.35;
+            font-weight: 700;
+            color: var(--accent);
+            opacity: 1;
             margin: 10px 0 6px;
             padding-top: 8px;
-            border-top: 1px solid rgba(var(--ink), 0.06);
+            border-top: 1px solid rgba(var(--ink), 0.12);
         }
 
         .dp-section-title:first-of-type {
@@ -304,12 +309,13 @@
         }
 
         .data-methodology-panel .dp-stat .dp-label {
-            opacity: 0.5;
+            color: var(--text);
+            opacity: 0.85;
         }
 
         .data-methodology-panel .dp-stat .dp-value {
-            font-weight: 600;
-            color: rgba(var(--ink), 0.85);
+            font-weight: 700;
+            color: var(--strong);
             text-align: right;
         }
 
@@ -323,20 +329,23 @@
             font-size: 0.55em;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            opacity: 0.35;
+            font-weight: 700;
+            color: var(--accent);
+            opacity: 1;
             margin-bottom: 6px;
         }
 
         .methodology-section .src-item {
             font-size: 0.6em;
-            opacity: 0.4;
+            color: var(--text);
+            opacity: 0.75;
             line-height: 1.5;
             margin-bottom: 4px;
         }
 
         .methodology-section .src-item strong {
             opacity: 1;
-            color: rgba(var(--ink), 0.65);
+            color: var(--strong);
         }
 
         /* ---- RESPONSIVE ---- */
@@ -356,35 +365,36 @@
         }
 
         /* ---- CUSTOM POI MARKER ---- */
+        /* Square (sharp-cornered) amenity markers */
         .custom-poi-marker {
-            background: var(--cat-color, #00fff2);
-            border: 2px solid rgba(255, 255, 255, 0.85);
-            border-radius: 50%;
-            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #0d0d12;
             transition: transform 0.12s ease;
         }
 
+        .custom-poi-marker span {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0;
+            /* sharp corners, no rounding */
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+            font-size: 11px;
+            color: #fff;
+        }
+
         .custom-poi-marker:hover {
-            transform: scale(1.25);
+            transform: scale(1.3);
             z-index: 1000;
         }
 
-        /* Landmark markers (universities) — larger, hollow */
-        .landmark-marker {
-            background: rgba(var(--panel), 0.95);
-            border: 2px solid var(--cat-color, #00fff2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            color: var(--cat-color, #00fff2);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        /* Campus crest markers */
+        .landmark-marker img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
         }
 
         /* ---- CATEGORY TOGGLE CHIPS (legend) ---- */
@@ -416,7 +426,7 @@
         .legend .chip .dot {
             width: 14px;
             height: 14px;
-            border-radius: 50%;
+            border-radius: 0;
             flex: 0 0 auto;
             display: flex;
             align-items: center;
@@ -543,21 +553,28 @@
         // Admin-boundary polygons removed — they don't help you choose where to live.
         // =============================================
 
-        // ---- Category definitions (color + Font Awesome icon) ----
+        // ---- Category definitions ----
+        // Colour families grouped by purpose, all matched to theme green #557655
+        // (same L≈40% / S≈30%) so they read as one palette, not a rainbow:
+        //   green  = daily groceries  ·  gold = schools
+        //   blue   = fitness/rec      ·  red  = health
+        const GREEN = '#557655', GOLD = '#857a47', BLUE = '#476685', RED = '#854747';
         const CATS = {
-            supermarket: { label: 'Supermarkets', color: '#4ecb8d', icon: 'fa-cart-shopping' },
-            convenience: { label: 'Convenience', color: '#4bb8ff', icon: 'fa-store' },
-            school: { label: 'Schools', color: '#f2c744', icon: 'fa-graduation-cap' },
-            gym: { label: 'Gyms & Rec', color: '#b57bff', icon: 'fa-dumbbell' },
-            pharmacy: { label: 'Pharmacies', color: '#ff86c2', icon: 'fa-prescription-bottle-medical' },
-            health: { label: 'Hospitals & Clinics', color: '#ff6b6b', icon: 'fa-kit-medical' }
+            supermarket: { label: 'Supermarkets', color: GREEN, icon: 'fa-cart-shopping' },
+            convenience: { label: 'Convenience', color: GREEN, icon: 'fa-store' },
+            school: { label: 'Schools', color: GOLD, icon: 'fa-graduation-cap' },
+            gym: { label: 'Gyms & Rec', color: BLUE, icon: 'fa-dumbbell' },
+            pharmacy: { label: 'Pharmacies', color: RED, icon: 'fa-prescription-bottle-medical' },
+            health: { label: 'Hospitals & Clinics', color: RED, icon: 'fa-kit-medical' }
         };
 
-        // ---- Landmark anchors (campuses) — always shown for orientation ----
+        // ---- Campus anchors — real crest logos + boundary outlines ----
         const LANDMARKS = [
-            { name: 'University of Waterloo', lat: 43.4723, lng: -80.5449, icon: 'fa-graduation-cap' },
-            { name: 'Wilfrid Laurier University', lat: 43.4730, lng: -80.5263, icon: 'fa-graduation-cap' },
-            { name: 'Conestoga College (Doon)', lat: 43.3900, lng: -80.4079, icon: 'fa-graduation-cap' }
+            { name: 'University of Waterloo', lat: 43.4723, lng: -80.5449, img: 'icons/Waterloo.svg' },
+            { name: 'Wilfrid Laurier University', lat: 43.4730, lng: -80.5263, img: 'icons/Laurier.png' },
+            { name: 'Conestoga College — Doon', lat: 43.3900, lng: -80.4079, img: 'icons/Conestoga.png' },
+            { name: 'Conestoga College — Guelph', lat: 43.5381, lng: -80.2942, img: 'icons/Conestoga.png' },
+            { name: 'University of Guelph', lat: 43.5305, lng: -80.2262, img: 'icons/guelph.png' }
         ];
 
         // =============================================
@@ -590,14 +607,12 @@
             return 2 * R * Math.asin(Math.sqrt(s));
         }
 
-        // Build a colored circular marker for a POI
+        // Build a square colour-coded marker for a POI
         function catMarker(pt) {
             const c = CATS[pt.c];
             const icon = L.divIcon({
                 className: 'custom-poi-marker',
-                html: `<span style="--cat-color:${c.color};display:flex;width:100%;height:100%;
-                        border-radius:50%;background:${c.color};align-items:center;justify-content:center;">
-                        <i class="fa-solid ${c.icon}"></i></span>`,
+                html: `<span style="background:${c.color}"><i class="fa-solid ${c.icon}"></i></span>`,
                 iconSize: [22, 22],
                 iconAnchor: [11, 11]
             });
@@ -605,16 +620,40 @@
         }
 
         // =============================================
-        // LANDMARKS
+        // CAMPUS BOUNDARIES + CREST MARKERS
         // =============================================
+        // Clean campus colours — desaturated toward WHITE (not black) so they read
+        // bright and simple against the map, one hue per school.
+        const CAMPUS_COLOR = {
+            'University of Waterloo': '#e07a5f',        // clean orange-red
+            'Wilfrid Laurier University': '#9b7cc4',    // clean purple
+            'Conestoga College — Doon': '#e0b755',      // clean gold
+            'Conestoga College — Guelph': '#e0b755',    // shares Conestoga gold
+            'University of Guelph': '#4fae9b'           // clean teal
+        };
+
+        fetch('../../data/campuses.json')
+            .then(r => r.json())
+            .then(gj => {
+                L.geoJSON(gj, {
+                    // Canvas renderer stays glued to the map while dragging (no lag)
+                    renderer: L.canvas({ padding: 0.5 }),
+                    style: f => {
+                        const c = CAMPUS_COLOR[f.properties.name] || GREEN;
+                        return { color: c, weight: 3, opacity: 1, fillColor: c, fillOpacity: 0.14 };
+                    }
+                }).addTo(map);
+            })
+            .catch(() => {/* boundaries optional */ });
+
         LANDMARKS.forEach(l => {
             const icon = L.divIcon({
                 className: 'landmark-marker',
-                html: `<span style="--cat-color:#00d0c0;"><i class="fa-solid ${l.icon}"></i></span>`,
-                iconSize: [30, 30], iconAnchor: [15, 15]
+                html: `<img src="${l.img}" alt="${l.name}">`,
+                iconSize: [38, 38], iconAnchor: [19, 19]
             });
             L.marker([l.lat, l.lng], { icon, zIndexOffset: 500 }).addTo(map)
-                .bindTooltip(l.name, { direction: 'top', offset: [0, -15], className: 'poi-tooltip' });
+                .bindTooltip(l.name, { direction: 'top', offset: [0, -20], className: 'poi-tooltip' });
         });
 
         // =============================================
@@ -628,11 +667,33 @@
 
         Object.keys(CATS).forEach(cat => { layers[cat] = L.layerGroup(); catState[cat] = true; });
 
+        // Declutter: when zoomed out, only show the important + sparse categories.
+        // Denser categories (convenience, schools) appear as you zoom in.
+        const CAT_MINZOOM = {
+            supermarket: 0,   // always — key daily need
+            health: 0,        // always — sparse & important (58)
+            pharmacy: 13,
+            gym: 13,
+            convenience: 14,  // densest (184) — only up close
+            school: 14        // densest (185) — only up close
+        };
+
+        // Show a category only if the user has it on AND we're zoomed in enough for it
+        function refreshLayers() {
+            const z = map.getZoom();
+            Object.keys(CATS).forEach(cat => {
+                const show = catState[cat] && z >= CAT_MINZOOM[cat];
+                if (show && !map.hasLayer(layers[cat])) layers[cat].addTo(map);
+                else if (!show && map.hasLayer(layers[cat])) map.removeLayer(layers[cat]);
+            });
+        }
+        map.on('zoomend', refreshLayers);
+
         const dpDynamic = document.getElementById('dp-dynamic');
         const defaultDpHTML = '<div class="dp-hover-hint">Click any amenity to see what’s nearby</div>';
         dpDynamic.innerHTML = defaultDpHTML;
 
-        fetch('/data/poi.json')
+        fetch('../../data/poi.json')
             .then(r => r.json())
             .then(data => {
                 allPoints = data.points;
@@ -649,7 +710,7 @@
                     m.addTo(layers[pt.c]);
                 });
 
-                Object.keys(CATS).forEach(cat => layers[cat].addTo(map));
+                refreshLayers();
 
                 buildHeat();
                 buildChips(counts);
@@ -657,22 +718,30 @@
             })
             .catch(err => {
                 dpDynamic.innerHTML = '<div class="dp-hover-hint">Could not load amenity data (' +
-                    err + '). Serve the site from the project root so /data/poi.json is reachable.</div>';
+                    err + '). Open the page through a local web server, not as a file:// path.</div>';
             });
 
         // =============================================
         // HEATMAP  (convenience = density of everyday amenities)
         // =============================================
-        function buildHeat() {
-            // Weight everyday-life amenities higher than schools
+        // Heat only reflects the categories currently switched ON
+        function heatPoints() {
             const weight = { supermarket: 1.0, convenience: 0.7, pharmacy: 0.7, gym: 0.5, health: 0.6, school: 0.4 };
-            const heatPts = allPoints
-                .filter(p => CATS[p.c])
+            return allPoints
+                .filter(p => CATS[p.c] && catState[p.c])
                 .map(p => [p.lat, p.lng, weight[p.c] || 0.5]);
-            heatLayer = L.heatLayer(heatPts, {
-                radius: 26, blur: 20, maxZoom: 15, minOpacity: 0.35,
-                gradient: { 0.35: '#3b6bff', 0.55: '#5bffb0', 0.75: '#ffe66d', 1.0: '#ff6b6b' }
+        }
+
+        function buildHeat() {
+            heatLayer = L.heatLayer(heatPoints(), {
+                radius: 26, blur: 22, maxZoom: 15, minOpacity: 0.25,
+                // clean, light palette: soft green (outer) → soft gold (mid) → clean orange (core)
+                gradient: { 0.45: '#8fce9c', 0.72: '#ecd483', 1.0: '#ec8a5c' }
             });
+        }
+
+        function refreshHeat() {
+            if (heatLayer && heatOn) heatLayer.setLatLngs(heatPoints());
         }
 
         // =============================================
@@ -691,7 +760,8 @@
                 btn.onclick = () => {
                     catState[cat] = !catState[cat];
                     btn.classList.toggle('off', !catState[cat]);
-                    if (catState[cat]) layers[cat].addTo(map); else map.removeLayer(layers[cat]);
+                    refreshLayers();
+                    refreshHeat();
                 };
                 wrap.appendChild(btn);
             });
@@ -700,7 +770,8 @@
             document.getElementById('heat-chip').onclick = () => {
                 heatOn = !heatOn;
                 heatToggle.classList.toggle('on', heatOn);
-                if (heatOn) heatLayer.addTo(map); else map.removeLayer(heatLayer);
+                if (heatOn) { refreshHeat(); heatLayer.addTo(map); }
+                else map.removeLayer(heatLayer);
             };
         }
 
